@@ -1,0 +1,46 @@
+{
+  "name": "codx",
+  "description": "Execute recipes to speed your project setup !",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "codx": "./bin/cli.js"
+  },
+  "scripts": {
+    "build": "bun build src/cli.ts --target=node --format=esm --outdir=./bin --env=disable",
+    "dev": "bun run build --watch",
+    "test": "bun test",
+    "prepare": "husky",
+    "lint": "eslint \"src/**/*.ts\"",
+    "lint:fix": "eslint \"src/**/*.ts\" --fix"
+  },
+  "files": [
+    "bin"
+  ],
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "commander": "^13.1.0",
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.20.0",
+    "@types/bun": "^1.2.2",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.13.4",
+    "@types/tar": "^6.1.13",
+    "@typescript-eslint/eslint-plugin": "^8.24.0",
+    "@typescript-eslint/parser": "^8.24.0",
+    "eslint": "^9.20.1",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.3",
+    "husky": "^9.1.7",
+    "prettier": "^3.5.1",
+    "tar": "^7.4.3",
+    "typescript": "^5.7.3"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js"
+    }
+  }
+}
