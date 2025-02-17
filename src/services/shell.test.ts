@@ -25,8 +25,8 @@ describe('shell function', () => {
   });
 
   it('should correctly handle command with pipes', async () => {
-    const result = await shell('echo "test" | wc -c');
+    const { stdout } = await shell('echo "test" | wc -c');
 
-    expect(result.stdout.toString().trim()).toBe('5');
+    expect(stdout.toString().trim()).toBe('5');
   });
 });

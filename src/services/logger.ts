@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 
 export class LoggerService {
-  private static instance: LoggerService;
+  private static instance?: LoggerService;
 
   private indent = 0;
 

@@ -1,5 +1,5 @@
 .husky/_
 .idea
 .vscode
-dist
+coverage
 node_modules

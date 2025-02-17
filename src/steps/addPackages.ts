@@ -34,12 +34,14 @@ export const addPackages: Step<AddPackagesArgs> = async ({
       const command = pmService.getInstallCommand(name, isDev, exact);
 
       logger.info(`Installing ${name}...`);
-      try {
-        await shell(command);
-        logger.success(`Successfully installed ${name}`);
-      } catch (error) {
+
+      const { error } = await shell(command);
+      if (error) {
         logger.error(`Failed to install ${name}`);
+
         throw error;
+      } else {
+        logger.success(`Successfully installed ${name}`);
       }
     }
   };

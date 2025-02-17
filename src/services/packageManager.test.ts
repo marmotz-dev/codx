@@ -1,4 +1,5 @@
 import { PackageManagerService } from '@/services/packageManager';
+import { ShellResult } from '@/services/shell';
 import { MockCleaner, mockModule } from '@/tests/mockModule';
 import { afterEach, beforeEach, describe, expect, it } from 'bun:test';
 
@@ -41,11 +42,19 @@ describe('PackageManagerService', () => {
     beforeEach(async () => {
       cleanMock = await mockModule('@/services/shell', () => ({
         shell: (command: string) => {
-          if (command.includes('pnpm')) {
-            return true;
+          const result = {
+            error: null,
+            exitCode: 0,
+            stdout: '',
+            stderr: '',
+          } as ShellResult;
+
+          if (!command.includes('pnpm')) {
+            result.error = new Error();
+            result.exitCode = 1;
           }
 
-          throw new Error();
+          return result;
         },
       }));
     });

@@ -1,5 +1,5 @@
 import { loadRecipe } from '@/services/recipeLoader';
-import { beforeEach, describe, expect, mock, test } from 'bun:test';
+import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import { resolve } from 'path';
 
 describe('RecipeLoader', () => {
@@ -15,17 +15,17 @@ describe('RecipeLoader', () => {
     mock.module('fs', () => fsMockFunctions);
   });
 
-  test('should load a recipe from a local file', async () => {
+  it('should load a recipe from a local file', async () => {
     const recipe = await loadRecipe('test.yml');
     expect(recipe).toBeDefined();
     expect(recipe).toHaveProperty('recipe');
   });
 
-  test('should not load a recipe from a remote package', async () => {
+  it('should not load a recipe from a remote package', async () => {
     expect(loadRecipe('test-recipe')).rejects.toThrow('Remote packages are not supported');
   });
 
-  test('should throw an error if recipe.yml was not found', async () => {
+  it('should throw an error if recipe.yml was not found', async () => {
     mock.module('fs', () => ({
       ...fsMockFunctions,
       existsSync: (path: string) => !path.endsWith('recipe.yml'),

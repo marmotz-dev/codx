@@ -2674,12 +2674,8 @@ class PackageManagerService {
     this.logger.success(`Using package manager: ${pm}`);
   }
   async checkCommandExists(command) {
-    try {
-      await shell(`${command} -v`);
-      return true;
-    } catch {
-      return false;
-    }
+    const { error } = await shell(`${command} -v`);
+    return !error;
   }
   async detectPackageManager() {
     this.logger.infoGroup("Detecting package manager :");
@@ -5399,12 +5395,12 @@ var addPackages = async ({
       const { name, exact } = formatPackage(pkg);
       const command = pmService.getInstallCommand(name, isDev, exact);
       logger2.info(`Installing ${name}...`);
-      try {
-        await shell(command);
-        logger2.success(`Successfully installed ${name}`);
-      } catch (error) {
+      const { error } = await shell(command);
+      if (error) {
         logger2.error(`Failed to install ${name}`);
         throw error;
+      } else {
+        logger2.success(`Successfully installed ${name}`);
       }
     }
   };
@@ -5502,7 +5498,7 @@ var {
 // package.json
 var name = "codx";
 var description = "Execute recipes to speed your project setup !";
-var version = "0.0.1";
+var version = "0.1.0";
 
 // src/cli.ts
 var program2 = new Command;

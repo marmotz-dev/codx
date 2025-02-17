@@ -59,13 +59,9 @@ export class PackageManagerService {
   }
 
   private async checkCommandExists(command: string): Promise<boolean> {
-    try {
-      await shell(`${command} -v`);
+    const { error } = await shell(`${command} -v`);
 
-      return true;
-    } catch {
-      return false;
-    }
+    return !error;
   }
 
   private async detectPackageManager(): Promise<PackageManagerType> {
