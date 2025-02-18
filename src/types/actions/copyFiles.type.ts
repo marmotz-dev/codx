@@ -5,6 +5,6 @@ export type CopyFilesArgs = {
 
 export const COPY_FILES_NAME = 'copyFiles';
 
-export type CopyFilesStep = {
+export type CopyFilesAction = {
   [COPY_FILES_NAME]: CopyFilesArgs;
 };

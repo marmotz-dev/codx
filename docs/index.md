@@ -8,7 +8,7 @@ projects. Instead of following lengthy documentation steps manually, you can use
 1. [Getting Started](#getting-started)
 2. [Installation](#installation)
 3. [Usage](#usage)
-4. [Steps Reference](steps.md)
+4. [Actions Reference](actions.md)
 5. [Writing Recipes](writing-recipes.md)
 
 ## Getting Started

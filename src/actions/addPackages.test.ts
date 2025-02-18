@@ -1,10 +1,10 @@
+import { addPackages } from '@/actions/addPackages';
 import { PackageManagerService } from '@/services/packageManager';
-import { addPackages } from '@/steps/addPackages';
+import { argsToContext } from '@/tests/actionContext';
 import { MockCleaner, mockModule } from '@/tests/mockModule';
-import { argsToContext } from '@/tests/stepContext';
 import { afterEach, beforeEach, describe, expect, it, Mock, spyOn } from 'bun:test';
 
-describe('addPackages', () => {
+describe('addPackages action', () => {
   let getInstallCommandSpy: Mock<(packageName: string, isDev?: boolean, exact?: boolean) => string>;
   let cleanShellMock: MockCleaner;
 
@@ -14,16 +14,13 @@ describe('addPackages', () => {
     getInstallCommandSpy = spyOn(PackageManagerService.prototype, 'getInstallCommand');
 
     cleanShellMock = await mockModule('../services/shell', () => ({
-      shell: (command: string) => {
-        console.log(`>>> Mocked exec called with: ${command} <<<`);
-
-        return Promise.resolve({
+      shell: () =>
+        Promise.resolve({
           error: null,
           exitCode: 0,
           stdout: '',
           stderr: '',
-        });
-      },
+        }),
     }));
   });
 
@@ -52,27 +49,24 @@ describe('addPackages', () => {
 
   it('should throw error when no package was specifed', async () => {
     let result = addPackages(argsToContext({}));
-    expect(result).rejects.toThrow('At least one package must be specified for the "addPackages" step');
+    expect(result).rejects.toThrow('At least one package must be specified for the "addPackages" action');
 
     result = addPackages(argsToContext({ dependencies: [] }));
-    expect(result).rejects.toThrow('At least one package must be specified for the "addPackages" step');
+    expect(result).rejects.toThrow('At least one package must be specified for the "addPackages" action');
 
     result = addPackages(argsToContext({ devDependencies: [] }));
-    expect(result).rejects.toThrow('At least one package must be specified for the "addPackages" step');
+    expect(result).rejects.toThrow('At least one package must be specified for the "addPackages" action');
   });
 
   it('should throw error when package is unavailable', async () => {
     await mockModule('../services/shell', () => ({
-      shell: (command: string) => {
-        console.log(`>>> Mocked exec called with: ${command} <<<`);
-
-        return Promise.resolve({
+      shell: () =>
+        Promise.resolve({
           error: new Error('Command failed'),
           exitCode: 127,
           stdout: '',
           stderr: 'Package not found: non-existent-package',
-        });
-      },
+        }),
     }));
 
     let result = addPackages(argsToContext({ dependencies: ['non-existent-package'] }));

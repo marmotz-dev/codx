@@ -1,18 +1,18 @@
 import { LoggerService } from '@/services/logger';
-import { Step, StepContext } from '@/types/step.type';
-import { CopyFilesArgs } from '@/types/steps/copyFiles.type';
+import { Action, ActionContext } from '@/types/action.type';
+import { CopyFilesArgs } from '@/types/actions/copyFiles.type';
 import { copyFile, mkdir } from 'fs/promises';
 import { dirname, resolve } from 'path';
 
-export const copyFiles: Step<CopyFilesArgs> = async ({
+export const copyFiles: Action<CopyFilesArgs> = async ({
   args: files,
   projectDirectory,
   recipeDirectory,
-}: StepContext<CopyFilesArgs>): Promise<void> => {
+}: ActionContext<CopyFilesArgs>): Promise<void> => {
   const logger = LoggerService.getInstance();
 
   if (!files || files.length === 0) {
-    throw new Error('At least one file or directory must be specified for the "copyFiles" step');
+    throw new Error('At least one file or directory must be specified for the "copyFiles" action');
   }
 
   for (const { from, to } of files) {

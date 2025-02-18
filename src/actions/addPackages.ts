@@ -1,17 +1,17 @@
 import { LoggerService } from '@/services/logger';
 import { PackageManagerService } from '@/services/packageManager';
 import { shell } from '@/services/shell';
-import { Step, StepContext } from '@/types/step.type';
-import { AddPackagesArgs, Package } from '@/types/steps/addPackages.type';
+import { Action, ActionContext } from '@/types/action.type';
+import { AddPackagesArgs, Package } from '@/types/actions/addPackages.type';
 
-export const addPackages: Step<AddPackagesArgs> = async ({
+export const addPackages: Action<AddPackagesArgs> = async ({
   args: { dependencies, devDependencies },
-}: StepContext<AddPackagesArgs>): Promise<void> => {
+}: ActionContext<AddPackagesArgs>): Promise<void> => {
   const logger = LoggerService.getInstance();
   const pmService = PackageManagerService.getInstance();
 
   if ((!dependencies || dependencies.length === 0) && (!devDependencies || devDependencies.length === 0)) {
-    throw new Error('At least one package must be specified for the "addPackages" step');
+    throw new Error('At least one package must be specified for the "addPackages" action');
   }
 
   const formatPackage = (pkg: Package): { name: string; exact: boolean } => {

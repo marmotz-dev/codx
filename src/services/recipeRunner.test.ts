@@ -1,42 +1,42 @@
+import { actionsHandler } from '@/actionsHandler';
 import { PackageManagerService } from '@/services/packageManager';
-import { executeRecipe, executeRecipeByNameOrPath, executeStep } from '@/services/recipeRunner';
-import { stepsHandler } from '@/stepsHandler';
-import { argsToContext } from '@/tests/stepContext';
-import { AnyStep, Recipe } from '@/types/recipe.type';
+import { executeAction, executeRecipe, executeRecipeByNameOrPath } from '@/services/recipeRunner';
+import { argsToContext } from '@/tests/actionContext';
+import { AnyAction, Recipe } from '@/types/recipe.type';
 import { describe, expect, it, mock } from 'bun:test';
 
 describe('RecipeRunner', () => {
-  describe('executeStep', () => {
-    it('should execute a known step successfully', async () => {
+  describe('executeAction', () => {
+    it('should execute a known action successfully', async () => {
       const mockHandler = mock(() => Promise.resolve());
-      const step: AnyStep = {
+      const action: AnyAction = {
         log: ['foo'],
       };
 
       // Temporarily replace the real handler
-      const originalHandler = stepsHandler.log;
-      stepsHandler.log = mockHandler;
+      const originalHandler = actionsHandler.log;
+      actionsHandler.log = mockHandler;
 
       try {
-        await executeStep(step, '');
+        await executeAction(action, '');
         expect(mockHandler).toHaveBeenCalledWith(argsToContext(['foo']));
       } finally {
         // Restore the original handler
-        stepsHandler.log = originalHandler;
+        actionsHandler.log = originalHandler;
       }
     });
 
-    it('should throw an error for an unknown step', async () => {
-      const unknownStep: AnyStep = {
+    it('should throw an error for an unknown action', async () => {
+      const unknownAction: AnyAction = {
         unknown: { data: 'test' },
       } as never;
 
-      expect(executeStep(unknownStep, '')).rejects.toThrow('Unknown step: unknown');
+      expect(executeAction(unknownAction, '')).rejects.toThrow('Unknown action: unknown');
     });
   });
 
   describe('executeRecipe', () => {
-    it('should execute all steps in a recipe sequentially', async () => {
+    it('should execute all actions in a recipe sequentially', async () => {
       PackageManagerService.getInstance().setPackageManager('bun');
 
       const mockLogHandler = mock(() => Promise.resolve());
@@ -47,10 +47,10 @@ describe('RecipeRunner', () => {
       };
 
       // Temporarily replace the real handlers
-      const originalLogHandler = stepsHandler.log;
-      const originalAddPackagesHandler = stepsHandler.addPackages;
-      stepsHandler.log = mockLogHandler;
-      stepsHandler.addPackages = mockAddPackagesHandler;
+      const originalLogHandler = actionsHandler.log;
+      const originalAddPackagesHandler = actionsHandler.addPackages;
+      actionsHandler.log = mockLogHandler;
+      actionsHandler.addPackages = mockAddPackagesHandler;
 
       try {
         await executeRecipe(recipe, '');
@@ -59,8 +59,8 @@ describe('RecipeRunner', () => {
         expect(mockAddPackagesHandler).toHaveBeenCalledWith(argsToContext({ dependencies: ['lodash'] }));
       } finally {
         // Restore the original handlers
-        stepsHandler.log = originalLogHandler;
-        stepsHandler.addPackages = originalAddPackagesHandler;
+        actionsHandler.log = originalLogHandler;
+        actionsHandler.addPackages = originalAddPackagesHandler;
       }
     });
   });

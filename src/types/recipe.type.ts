@@ -1,10 +1,10 @@
-import { ADD_PACKAGES_NAME, AddPackagesStep } from '@/types/steps/addPackages.type';
-import { COPY_FILES_NAME, CopyFilesStep } from '@/types/steps/copyFiles.type';
-import { LOG_NAME, LogStep } from '@/types/steps/log.type';
+import { ADD_PACKAGES_NAME, AddPackagesAction } from '@/types/actions/addPackages.type';
+import { COPY_FILES_NAME, CopyFilesAction } from '@/types/actions/copyFiles.type';
+import { LOG_NAME, LogAction } from '@/types/actions/log.type';
 
 export type Recipe = {
-  recipe: AnyStep[];
+  recipe: AnyAction[];
 };
 
-export type StepNames = typeof ADD_PACKAGES_NAME | typeof COPY_FILES_NAME | typeof LOG_NAME;
-export type AnyStep = AddPackagesStep | CopyFilesStep | LogStep;
+export type ActionNames = typeof ADD_PACKAGES_NAME | typeof COPY_FILES_NAME | typeof LOG_NAME;
+export type AnyAction = AddPackagesAction | CopyFilesAction | LogAction;

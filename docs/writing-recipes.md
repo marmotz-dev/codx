@@ -8,10 +8,10 @@ Recipes are written in YAML format and follow this basic structure:
 
 ```yaml
 recipe:
-  - step1:
-    # step parameters
-  - step2:
-    # step parameters
+  - action1:
+    # action parameters
+  - action2:
+    # action parameters
 ```
 
 ## Recipe Location
@@ -59,7 +59,7 @@ recipe:
 
 ## Best Practices
 
-1. Group related steps: Keep related commands together (e.g., all package installations in one addPackages command).
+1. Group related actions: Keep related actions together (e.g., all package installations in one addPackages action).
 2. Use meaningful names: Use clear, descriptive names for files and paths.
 3. Version control: Always specify versions for critical dependencies.
 
@@ -70,7 +70,7 @@ Before publishing or sharing your recipe:
 1. Test it in a clean project directory
 2. Verify all files are copied correctly
 3. Ensure all dependencies are installed
-4. Check that all steps execute successfully
+4. Check that all actions execute successfully
 
 ## Recipe Validation
 
@@ -78,6 +78,6 @@ Codx validates your recipe before execution to ensure:
 
 * All required parameters are present
 * File paths are valid
-* Steps are properly formatted
+* Actions are properly formatted
 
 If validation fails, Codx will show an error message explaining the issue.

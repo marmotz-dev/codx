@@ -1,10 +1,10 @@
-import { copyFiles } from '@/steps/copyFiles';
-import { argsToContext, createStepContext } from '@/tests/stepContext';
+import { copyFiles } from '@/actions/copyFiles';
+import { argsToContext, createActionContext } from '@/tests/actionContext';
 import { beforeEach, describe, expect, it, jest, mock, spyOn } from 'bun:test';
 import { copyFile, mkdir } from 'fs/promises';
 import { resolve } from 'path';
 
-describe('copyFiles', () => {
+describe('copyFiles action', () => {
   const mockRecipeDir = '/path/to/recipe';
   const mockProjectDir = '/path/to/project';
 
@@ -29,7 +29,7 @@ describe('copyFiles', () => {
     ];
 
     await copyFiles(
-      createStepContext({
+      createActionContext({
         args: files,
         projectDirectory: mockProjectDir,
         recipeDirectory: mockRecipeDir,
@@ -51,7 +51,7 @@ describe('copyFiles', () => {
   it('should create target directories if they do not exist', async () => {
     const files = [{ from: 'config/deep/test.json', to: 'config/deep/test.json' }];
 
-    await copyFiles(createStepContext({ args: files, projectDirectory: mockProjectDir }));
+    await copyFiles(createActionContext({ args: files, projectDirectory: mockProjectDir }));
 
     expect(mkdir).toHaveBeenCalledWith(resolve(mockProjectDir, 'config/deep'), { recursive: true });
   });
@@ -68,6 +68,6 @@ describe('copyFiles', () => {
 
   it('should throw error when no file/directory was specified', async () => {
     const result = copyFiles(argsToContext([]));
-    expect(result).rejects.toThrow('At least one file or directory must be specified for the "copyFiles" step');
+    expect(result).rejects.toThrow('At least one file or directory must be specified for the "copyFiles" action');
   });
 });

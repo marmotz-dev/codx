@@ -1,6 +1,6 @@
+import { actionsHandler } from '@/actionsHandler';
 import { loadRecipe } from '@/services/recipeLoader';
-import { stepsHandler } from '@/stepsHandler';
-import { AnyStep, Recipe, StepNames } from '@/types/recipe.type';
+import { ActionNames, AnyAction, Recipe } from '@/types/recipe.type';
 
 export async function executeRecipeByNameOrPath(recipeNameOrPath: string): Promise<void> {
   const { recipe, recipeDirectory } = await loadRecipe(recipeNameOrPath);
@@ -9,20 +9,20 @@ export async function executeRecipeByNameOrPath(recipeNameOrPath: string): Promi
 }
 
 export async function executeRecipe(recipe: Recipe, recipeDirectory: string): Promise<void> {
-  for (const step of recipe.recipe) {
-    await executeStep(step, recipeDirectory);
+  for (const action of recipe.recipe) {
+    await executeAction(action, recipeDirectory);
   }
 }
 
-export async function executeStep(step: AnyStep, recipeDirectory: string): Promise<void> {
-  const stepName = Object.keys(step)[0] as StepNames;
-  const handler = stepsHandler[stepName];
+export async function executeAction(action: AnyAction, recipeDirectory: string): Promise<void> {
+  const actionName = Object.keys(action)[0] as ActionNames;
+  const handler = actionsHandler[actionName];
 
   if (!handler) {
-    throw new Error(`Unknown step: ${stepName}`);
+    throw new Error(`Unknown action: ${actionName}`);
   }
 
-  const args: never = (step as Record<StepNames, never>)[stepName];
+  const args: never = (action as Record<ActionNames, never>)[actionName];
   await handler({
     args,
     projectDirectory: process.cwd(),

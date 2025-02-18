@@ -1,14 +1,12 @@
-# Codx Steps Reference
+# Codx Actions Reference
 
-This document details all available steps that can be used in Codx recipes.
+This document details all available actions that can be used in Codx recipes.
 
-## Available Steps
-
-### addPackages
+## addPackages
 
 Installs npm packages as dependencies or devDependencies.
 
-#### Parameters
+### Parameters
 
 * dependencies: Array of packages to install as dependencies
 * devDependencies: Array of packages to install as devDependencies
@@ -36,11 +34,11 @@ recipe:
       - "@types/express@4.17.17"
 ```
 
-### copyFiles
+## copyFiles
 
 Copies files from the recipe directory to your project directory.
 
-#### Parameters
+### Parameters
 
 Array of objects with:
 
@@ -56,11 +54,11 @@ recipe:
         to: config/test.json
 ```
 
-### log
+## log
 
 Outputs messages to the console.
 
-#### Parameters
+### Parameters
 
 Array of messages to display
 

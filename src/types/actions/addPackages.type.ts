@@ -12,6 +12,6 @@ export type AddPackagesArgs = {
 
 export const ADD_PACKAGES_NAME = 'addPackages';
 
-export type AddPackagesStep = {
+export type AddPackagesAction = {
   [ADD_PACKAGES_NAME]: AddPackagesArgs;
 };

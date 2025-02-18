@@ -2693,6 +2693,92 @@ class PackageManagerService {
   }
 }
 
+// src/actions/addPackages.ts
+var addPackages = async ({
+  args: { dependencies, devDependencies }
+}) => {
+  const logger = LoggerService.getInstance();
+  const pmService = PackageManagerService.getInstance();
+  if ((!dependencies || dependencies.length === 0) && (!devDependencies || devDependencies.length === 0)) {
+    throw new Error('At least one package must be specified for the "addPackages" action');
+  }
+  const formatPackage = (pkg) => {
+    if (typeof pkg === "string") {
+      return {
+        name: pkg,
+        exact: false
+      };
+    }
+    return {
+      name: pkg.name,
+      exact: pkg.exact || false
+    };
+  };
+  const installPackages = async (packages, isDev) => {
+    for (const pkg of packages) {
+      const { name, exact } = formatPackage(pkg);
+      const command = pmService.getInstallCommand(name, isDev, exact);
+      logger.info(`Installing ${name}...`);
+      const { error } = await shell(command);
+      if (error) {
+        logger.error(`Failed to install ${name}`);
+        throw error;
+      } else {
+        logger.success(`Successfully installed ${name}`);
+      }
+    }
+  };
+  if (dependencies && dependencies.length > 0) {
+    await installPackages(dependencies, false);
+  }
+  if (devDependencies && devDependencies.length > 0) {
+    await installPackages(devDependencies, true);
+  }
+};
+
+// src/actions/copyFiles.ts
+import { copyFile, mkdir } from "fs/promises";
+import { dirname, resolve } from "path";
+var copyFiles = async ({
+  args: files,
+  projectDirectory,
+  recipeDirectory
+}) => {
+  const logger = LoggerService.getInstance();
+  if (!files || files.length === 0) {
+    throw new Error('At least one file or directory must be specified for the "copyFiles" action');
+  }
+  for (const { from, to } of files) {
+    try {
+      const sourcePath = resolve(recipeDirectory, from);
+      const targetPath = resolve(projectDirectory, to);
+      await mkdir(dirname(targetPath), { recursive: true });
+      await copyFile(sourcePath, targetPath);
+      logger.success(`Copied ${sourcePath} to ${targetPath}`);
+    } catch (error) {
+      logger.error(`Failed to copy ${from} to ${to}`);
+      throw error;
+    }
+  }
+};
+
+// src/actions/log.ts
+var log = async ({ args: texts }) => {
+  if (!texts || texts.length === 0) {
+    throw new Error('A text list is required for the "log" action');
+  }
+  for (const text of texts) {
+    LoggerService.getInstance().info(text);
+  }
+};
+
+// src/actionsHandler.ts
+var actionsHandler = {
+  addPackages,
+  copyFiles,
+  log
+};
+
 // src/services/recipeLoader.ts
 import * as fs from "fs";
 
@@ -5342,7 +5428,7 @@ var safeDump = renamed("safeDump", "dump");
 
 // src/services/recipeLoader.ts
 import * as path from "path";
-import { dirname } from "path";
+import { dirname as dirname2 } from "path";
 var logger = LoggerService.getInstance();
 async function loadRecipe(recipeIdentifier) {
   try {
@@ -5359,7 +5445,7 @@ async function loadRecipe(recipeIdentifier) {
     const fileContent = fs.readFileSync(recipePath, "utf8");
     return {
       recipe: load(fileContent),
-      recipeDirectory: dirname(recipePath)
+      recipeDirectory: dirname2(recipePath)
     };
   } catch (error) {
     throw new Error(`Failed to load recipe: ${error.message}`);
@@ -5369,109 +5455,23 @@ function isYamlFile(recipePath) {
   return recipePath.endsWith(".yml") || recipePath.endsWith(".yaml");
 }
 
-// src/steps/addPackages.ts
-var addPackages = async ({
-  args: { dependencies, devDependencies }
-}) => {
-  const logger2 = LoggerService.getInstance();
-  const pmService = PackageManagerService.getInstance();
-  if ((!dependencies || dependencies.length === 0) && (!devDependencies || devDependencies.length === 0)) {
-    throw new Error('At least one package must be specified for the "addPackages" step');
-  }
-  const formatPackage = (pkg) => {
-    if (typeof pkg === "string") {
-      return {
-        name: pkg,
-        exact: false
-      };
-    }
-    return {
-      name: pkg.name,
-      exact: pkg.exact || false
-    };
-  };
-  const installPackages = async (packages, isDev) => {
-    for (const pkg of packages) {
-      const { name, exact } = formatPackage(pkg);
-      const command = pmService.getInstallCommand(name, isDev, exact);
-      logger2.info(`Installing ${name}...`);
-      const { error } = await shell(command);
-      if (error) {
-        logger2.error(`Failed to install ${name}`);
-        throw error;
-      } else {
-        logger2.success(`Successfully installed ${name}`);
-      }
-    }
-  };
-  if (dependencies && dependencies.length > 0) {
-    await installPackages(dependencies, false);
-  }
-  if (devDependencies && devDependencies.length > 0) {
-    await installPackages(devDependencies, true);
-  }
-};
-
-// src/steps/copyFiles.ts
-import { copyFile, mkdir } from "fs/promises";
-import { dirname as dirname2, resolve as resolve2 } from "path";
-var copyFiles = async ({
-  args: files,
-  projectDirectory,
-  recipeDirectory
-}) => {
-  const logger2 = LoggerService.getInstance();
-  if (!files || files.length === 0) {
-    throw new Error('At least one file or directory must be specified for the "copyFiles" step');
-  }
-  for (const { from, to } of files) {
-    try {
-      const sourcePath = resolve2(recipeDirectory, from);
-      const targetPath = resolve2(projectDirectory, to);
-      await mkdir(dirname2(targetPath), { recursive: true });
-      await copyFile(sourcePath, targetPath);
-      logger2.success(`Copied ${sourcePath} to ${targetPath}`);
-    } catch (error) {
-      logger2.error(`Failed to copy ${from} to ${to}`);
-      throw error;
-    }
-  }
-};
-
-// src/steps/log.ts
-var log = async ({ args: texts }) => {
-  if (!texts || texts.length === 0) {
-    throw new Error('A text list is required for the "log" step');
-  }
-  for (const text of texts) {
-    LoggerService.getInstance().info(text);
-  }
-};
-
-// src/stepsHandler.ts
-var stepsHandler = {
-  addPackages,
-  copyFiles,
-  log
-};
-
 // src/services/recipeRunner.ts
 async function executeRecipeByNameOrPath(recipeNameOrPath) {
   const { recipe, recipeDirectory } = await loadRecipe(recipeNameOrPath);
   await executeRecipe(recipe, recipeDirectory);
 }
 async function executeRecipe(recipe, recipeDirectory) {
-  for (const step of recipe.recipe) {
-    await executeStep(step, recipeDirectory);
+  for (const action of recipe.recipe) {
+    await executeAction(action, recipeDirectory);
   }
 }
-async function executeStep(step, recipeDirectory) {
-  const stepName = Object.keys(step)[0];
-  const handler = stepsHandler[stepName];
+async function executeAction(action, recipeDirectory) {
+  const actionName = Object.keys(action)[0];
+  const handler = actionsHandler[actionName];
   if (!handler) {
-    throw new Error(`Unknown step: ${stepName}`);
+    throw new Error(`Unknown action: ${actionName}`);
   }
-  const args = step[stepName];
+  const args = action[actionName];
   await handler({
     args,
     projectDirectory: process.cwd(),
