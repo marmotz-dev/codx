@@ -2540,48 +2540,42 @@ var source_default = chalk;
 
 // src/services/logger.ts
 class LoggerService {
-  static instance;
   indent = 0;
-  constructor() {
-  }
-  static getInstance() {
-    if (!LoggerService.instance) {
-      LoggerService.instance = new LoggerService;
-    }
-    return LoggerService.instance;
-  }
   check(message) {
-    console.log(this.getIndent() + this.checkIcon() + message);
+    this.log(this.iconCheck(), message);
+  }
+  checkGroup(message) {
+    this.group(this.iconCheck(), message);
+  }
+  checkGroupEnd(message) {
+    this.groupEnd(this.iconCheck(), message);
   }
   error(message) {
-    console.error(this.getIndent() + this.errorIcon() + message);
+    this.log(this.iconError(), message);
+  }
+  errorGroup(message) {
+    this.group(this.iconError(), message);
   }
   errorGroupEnd(message) {
-    this.groupEnd(this.errorIcon(), message);
+    this.groupEnd(this.iconError(), message);
   }
   info(message) {
-    console.log(this.getIndent() + this.infoIcon() + message);
+    this.log(this.iconInfo(), message);
   }
   infoGroup(message) {
-    this.group(this.infoIcon(), message);
+    this.group(this.iconInfo(), message);
   }
-  log(message) {
-    console.log(this.getIndent() + this.logIcon() + message);
-  }
-  logGroup(message) {
-    this.group(this.logIcon(), message);
+  infoGroupEnd(message) {
+    this.groupEnd(this.iconInfo(), message);
   }
   success(message) {
-    console.log(this.getIndent() + this.successIcon() + message);
+    this.log(this.iconSuccess(), message);
+  }
+  successGroup(message) {
+    this.group(this.iconSuccess(), message);
   }
   successGroupEnd(message) {
-    this.groupEnd(this.successIcon(), message);
-  }
-  checkIcon() {
-    return source_default.yellow("⚡ ");
-  }
-  errorIcon() {
-    return source_default.red("✗ ");
+    this.groupEnd(this.iconSuccess(), message);
   }
   getEndIndent() {
     return this.getIndent("└");
@@ -2605,16 +2599,23 @@ class LoggerService {
     console.log(this.getEndIndent() + icon + message);
     this.indent--;
   }
-  infoIcon() {
+  iconCheck() {
+    return source_default.yellow("⚡ ");
+  }
+  iconError() {
+    return source_default.red("✗ ");
+  }
+  iconInfo() {
     return source_default.blue("ℹ ");
   }
-  logIcon() {
-    return source_default.white("⬤ ");
-  }
-  successIcon() {
+  iconSuccess() {
     return source_default.green("✓ ");
   }
+  log(icon, message) {
+    console.log(this.getIndent() + icon + message);
+  }
 }
+var loggerService = new LoggerService;
 
 // src/services/shell.ts
 import { exec } from "node:child_process";
@@ -2635,7 +2636,7 @@ async function shell(command) {
 class PackageManagerService {
   static instance;
   selectedPM = null;
-  logger = LoggerService.getInstance();
+  logger = loggerService;
   constructor() {
   }
   static getInstance() {
@@ -2693,28 +2694,111 @@ class PackageManagerService {
   }
 }
 
-// src/actions/console/log.ts
-var consoleLogAction = async ({ args: texts }) => {
-  if (!texts || texts.length === 0) {
-    throw new Error('A text list is required for the "log" action');
+// src/actions/console/logger.ts
+class LoggerActions {
+  static check = async ({ args: texts }) => {
+    LoggerActions.validateTexts(texts);
+    for (const text of texts) {
+      loggerService.check(text);
+    }
+  };
+  static checkGroup = async ({ args: text }) => {
+    LoggerActions.validateText(text);
+    loggerService.checkGroup(text);
+  };
+  static checkGroupEnd = async ({ args: text }) => {
+    LoggerActions.validateText(text);
+    loggerService.checkGroupEnd(text);
+  };
+  static error = async ({ args: texts }) => {
+    LoggerActions.validateTexts(texts);
+    for (const text of texts) {
+      loggerService.error(text);
+    }
+  };
+  static errorGroup = async ({ args: text }) => {
+    LoggerActions.validateText(text);
+    loggerService.errorGroup(text);
+  };
+  static errorGroupEnd = async ({ args: text }) => {
+    LoggerActions.validateText(text);
+    loggerService.errorGroupEnd(text);
+  };
+  static info = async ({ args: texts }) => {
+    LoggerActions.validateTexts(texts);
+    for (const text of texts) {
+      loggerService.info(text);
+    }
+  };
+  static infoGroup = async ({ args: text }) => {
+    LoggerActions.validateText(text);
+    loggerService.infoGroup(text);
+  };
+  static infoGroupEnd = async ({ args: text }) => {
+    LoggerActions.validateText(text);
+    loggerService.infoGroupEnd(text);
+  };
+  static success = async ({ args: texts }) => {
+    LoggerActions.validateTexts(texts);
+    for (const text of texts) {
+      loggerService.success(text);
+    }
+  };
+  static successGroup = async ({ args: text }) => {
+    LoggerActions.validateText(text);
+    loggerService.successGroup(text);
+  };
+  static successGroupEnd = async ({ args: text }) => {
+    LoggerActions.validateText(text);
+    loggerService.successGroupEnd(text);
+  };
+  static validateText(text) {
+    if (!text) {
+      throw new Error("A text is required for logger actions");
+    }
   }
-  for (const text of texts) {
-    LoggerService.getInstance().info(text);
+  static validateTexts(texts) {
+    if (!texts || texts.length === 0) {
+      throw new Error("A text list is required for logger actions");
+    }
   }
-};
+}
 
 // src/actions/console/console.const.ts
 var CONSOLE_NAMESPACE = "console";
-
-// src/actions/console/log.const.ts
-var CONSOLE_LOG_NAME = `${CONSOLE_NAMESPACE}.log`;
+var CONSOLE_CHECK_NAME = `${CONSOLE_NAMESPACE}.check`;
+var CONSOLE_CHECK_GROUP_NAME = `${CONSOLE_NAMESPACE}.checkGroup`;
+var CONSOLE_CHECK_GROUP_END_NAME = `${CONSOLE_NAMESPACE}.checkGroupEnd`;
+var CONSOLE_ERROR_NAME = `${CONSOLE_NAMESPACE}.error`;
+var CONSOLE_ERROR_GROUP_NAME = `${CONSOLE_NAMESPACE}.errorGroup`;
+var CONSOLE_ERROR_GROUP_END_NAME = `${CONSOLE_NAMESPACE}.errorGroupEnd`;
+var CONSOLE_INFO_NAME = `${CONSOLE_NAMESPACE}.info`;
+var CONSOLE_INFO_GROUP_NAME = `${CONSOLE_NAMESPACE}.infoGroup`;
+var CONSOLE_INFO_GROUP_END_NAME = `${CONSOLE_NAMESPACE}.infoGroupEnd`;
+var CONSOLE_SUCCESS_NAME = `${CONSOLE_NAMESPACE}.success`;
+var CONSOLE_SUCCESS_GROUP_NAME = `${CONSOLE_NAMESPACE}.successGroup`;
+var CONSOLE_SUCCESS_GROUP_END_NAME = `${CONSOLE_NAMESPACE}.successGroupEnd`;
+var ConsoleActions = {
+  [CONSOLE_CHECK_NAME]: LoggerActions.check,
+  [CONSOLE_CHECK_GROUP_NAME]: LoggerActions.checkGroup,
+  [CONSOLE_CHECK_GROUP_END_NAME]: LoggerActions.checkGroupEnd,
+  [CONSOLE_ERROR_NAME]: LoggerActions.error,
+  [CONSOLE_ERROR_GROUP_NAME]: LoggerActions.errorGroup,
+  [CONSOLE_ERROR_GROUP_END_NAME]: LoggerActions.errorGroupEnd,
+  [CONSOLE_INFO_NAME]: LoggerActions.info,
+  [CONSOLE_INFO_GROUP_NAME]: LoggerActions.infoGroup,
+  [CONSOLE_INFO_GROUP_END_NAME]: LoggerActions.infoGroupEnd,
+  [CONSOLE_SUCCESS_NAME]: LoggerActions.success,
+  [CONSOLE_SUCCESS_GROUP_NAME]: LoggerActions.successGroup,
+  [CONSOLE_SUCCESS_GROUP_END_NAME]: LoggerActions.successGroupEnd
+};
 
 // src/actions/fs/copy.ts
 import { copyFile, lstat, mkdir } from "fs/promises";
 import { readdir } from "node:fs/promises";
 import { dirname, resolve } from "path";
 var fsCopyAction = async ({ args: files, projectDirectory, recipeDirectory }) => {
-  const logger = LoggerService.getInstance();
+  const logger = loggerService;
   if (!files || files.length === 0) {
     throw new Error('At least one file or directory must be specified for the "copy" action');
   }
@@ -2763,7 +2847,7 @@ var FS_COPY_NAME = `${FS_NAMESPACE}.copy`;
 var packagesInstallAction = async ({
   args: { dependencies, devDependencies }
 }) => {
-  const logger = LoggerService.getInstance();
+  const logger = loggerService;
   const pmService = PackageManagerService.getInstance();
   if ((!dependencies || dependencies.length === 0) && (!devDependencies || devDependencies.length === 0)) {
     throw new Error('At least one package must be specified for the "packagesInstall" action');
@@ -2810,7 +2894,7 @@ var PACKAGES_INSTALL_NAME = `${PACKAGES_NAMESPACE}.install`;
 
 // src/actionsHandler.ts
 var actionsHandler = {
-  [CONSOLE_LOG_NAME]: consoleLogAction,
+  ...ConsoleActions,
   [FS_COPY_NAME]: fsCopyAction,
   [PACKAGES_INSTALL_NAME]: packagesInstallAction
 };
@@ -5465,7 +5549,7 @@ var safeDump = renamed("safeDump", "dump");
 // src/services/recipeLoader.ts
 import * as path from "path";
 import { dirname as dirname2 } from "path";
-var logger = LoggerService.getInstance();
+var logger = loggerService;
 async function loadRecipe(recipeIdentifier) {
   try {
     let recipePath;
@@ -5541,7 +5625,7 @@ var version = "0.1.0";
 
 // src/cli.ts
 var program2 = new Command;
-var logger2 = LoggerService.getInstance();
+var logger2 = loggerService;
 program2.name(name).description(description).version(version).option("--pm <package-manager>", "Package manager to use (npm, pnpm, yarn, bun)");
 program2.command("recipe").description("Execute a recipe").argument("<name-or-path>", "Recipe name / Path to local recipe file").action(async (recipeNameOrPath) => {
   try {

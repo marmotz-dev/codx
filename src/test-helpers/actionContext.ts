@@ -9,6 +9,6 @@ export function createActionContext<T>(partialContext: Partial<ActionContext<T>>
   };
 }
 
-export function argsToContext<T>(partialArgs: Partial<T> = {}): ActionContext<T> {
+export function argsToContext<T>(partialArgs: Partial<T>): ActionContext<T> {
   return createActionContext<T>({ args: partialArgs as T });
 }

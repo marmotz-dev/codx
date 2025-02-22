@@ -1,5 +1,5 @@
 import { LoggerService } from '@/services/logger';
-import { afterEach, beforeEach, describe, expect, it, Mock, spyOn } from 'bun:test';
+import { beforeEach, describe, expect, it, Mock, spyOn } from 'bun:test';
 import chalk from 'chalk';
 
 type MockConsole = Mock<{
@@ -11,16 +11,10 @@ type MockConsole = Mock<{
 describe('LoggerService', () => {
   let logger: LoggerService;
   let consoleLogSpy: MockConsole;
-  let consoleErrorSpy: MockConsole;
 
   beforeEach(() => {
-    logger = LoggerService.getInstance();
+    logger = new LoggerService();
     consoleLogSpy = spyOn(console, 'log');
-    consoleErrorSpy = spyOn(console, 'error');
-  });
-
-  afterEach(() => {
-    LoggerService['instance'] = undefined;
   });
 
   describe('Log Methods', () => {
@@ -31,17 +25,12 @@ describe('LoggerService', () => {
 
     it('should log "error" message with red cross', () => {
       logger.error('This is a "error" message test');
-      expect(consoleErrorSpy).toHaveBeenCalledWith(chalk.red('✗ ') + 'This is a "error" message test');
+      expect(consoleLogSpy).toHaveBeenCalledWith(chalk.red('✗ ') + 'This is a "error" message test');
     });
 
     it('should log "info" message with blue info symbol', () => {
       logger.info('This is a "info" message test');
       expect(consoleLogSpy).toHaveBeenCalledWith(chalk.blue('ℹ ') + 'This is a "info" message test');
-    });
-
-    it('should log "log" message with blue info symbol', () => {
-      logger.log('This is a "log" message test');
-      expect(consoleLogSpy).toHaveBeenCalledWith(chalk.white('⬤ ') + 'This is a "log" message test');
     });
 
     it('should log "success" message with green check mark', () => {
@@ -51,6 +40,24 @@ describe('LoggerService', () => {
   });
 
   describe('Group Methods', () => {
+    it('should create an check group with correct indentation', () => {
+      expect(logger['indent']).toBe(0);
+
+      logger.checkGroup('Starting check group');
+
+      expect(consoleLogSpy).toHaveBeenCalledWith(chalk.yellow('⚡ ') + 'Starting check group');
+      expect(logger['indent']).toBe(1);
+    });
+
+    it('should create an error group with correct indentation', () => {
+      expect(logger['indent']).toBe(0);
+
+      logger.errorGroup('Starting error group');
+
+      expect(consoleLogSpy).toHaveBeenCalledWith(chalk.red('✗ ') + 'Starting error group');
+      expect(logger['indent']).toBe(1);
+    });
+
     it('should create an info group with correct indentation', () => {
       expect(logger['indent']).toBe(0);
 
@@ -60,23 +67,47 @@ describe('LoggerService', () => {
       expect(logger['indent']).toBe(1);
     });
 
-    it('should create a log group with correct indentation', () => {
+    it('should create an success group with correct indentation', () => {
       expect(logger['indent']).toBe(0);
 
-      logger.logGroup('Starting log group');
+      logger.successGroup('Starting success group');
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(chalk.white('⬤ ') + 'Starting log group');
+      expect(consoleLogSpy).toHaveBeenCalledWith(chalk.green('✓ ') + 'Starting success group');
       expect(logger['indent']).toBe(1);
+    });
+  });
+
+  describe('GroupEnd Methods', () => {
+    it('should end check group with correct indentation and icon', () => {
+      expect(logger['indent']).toBe(0);
+
+      // Simulate a group first
+      logger.checkGroup('Test Group');
+      logger.checkGroupEnd('Ending check group');
+
+      expect(consoleLogSpy).toHaveBeenCalledWith(chalk.grey('└') + ' ' + chalk.yellow('⚡ ') + 'Ending check group');
+      expect(logger['indent']).toBe(0);
     });
 
     it('should end error group with correct indentation and icon', () => {
       expect(logger['indent']).toBe(0);
 
       // Simulate a group first
-      logger.infoGroup('Test Group');
+      logger.errorGroup('Test Group');
       logger.errorGroupEnd('Ending error group');
 
       expect(consoleLogSpy).toHaveBeenCalledWith(chalk.grey('└') + ' ' + chalk.red('✗ ') + 'Ending error group');
+      expect(logger['indent']).toBe(0);
+    });
+
+    it('should end info group with correct indentation and icon', () => {
+      expect(logger['indent']).toBe(0);
+
+      // Simulate a group first
+      logger.infoGroup('Test Group');
+      logger.infoGroupEnd('Ending info group');
+
+      expect(consoleLogSpy).toHaveBeenCalledWith(chalk.grey('└') + ' ' + chalk.blue('ℹ ') + 'Ending info group');
       expect(logger['indent']).toBe(0);
     });
 
@@ -84,7 +115,7 @@ describe('LoggerService', () => {
       expect(logger['indent']).toBe(0);
 
       // Simulate a group first
-      logger.infoGroup('Test Group');
+      logger.successGroup('Test Group');
       logger.successGroupEnd('Ending success group');
 
       expect(consoleLogSpy).toHaveBeenCalledWith(chalk.grey('└') + ' ' + chalk.green('✓ ') + 'Ending success group');

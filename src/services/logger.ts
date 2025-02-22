@@ -1,62 +1,54 @@
 import chalk from 'chalk';
 
 export class LoggerService {
-  private static instance?: LoggerService;
-
   private indent = 0;
 
-  private constructor() {}
-
-  static getInstance(): LoggerService {
-    if (!LoggerService.instance) {
-      LoggerService.instance = new LoggerService();
-    }
-
-    return LoggerService.instance;
+  check(message: string) {
+    this.log(this.iconCheck(), message);
   }
 
-  check(message: string) {
-    console.log(this.getIndent() + this.checkIcon() + message);
+  checkGroup(message: string) {
+    this.group(this.iconCheck(), message);
+  }
+
+  checkGroupEnd(message: string) {
+    this.groupEnd(this.iconCheck(), message);
   }
 
   error(message: string) {
-    console.error(this.getIndent() + this.errorIcon() + message);
+    this.log(this.iconError(), message);
+  }
+
+  errorGroup(message: string) {
+    this.group(this.iconError(), message);
   }
 
   errorGroupEnd(message: string) {
-    this.groupEnd(this.errorIcon(), message);
+    this.groupEnd(this.iconError(), message);
   }
 
   info(message: string) {
-    console.log(this.getIndent() + this.infoIcon() + message);
+    this.log(this.iconInfo(), message);
   }
 
   infoGroup(message: string) {
-    this.group(this.infoIcon(), message);
+    this.group(this.iconInfo(), message);
   }
 
-  log(message: string) {
-    console.log(this.getIndent() + this.logIcon() + message);
-  }
-
-  logGroup(message: string) {
-    this.group(this.logIcon(), message);
+  infoGroupEnd(message: string) {
+    this.groupEnd(this.iconInfo(), message);
   }
 
   success(message: string) {
-    console.log(this.getIndent() + this.successIcon() + message);
+    this.log(this.iconSuccess(), message);
+  }
+
+  successGroup(message: string) {
+    this.group(this.iconSuccess(), message);
   }
 
   successGroupEnd(message: string) {
-    this.groupEnd(this.successIcon(), message);
-  }
-
-  private checkIcon() {
-    return chalk.yellow('⚡ ');
-  }
-
-  private errorIcon() {
-    return chalk.red('✗ ');
+    this.groupEnd(this.iconSuccess(), message);
   }
 
   private getEndIndent() {
@@ -89,15 +81,25 @@ export class LoggerService {
     this.indent--;
   }
 
-  private infoIcon() {
+  private iconCheck() {
+    return chalk.yellow('⚡ ');
+  }
+
+  private iconError() {
+    return chalk.red('✗ ');
+  }
+
+  private iconInfo() {
     return chalk.blue('ℹ ');
   }
 
-  private logIcon() {
-    return chalk.white('⬤ ');
-  }
-
-  private successIcon() {
+  private iconSuccess() {
     return chalk.green('✓ ');
   }
+
+  private log(icon: string, message: string) {
+    console.log(this.getIndent() + icon + message);
+  }
 }
+
+export const loggerService = new LoggerService();

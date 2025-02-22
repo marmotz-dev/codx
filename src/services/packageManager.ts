@@ -1,4 +1,4 @@
-import { LoggerService } from '@/services/logger';
+import { loggerService } from '@/services/logger';
 import { shell } from '@/services/shell';
 
 export type PackageManagerType = 'npm' | 'pnpm' | 'yarn' | 'bun';
@@ -6,7 +6,7 @@ export type PackageManagerType = 'npm' | 'pnpm' | 'yarn' | 'bun';
 export class PackageManagerService {
   private static instance: PackageManagerService;
   private selectedPM: PackageManagerType | null = null;
-  private logger = LoggerService.getInstance();
+  private logger = loggerService;
 
   private constructor() {}
 

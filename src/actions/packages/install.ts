@@ -1,13 +1,13 @@
 import { Action } from '@/actions/action.type';
 import { Package, PackagesInstallArgs } from '@/actions/packages/install.type';
-import { LoggerService } from '@/services/logger';
+import { loggerService } from '@/services/logger';
 import { PackageManagerService } from '@/services/packageManager';
 import { shell } from '@/services/shell';
 
 export const packagesInstallAction: Action<PackagesInstallArgs> = async ({
   args: { dependencies, devDependencies },
 }) => {
-  const logger = LoggerService.getInstance();
+  const logger = loggerService;
   const pmService = PackageManagerService.getInstance();
 
   if ((!dependencies || dependencies.length === 0) && (!devDependencies || devDependencies.length === 0)) {

@@ -1,12 +1,12 @@
 import { Action } from '@/actions/action.type';
 import { FsCopyArgs } from '@/actions/fs/copy.type';
-import { LoggerService } from '@/services/logger';
+import { loggerService } from '@/services/logger';
 import { copyFile, lstat, mkdir } from 'fs/promises';
 import { readdir } from 'node:fs/promises';
 import { dirname, resolve } from 'path';
 
 export const fsCopyAction: Action<FsCopyArgs> = async ({ args: files, projectDirectory, recipeDirectory }) => {
-  const logger = LoggerService.getInstance();
+  const logger = loggerService;
 
   if (!files || files.length === 0) {
     throw new Error('At least one file or directory must be specified for the "copy" action');

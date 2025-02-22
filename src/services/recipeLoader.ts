@@ -1,5 +1,5 @@
-import { LoggerService } from '@/services/logger';
 // import { Readable } from 'stream';
+import { loggerService } from '@/services/logger';
 // import { extract as tarExtract } from 'tar';
 import { Recipe } from '@/services/recipe.type';
 import * as fs from 'fs';
@@ -23,7 +23,7 @@ import { dirname } from 'path';
 //   };
 // }
 
-const logger = LoggerService.getInstance();
+const logger = loggerService;
 
 export async function loadRecipe(recipeIdentifier: string): Promise<{ recipe: Recipe; recipeDirectory: string }> {
   try {

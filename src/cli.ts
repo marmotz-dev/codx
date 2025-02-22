@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
-import { LoggerService } from '@/services/logger';
+import { loggerService } from '@/services/logger';
 import { PackageManagerService, PackageManagerType } from '@/services/packageManager';
 import { recipeRunner } from '@/services/recipeRunner';
 import { Command } from 'commander';
 import { description, name, version } from '../package.json';
 
 const program = new Command();
-const logger = LoggerService.getInstance();
+const logger = loggerService;
 
 program
   .name(name)

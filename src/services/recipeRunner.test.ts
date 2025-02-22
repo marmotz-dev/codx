@@ -1,4 +1,4 @@
-import { CONSOLE_LOG_NAME } from '@/actions/console/log.const';
+import { CONSOLE_INFO_NAME } from '@/actions/console/console.const';
 import { PACKAGES_INSTALL_NAME } from '@/actions/packages/install.const';
 import { actionsHandler } from '@/actionsHandler';
 import { PackageManagerService } from '@/services/packageManager';
@@ -12,19 +12,19 @@ describe('RecipeRunner', () => {
     it('should execute a known action successfully', async () => {
       const mockHandler = mock(() => Promise.resolve());
       const action: AnyAction = {
-        [CONSOLE_LOG_NAME]: ['foo'],
+        [CONSOLE_INFO_NAME]: ['foo'],
       };
 
       // Temporarily replace the real handler
-      const originalHandler = actionsHandler[CONSOLE_LOG_NAME];
-      actionsHandler[CONSOLE_LOG_NAME] = mockHandler;
+      const originalHandler = actionsHandler[CONSOLE_INFO_NAME];
+      actionsHandler[CONSOLE_INFO_NAME] = mockHandler;
 
       try {
         await recipeRunner['executeAction'](action, '');
         expect(mockHandler).toHaveBeenCalledWith(argsToContext(['foo']));
       } finally {
         // Restore the original handler
-        actionsHandler[CONSOLE_LOG_NAME] = originalHandler;
+        actionsHandler[CONSOLE_INFO_NAME] = originalHandler;
       }
     });
 
@@ -41,27 +41,27 @@ describe('RecipeRunner', () => {
     it('should execute all actions in a recipe sequentially', async () => {
       PackageManagerService.getInstance().setPackageManager('bun');
 
-      const mockLogHandler = mock(() => Promise.resolve());
+      const mockConsoleInfoHandler = mock(() => Promise.resolve());
       const mockPackagesInstallHandler = mock(() => Promise.resolve());
 
       const recipe: Recipe = {
-        recipe: [{ 'console.log': ['log'] }, { 'packages.install': { dependencies: ['lodash'] } }],
+        recipe: [{ [CONSOLE_INFO_NAME]: ['info'] }, { [PACKAGES_INSTALL_NAME]: { dependencies: ['lodash'] } }],
       };
 
       // Temporarily replace the real handlers
-      const originalConsoleLogHandler = actionsHandler[CONSOLE_LOG_NAME];
+      const originalConsoleLogHandler = actionsHandler[CONSOLE_INFO_NAME];
       const originalPackagesInstallHandler = actionsHandler[PACKAGES_INSTALL_NAME];
-      actionsHandler[CONSOLE_LOG_NAME] = mockLogHandler;
+      actionsHandler[CONSOLE_INFO_NAME] = mockConsoleInfoHandler;
       actionsHandler[PACKAGES_INSTALL_NAME] = mockPackagesInstallHandler;
 
       try {
         await recipeRunner['executeRecipe'](recipe, '');
 
-        expect(mockLogHandler).toHaveBeenCalledWith(argsToContext(['log']));
+        expect(mockConsoleInfoHandler).toHaveBeenCalledWith(argsToContext(['info']));
         expect(mockPackagesInstallHandler).toHaveBeenCalledWith(argsToContext({ dependencies: ['lodash'] }));
       } finally {
         // Restore the original handlers
-        actionsHandler[CONSOLE_LOG_NAME] = originalConsoleLogHandler;
+        actionsHandler[CONSOLE_INFO_NAME] = originalConsoleLogHandler;
         actionsHandler[PACKAGES_INSTALL_NAME] = originalPackagesInstallHandler;
       }
     });
@@ -70,7 +70,7 @@ describe('RecipeRunner', () => {
   describe('run', () => {
     it('should load and execute a recipe from a valid YAML file', async () => {
       const mockRecipe = {
-        recipe: [{ log: ['Test log message'] }],
+        recipe: [{ [CONSOLE_INFO_NAME]: ['Test log message'] }],
       };
       const mockRecipeDirectory = '/mock/recipe/directory';
 
