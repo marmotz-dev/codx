@@ -1,6 +1,6 @@
 import { PackageManagerService } from '@/services/packageManager';
 import { ShellResult } from '@/services/shell';
-import { MockCleaner, mockModule } from '@/tests/mockModule';
+import { MockCleaner, mockModule } from '@/test-helpers/mockModule';
 import { afterEach, beforeEach, describe, expect, it } from 'bun:test';
 
 describe('PackageManagerService', () => {

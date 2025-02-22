@@ -1,28 +1,30 @@
+import { CONSOLE_LOG_NAME } from '@/actions/console/log.const';
+import { PACKAGES_INSTALL_NAME } from '@/actions/packages/install.const';
 import { actionsHandler } from '@/actionsHandler';
 import { PackageManagerService } from '@/services/packageManager';
-import { executeAction, executeRecipe, executeRecipeByNameOrPath } from '@/services/recipeRunner';
-import { argsToContext } from '@/tests/actionContext';
-import { AnyAction, Recipe } from '@/types/recipe.type';
-import { describe, expect, it, mock } from 'bun:test';
+import { AnyAction, Recipe } from '@/services/recipe.type';
+import { recipeRunner } from '@/services/recipeRunner';
+import { argsToContext } from '@/test-helpers/actionContext';
+import { describe, expect, it, mock, spyOn } from 'bun:test';
 
 describe('RecipeRunner', () => {
   describe('executeAction', () => {
     it('should execute a known action successfully', async () => {
       const mockHandler = mock(() => Promise.resolve());
       const action: AnyAction = {
-        log: ['foo'],
+        [CONSOLE_LOG_NAME]: ['foo'],
       };
 
       // Temporarily replace the real handler
-      const originalHandler = actionsHandler.log;
-      actionsHandler.log = mockHandler;
+      const originalHandler = actionsHandler[CONSOLE_LOG_NAME];
+      actionsHandler[CONSOLE_LOG_NAME] = mockHandler;
 
       try {
-        await executeAction(action, '');
+        await recipeRunner['executeAction'](action, '');
         expect(mockHandler).toHaveBeenCalledWith(argsToContext(['foo']));
       } finally {
         // Restore the original handler
-        actionsHandler.log = originalHandler;
+        actionsHandler[CONSOLE_LOG_NAME] = originalHandler;
       }
     });
 
@@ -31,7 +33,7 @@ describe('RecipeRunner', () => {
         unknown: { data: 'test' },
       } as never;
 
-      expect(executeAction(unknownAction, '')).rejects.toThrow('Unknown action: unknown');
+      expect(recipeRunner['executeAction'](unknownAction, '')).rejects.toThrow('Unknown action: unknown');
     });
   });
 
@@ -40,32 +42,32 @@ describe('RecipeRunner', () => {
       PackageManagerService.getInstance().setPackageManager('bun');
 
       const mockLogHandler = mock(() => Promise.resolve());
-      const mockAddPackagesHandler = mock(() => Promise.resolve());
+      const mockPackagesInstallHandler = mock(() => Promise.resolve());
 
       const recipe: Recipe = {
-        recipe: [{ log: ['log'] }, { addPackages: { dependencies: ['lodash'] } }],
+        recipe: [{ 'console.log': ['log'] }, { 'packages.install': { dependencies: ['lodash'] } }],
       };
 
       // Temporarily replace the real handlers
-      const originalLogHandler = actionsHandler.log;
-      const originalAddPackagesHandler = actionsHandler.addPackages;
-      actionsHandler.log = mockLogHandler;
-      actionsHandler.addPackages = mockAddPackagesHandler;
+      const originalConsoleLogHandler = actionsHandler[CONSOLE_LOG_NAME];
+      const originalPackagesInstallHandler = actionsHandler[PACKAGES_INSTALL_NAME];
+      actionsHandler[CONSOLE_LOG_NAME] = mockLogHandler;
+      actionsHandler[PACKAGES_INSTALL_NAME] = mockPackagesInstallHandler;
 
       try {
-        await executeRecipe(recipe, '');
+        await recipeRunner['executeRecipe'](recipe, '');
 
         expect(mockLogHandler).toHaveBeenCalledWith(argsToContext(['log']));
-        expect(mockAddPackagesHandler).toHaveBeenCalledWith(argsToContext({ dependencies: ['lodash'] }));
+        expect(mockPackagesInstallHandler).toHaveBeenCalledWith(argsToContext({ dependencies: ['lodash'] }));
       } finally {
         // Restore the original handlers
-        actionsHandler.log = originalLogHandler;
-        actionsHandler.addPackages = originalAddPackagesHandler;
+        actionsHandler[CONSOLE_LOG_NAME] = originalConsoleLogHandler;
+        actionsHandler[PACKAGES_INSTALL_NAME] = originalPackagesInstallHandler;
       }
     });
   });
 
-  describe('executeRecipeByNameOrPath', () => {
+  describe('run', () => {
     it('should load and execute a recipe from a valid YAML file', async () => {
       const mockRecipe = {
         recipe: [{ log: ['Test log message'] }],
@@ -82,12 +84,9 @@ describe('RecipeRunner', () => {
         loadRecipe: loadRecipeMock,
       }));
 
-      const executeRecipeMock = mock(() => Promise.resolve());
-      mock.module('./recipeRunner', () => ({
-        executeRecipe: executeRecipeMock,
-      }));
+      const executeRecipeMock = spyOn(recipeRunner as any, 'executeRecipe').mockImplementation(() => Promise.resolve());
 
-      await executeRecipeByNameOrPath('test-recipe.yml');
+      await recipeRunner.run('test-recipe.yml');
 
       expect(loadRecipeMock).toHaveBeenCalledWith('test-recipe.yml');
       expect(executeRecipeMock).toHaveBeenCalledWith(mockRecipe, mockRecipeDirectory);
@@ -101,7 +100,7 @@ describe('RecipeRunner', () => {
         loadRecipe: loadRecipeMock,
       }));
 
-      expect(executeRecipeByNameOrPath('error-recipe.yml')).rejects.toThrow('Failed to load recipe');
+      expect(recipeRunner.run('error-recipe.yml')).rejects.toThrow('Failed to load recipe');
     });
   });
 });

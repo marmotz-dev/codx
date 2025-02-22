@@ -32,11 +32,11 @@ Here's a complete example that shows how to:
 
 ```yaml
 recipe:
-  - log:
+  - console.log:
       - text: "Starting recipe execution"
 
   # Install packages
-  - addPackages:
+  - packages.install:
       dependencies:
         - lodash
         - name: express@^4.18.2"
@@ -47,19 +47,20 @@ recipe:
           exact: true
 
   # Copy configuration files
-  - copyFiles:
+  - fs.copy:
       - from: prettierignore
         to: .prettierignore
       - from: config/test.json
         to: config/test.json
 
-  - log:
+  - console.log:
       - text: "Recipe execution completed"
 ```
 
 ## Best Practices
 
-1. Group related actions: Keep related actions together (e.g., all package installations in one addPackages action).
+1. Group related actions: Keep related actions together (e.g., all package installations in one `packages.install`
+   action).
 2. Use meaningful names: Use clear, descriptive names for files and paths.
 3. Version control: Always specify versions for critical dependencies.
 

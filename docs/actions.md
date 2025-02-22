@@ -2,11 +2,13 @@
 
 This document details all available actions that can be used in Codx recipes.
 
-## addPackages
+## Package Manager (packages)
+
+### install
 
 Installs npm packages as dependencies or devDependencies.
 
-### Parameters
+#### Parameters
 
 * dependencies: Array of packages to install as dependencies
 * devDependencies: Array of packages to install as devDependencies
@@ -23,7 +25,7 @@ Example :
 
 ```yaml
 recipe:
-  - addPackages:
+  - packages.install:
     dependencies:
       - lodash
       - date-fns@^4.0.0
@@ -34,11 +36,13 @@ recipe:
       - "@types/express@4.17.17"
 ```
 
-## copyFiles
+## File system (fs)
 
-Copies files from the recipe directory to your project directory.
+### copy
 
-### Parameters
+Copies files or directories from the recipe directory to your project directory.
+
+#### Parameters
 
 Array of objects with:
 
@@ -49,16 +53,18 @@ Example :
 
 ```yaml
 recipe:
-  - copyFiles:
+  - fs.copy:
       - from: config/test.json
         to: config/test.json
 ```
 
-## log
+## Console (console)
+
+### log
 
 Outputs messages to the console.
 
-### Parameters
+#### Parameters
 
 Array of messages to display
 
@@ -66,6 +72,6 @@ Example:
 
 ```yaml
 recipe:
-  - log:
+  - console.log:
       - Starting to execute recipe
 ```

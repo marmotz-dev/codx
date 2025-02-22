@@ -1,10 +1,13 @@
-import { addPackages } from '@/actions/addPackages';
-import { copyFiles } from '@/actions/copyFiles';
-import { log } from '@/actions/log';
-import { Action } from '@/types/action.type';
+import { consoleLogAction } from '@/actions/console/log';
+import { CONSOLE_LOG_NAME } from '@/actions/console/log.const';
+import { fsCopyAction } from '@/actions/fs/copy';
+import { FS_COPY_NAME } from '@/actions/fs/copy.const';
+import { packagesInstallAction } from '@/actions/packages/install';
+import { PACKAGES_INSTALL_NAME } from '@/actions/packages/install.const';
+import { ActionsHandler } from '@/actionsHandler.type';
 
-export const actionsHandler: Record<string, Action<never>> = {
-  addPackages,
-  copyFiles,
-  log,
+export const actionsHandler: ActionsHandler = {
+  [CONSOLE_LOG_NAME]: consoleLogAction,
+  [FS_COPY_NAME]: fsCopyAction,
+  [PACKAGES_INSTALL_NAME]: packagesInstallAction,
 };

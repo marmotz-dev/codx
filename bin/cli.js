@@ -2693,14 +2693,80 @@ class PackageManagerService {
   }
 }
 
-// src/actions/addPackages.ts
-var addPackages = async ({
+// src/actions/console/log.ts
+var consoleLogAction = async ({ args: texts }) => {
+  if (!texts || texts.length === 0) {
+    throw new Error('A text list is required for the "log" action');
+  }
+  for (const text of texts) {
+    LoggerService.getInstance().info(text);
+  }
+};
+
+// src/actions/console/console.const.ts
+var CONSOLE_NAMESPACE = "console";
+
+// src/actions/console/log.const.ts
+var CONSOLE_LOG_NAME = `${CONSOLE_NAMESPACE}.log`;
+
+// src/actions/fs/copy.ts
+import { copyFile, lstat, mkdir } from "fs/promises";
+import { readdir } from "node:fs/promises";
+import { dirname, resolve } from "path";
+var fsCopyAction = async ({ args: files, projectDirectory, recipeDirectory }) => {
+  const logger = LoggerService.getInstance();
+  if (!files || files.length === 0) {
+    throw new Error('At least one file or directory must be specified for the "copy" action');
+  }
+  for (const { from, to } of files) {
+    try {
+      const sourcePath = resolve(recipeDirectory, from);
+      const targetPath = resolve(projectDirectory, to);
+      await copy(sourcePath, targetPath);
+      logger.success(`Copied ${sourcePath} to ${targetPath}`);
+    } catch (error) {
+      logger.error(`Failed to copy ${from} to ${to}`);
+      throw error;
+    }
+  }
+};
+async function copy(sourcePath, targetPath) {
+  await mkdir(dirname(targetPath), { recursive: true });
+  const sourceStats = await lstat(sourcePath);
+  if (sourceStats.isDirectory()) {
+    await copyDirectory(sourcePath, targetPath);
+  } else if (sourceStats.isFile()) {
+    await copyFile(sourcePath, targetPath);
+  }
+}
+async function copyDirectory(sourceDir, targetDir) {
+  const entries = await readdir(sourceDir, { withFileTypes: true });
+  await mkdir(targetDir, { recursive: true });
+  for (const entry of entries) {
+    const sourceEntryPath = resolve(sourceDir, entry.name);
+    const targetEntryPath = resolve(targetDir, entry.name);
+    if (entry.isDirectory()) {
+      await copyDirectory(sourceEntryPath, targetEntryPath);
+    } else if (entry.isFile()) {
+      await copyFile(sourceEntryPath, targetEntryPath);
+    }
+  }
+}
+
+// src/actions/fs/fs.const.ts
+var FS_NAMESPACE = "fs";
+
+// src/actions/fs/copy.const.ts
+var FS_COPY_NAME = `${FS_NAMESPACE}.copy`;
+
+// src/actions/packages/install.ts
+var packagesInstallAction = async ({
   args: { dependencies, devDependencies }
 }) => {
   const logger = LoggerService.getInstance();
   const pmService = PackageManagerService.getInstance();
   if ((!dependencies || dependencies.length === 0) && (!devDependencies || devDependencies.length === 0)) {
-    throw new Error('At least one package must be specified for the "addPackages" action');
+    throw new Error('At least one package must be specified for the "packagesInstall" action');
   }
   const formatPackage = (pkg) => {
     if (typeof pkg === "string") {
@@ -2736,47 +2802,17 @@ var addPackages = async ({
   }
 };
 
-// src/actions/copyFiles.ts
-import { copyFile, mkdir } from "fs/promises";
-import { dirname, resolve } from "path";
-var copyFiles = async ({
-  args: files,
-  projectDirectory,
-  recipeDirectory
-}) => {
-  const logger = LoggerService.getInstance();
-  if (!files || files.length === 0) {
-    throw new Error('At least one file or directory must be specified for the "copyFiles" action');
-  }
-  for (const { from, to } of files) {
-    try {
-      const sourcePath = resolve(recipeDirectory, from);
-      const targetPath = resolve(projectDirectory, to);
-      await mkdir(dirname(targetPath), { recursive: true });
-      await copyFile(sourcePath, targetPath);
-      logger.success(`Copied ${sourcePath} to ${targetPath}`);
-    } catch (error) {
-      logger.error(`Failed to copy ${from} to ${to}`);
-      throw error;
-    }
-  }
-};
+// src/actions/packages/packages.const.ts
+var PACKAGES_NAMESPACE = "packages";
 
-// src/actions/log.ts
-var log = async ({ args: texts }) => {
-  if (!texts || texts.length === 0) {
-    throw new Error('A text list is required for the "log" action');
-  }
-  for (const text of texts) {
-    LoggerService.getInstance().info(text);
-  }
-};
+// src/actions/packages/install.const.ts
+var PACKAGES_INSTALL_NAME = `${PACKAGES_NAMESPACE}.install`;
 
 // src/actionsHandler.ts
 var actionsHandler = {
-  addPackages,
-  copyFiles,
-  log
+  [CONSOLE_LOG_NAME]: consoleLogAction,
+  [FS_COPY_NAME]: fsCopyAction,
+  [PACKAGES_INSTALL_NAME]: packagesInstallAction
 };
 
 // src/services/recipeLoader.ts
@@ -5456,28 +5492,31 @@ function isYamlFile(recipePath) {
 }
 
 // src/services/recipeRunner.ts
-async function executeRecipeByNameOrPath(recipeNameOrPath) {
-  const { recipe, recipeDirectory } = await loadRecipe(recipeNameOrPath);
-  await executeRecipe(recipe, recipeDirectory);
-}
-async function executeRecipe(recipe, recipeDirectory) {
-  for (const action of recipe.recipe) {
-    await executeAction(action, recipeDirectory);
+class RecipeRunner {
+  async run(recipeNameOrPath) {
+    const { recipe, recipeDirectory } = await loadRecipe(recipeNameOrPath);
+    await this.executeRecipe(recipe, recipeDirectory);
+  }
+  async executeAction(action, recipeDirectory) {
+    const actionName = Object.keys(action)[0];
+    const handler = actionsHandler[actionName];
+    if (!handler) {
+      throw new Error(`Unknown action: ${actionName}`);
+    }
+    const args = action[actionName];
+    await handler({
+      args,
+      projectDirectory: process.cwd(),
+      recipeDirectory
+    });
+  }
+  async executeRecipe(recipe, recipeDirectory) {
+    for (const action of recipe.recipe) {
+      await this.executeAction(action, recipeDirectory);
+    }
   }
 }
-async function executeAction(action, recipeDirectory) {
-  const actionName = Object.keys(action)[0];
-  const handler = actionsHandler[actionName];
-  if (!handler) {
-    throw new Error(`Unknown action: ${actionName}`);
-  }
-  const args = action[actionName];
-  await handler({
-    args,
-    projectDirectory: process.cwd(),
-    recipeDirectory
-  });
-}
+var recipeRunner = new RecipeRunner;
 
 // node_modules/commander/esm.mjs
 var import__ = __toESM(require_commander(), 1);
@@ -5518,7 +5557,7 @@ program2.command("recipe").description("Execute a recipe").argument("<name-or-pa
     } else {
       await packageManagerService.loadDefaultPackageManager();
     }
-    await executeRecipeByNameOrPath(recipeNameOrPath);
+    await recipeRunner.run(recipeNameOrPath);
     logger2.successGroupEnd("Recipe executed successfully");
   } catch (error) {
     logger2.errorGroupEnd(error.message);

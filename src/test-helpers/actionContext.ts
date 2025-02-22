@@ -1,4 +1,4 @@
-import { ActionContext } from '@/types/action.type';
+import { ActionContext } from '@/actions/action.type';
 
 export function createActionContext<T>(partialContext: Partial<ActionContext<T>> = {}): ActionContext<T> {
   return {

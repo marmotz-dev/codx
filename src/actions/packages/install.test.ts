@@ -1,10 +1,10 @@
-import { addPackages } from '@/actions/addPackages';
+import { packagesInstallAction } from '@/actions/packages/install';
 import { PackageManagerService } from '@/services/packageManager';
-import { argsToContext } from '@/tests/actionContext';
-import { MockCleaner, mockModule } from '@/tests/mockModule';
+import { argsToContext } from '@/test-helpers/actionContext';
+import { MockCleaner, mockModule } from '@/test-helpers/mockModule';
 import { afterEach, beforeEach, describe, expect, it, Mock, spyOn } from 'bun:test';
 
-describe('addPackages action', () => {
+describe('packagesInstall action', () => {
   let getInstallCommandSpy: Mock<(packageName: string, isDev?: boolean, exact?: boolean) => string>;
   let cleanShellMock: MockCleaner;
 
@@ -32,7 +32,7 @@ describe('addPackages action', () => {
   it('should install dependencies correctly', async () => {
     const deps = ['lodash', { name: 'express@4.18.2', exact: true }];
 
-    await addPackages(argsToContext({ dependencies: deps }));
+    await packagesInstallAction(argsToContext({ dependencies: deps }));
 
     expect(getInstallCommandSpy).nthCalledWith(1, 'lodash', false, false);
     expect(getInstallCommandSpy).nthCalledWith(2, 'express@4.18.2', false, true);
@@ -41,21 +41,21 @@ describe('addPackages action', () => {
   it('should install devDependencies correctly', async () => {
     const devDeps = ['@types/lodash', { name: '@types/express@4.17.17' }];
 
-    await addPackages(argsToContext({ devDependencies: devDeps }));
+    await packagesInstallAction(argsToContext({ devDependencies: devDeps }));
 
     expect(getInstallCommandSpy).nthCalledWith(1, '@types/lodash', true, false);
     expect(getInstallCommandSpy).nthCalledWith(2, '@types/express@4.17.17', true, false);
   });
 
   it('should throw error when no package was specifed', async () => {
-    let result = addPackages(argsToContext({}));
-    expect(result).rejects.toThrow('At least one package must be specified for the "addPackages" action');
+    let result = packagesInstallAction(argsToContext({}));
+    expect(result).rejects.toThrow('At least one package must be specified for the "packagesInstall" action');
 
-    result = addPackages(argsToContext({ dependencies: [] }));
-    expect(result).rejects.toThrow('At least one package must be specified for the "addPackages" action');
+    result = packagesInstallAction(argsToContext({ dependencies: [] }));
+    expect(result).rejects.toThrow('At least one package must be specified for the "packagesInstall" action');
 
-    result = addPackages(argsToContext({ devDependencies: [] }));
-    expect(result).rejects.toThrow('At least one package must be specified for the "addPackages" action');
+    result = packagesInstallAction(argsToContext({ devDependencies: [] }));
+    expect(result).rejects.toThrow('At least one package must be specified for the "packagesInstall" action');
   });
 
   it('should throw error when package is unavailable', async () => {
@@ -69,7 +69,7 @@ describe('addPackages action', () => {
         }),
     }));
 
-    let result = addPackages(argsToContext({ dependencies: ['non-existent-package'] }));
+    let result = packagesInstallAction(argsToContext({ dependencies: ['non-existent-package'] }));
     expect(result).rejects.toThrow('Command failed');
   });
 });

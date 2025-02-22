@@ -1,7 +1,7 @@
 import { LoggerService } from '@/services/logger';
 // import { Readable } from 'stream';
 // import { extract as tarExtract } from 'tar';
-import { Recipe } from '@/types/recipe.type';
+import { Recipe } from '@/services/recipe.type';
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
 // import { finished } from 'node:stream/promises';

@@ -2,7 +2,7 @@
 
 import { LoggerService } from '@/services/logger';
 import { PackageManagerService, PackageManagerType } from '@/services/packageManager';
-import { executeRecipeByNameOrPath } from '@/services/recipeRunner';
+import { recipeRunner } from '@/services/recipeRunner';
 import { Command } from 'commander';
 import { description, name, version } from '../package.json';
 
@@ -37,7 +37,7 @@ program
         await packageManagerService.loadDefaultPackageManager();
       }
 
-      await executeRecipeByNameOrPath(recipeNameOrPath);
+      await recipeRunner.run(recipeNameOrPath);
       logger.successGroupEnd('Recipe executed successfully');
     } catch (error) {
       logger.errorGroupEnd((error as Error).message);
