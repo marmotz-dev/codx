@@ -2,7 +2,8 @@
 import { loggerService } from '@/services/logger';
 // import { extract as tarExtract } from 'tar';
 import { Recipe } from '@/services/recipe.type';
-import { exists, readFile } from 'fs/promises';
+import { existsSync } from 'fs';
+import { readFile } from 'fs/promises';
 import { load } from 'js-yaml';
 // import { finished } from 'node:stream/promises';
 // import { type ReadableStream } from 'node:stream/web';
@@ -38,7 +39,7 @@ export async function loadRecipe(recipeIdentifier: string): Promise<{ recipe: Re
       // recipePath = await this.downloadAndExtractPackage(packageName, version);
     }
 
-    if (!(await exists(recipePath))) {
+    if (!existsSync(recipePath)) {
       throw new Error(`Recipe file not found: ${recipePath}`);
     }
 

@@ -1,6 +1,6 @@
 import { Action } from '@/actions/action.type';
 import { ConsoleActions } from '@/actions/console/console.const';
-import { FS_COPY_NAME } from '@/actions/fs/copy.const';
+import { FS_COPY_NAME } from '@/actions/fs/fs.const';
 import { PACKAGES_INSTALL_NAME } from '@/actions/packages/install.const';
 
 export type ActionsHandler = {

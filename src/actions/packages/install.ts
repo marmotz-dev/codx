@@ -1,14 +1,13 @@
 import { Action } from '@/actions/action.type';
 import { Package, PackagesInstallArgs } from '@/actions/packages/install.type';
 import { loggerService } from '@/services/logger';
-import { PackageManagerService } from '@/services/packageManager';
+import { packageManagerService } from '@/services/packageManager';
 import { shell } from '@/services/shell';
 
 export const packagesInstallAction: Action<PackagesInstallArgs> = async ({
   args: { dependencies, devDependencies },
 }) => {
   const logger = loggerService;
-  const pmService = PackageManagerService.getInstance();
 
   if ((!dependencies || dependencies.length === 0) && (!devDependencies || devDependencies.length === 0)) {
     throw new Error('At least one package must be specified for the "packagesInstall" action');
@@ -31,7 +30,7 @@ export const packagesInstallAction: Action<PackagesInstallArgs> = async ({
   const installPackages = async (packages: Package[], isDev: boolean) => {
     for (const pkg of packages) {
       const { name, exact } = formatPackage(pkg);
-      const command = pmService.getInstallCommand(name, isDev, exact);
+      const command = packageManagerService.getInstallCommand(name, isDev, exact);
 
       logger.info(`Installing ${name}...`);
 

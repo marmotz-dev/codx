@@ -4,19 +4,8 @@ import { shell } from '@/services/shell';
 export type PackageManagerType = 'npm' | 'pnpm' | 'yarn' | 'bun';
 
 export class PackageManagerService {
-  private static instance: PackageManagerService;
   private selectedPM: PackageManagerType | null = null;
   private logger = loggerService;
-
-  private constructor() {}
-
-  static getInstance(): PackageManagerService {
-    if (!PackageManagerService.instance) {
-      PackageManagerService.instance = new PackageManagerService();
-    }
-
-    return PackageManagerService.instance;
-  }
 
   getInstallCommand(packageName: string, isDev: boolean = false, exact: boolean = false): string {
     if (!this.selectedPM) {
@@ -85,3 +74,5 @@ export class PackageManagerService {
     throw new Error('No package manager found');
   }
 }
+
+export const packageManagerService = new PackageManagerService();

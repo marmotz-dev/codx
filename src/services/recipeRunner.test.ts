@@ -1,7 +1,7 @@
 import { CONSOLE_INFO_NAME } from '@/actions/console/console.const';
 import { PACKAGES_INSTALL_NAME } from '@/actions/packages/install.const';
 import { actionsHandler } from '@/actionsHandler';
-import { PackageManagerService } from '@/services/packageManager';
+import { packageManagerService } from '@/services/packageManager';
 import { AnyAction, Recipe } from '@/services/recipe.type';
 import { recipeRunner } from '@/services/recipeRunner';
 import { argsToContext } from '@/test-helpers/actionContext';
@@ -40,7 +40,7 @@ describe('RecipeRunner', () => {
 
   describe('executeRecipe', () => {
     it('should execute all actions in a recipe sequentially', async () => {
-      PackageManagerService.getInstance().setPackageManager('bun');
+      packageManagerService.setPackageManager('bun');
 
       const mockConsoleInfoHandler = mock(() => Promise.resolve());
       const mockPackagesInstallHandler = mock(() => Promise.resolve());

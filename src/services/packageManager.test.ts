@@ -7,7 +7,7 @@ describe('PackageManagerService', () => {
   let service: PackageManagerService;
 
   beforeEach(() => {
-    service = PackageManagerService.getInstance();
+    service = new PackageManagerService();
   });
 
   afterEach(() => {
