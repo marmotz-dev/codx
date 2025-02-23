@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { loggerService } from '@/services/logger';
-import { PackageManagerService, PackageManagerType } from '@/services/packageManager';
+import { packageManagerService, PackageManagerType } from '@/services/packageManager';
 import { recipeRunner } from '@/services/recipeRunner';
 import { Command } from 'commander';
 import { description, name, version } from '../package.json';
@@ -21,10 +21,9 @@ program
   .argument('<name-or-path>', 'Recipe name / Path to local recipe file')
   .action(async (recipeNameOrPath) => {
     try {
-      logger.logGroup(name + ' v' + version);
+      logger.infoGroup(name + ' v' + version);
 
       const options = program.opts();
-      const packageManagerService = PackageManagerService.getInstance();
 
       if (options.pm) {
         const validPMs: PackageManagerType[] = ['npm', 'pnpm', 'yarn', 'bun'];

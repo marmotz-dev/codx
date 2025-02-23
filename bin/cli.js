@@ -2634,17 +2634,8 @@ async function shell(command) {
 
 // src/services/packageManager.ts
 class PackageManagerService {
-  static instance;
   selectedPM = null;
   logger = loggerService;
-  constructor() {
-  }
-  static getInstance() {
-    if (!PackageManagerService.instance) {
-      PackageManagerService.instance = new PackageManagerService;
-    }
-    return PackageManagerService.instance;
-  }
   getInstallCommand(packageName, isDev = false, exact = false) {
     if (!this.selectedPM) {
       throw new Error("No package manager selected");
@@ -2693,74 +2684,80 @@ class PackageManagerService {
     throw new Error("No package manager found");
   }
 }
+var packageManagerService = new PackageManagerService;
 
 // src/actions/console/logger.ts
 class LoggerActions {
   static check = async ({ args: texts }) => {
-    LoggerActions.validateTexts(texts);
+    texts = LoggerActions.validateTexts(texts, "check");
     for (const text of texts) {
       loggerService.check(text);
     }
   };
   static checkGroup = async ({ args: text }) => {
-    LoggerActions.validateText(text);
+    LoggerActions.validateText(text, "checkGroup");
     loggerService.checkGroup(text);
   };
   static checkGroupEnd = async ({ args: text }) => {
-    LoggerActions.validateText(text);
+    LoggerActions.validateText(text, "checkGroupEnd");
     loggerService.checkGroupEnd(text);
   };
   static error = async ({ args: texts }) => {
-    LoggerActions.validateTexts(texts);
+    texts = LoggerActions.validateTexts(texts, "error");
     for (const text of texts) {
       loggerService.error(text);
     }
   };
   static errorGroup = async ({ args: text }) => {
-    LoggerActions.validateText(text);
+    LoggerActions.validateText(text, "errorGroup");
     loggerService.errorGroup(text);
   };
   static errorGroupEnd = async ({ args: text }) => {
-    LoggerActions.validateText(text);
+    LoggerActions.validateText(text, "errorGroupEnd");
     loggerService.errorGroupEnd(text);
   };
   static info = async ({ args: texts }) => {
-    LoggerActions.validateTexts(texts);
+    texts = LoggerActions.validateTexts(texts, "info");
     for (const text of texts) {
       loggerService.info(text);
     }
   };
   static infoGroup = async ({ args: text }) => {
-    LoggerActions.validateText(text);
+    LoggerActions.validateText(text, "infoGroup");
     loggerService.infoGroup(text);
   };
   static infoGroupEnd = async ({ args: text }) => {
-    LoggerActions.validateText(text);
+    LoggerActions.validateText(text, "infoGroupEnd");
     loggerService.infoGroupEnd(text);
   };
   static success = async ({ args: texts }) => {
-    LoggerActions.validateTexts(texts);
+    texts = LoggerActions.validateTexts(texts, "success");
     for (const text of texts) {
       loggerService.success(text);
     }
   };
   static successGroup = async ({ args: text }) => {
-    LoggerActions.validateText(text);
+    LoggerActions.validateText(text, "successGroup");
     loggerService.successGroup(text);
   };
   static successGroupEnd = async ({ args: text }) => {
-    LoggerActions.validateText(text);
+    LoggerActions.validateText(text, "successGroupEnd");
     loggerService.successGroupEnd(text);
   };
-  static validateText(text) {
+  static validateText(text, actionName) {
     if (!text) {
-      throw new Error("A text is required for logger actions");
+      throw new Error(`A text is required for ${actionName} action`);
+    }
+    if (Array.isArray(text)) {
+      throw new Error(`A single text is required for ${actionName} action`);
     }
   }
-  static validateTexts(texts) {
+  static validateTexts(texts, actionName) {
+    texts = Array.isArray(texts) ? texts : [texts];
     if (!texts || texts.length === 0) {
-      throw new Error("A text list is required for logger actions");
+      throw new Error(`A text list is required for ${actionName} action`);
     }
+    return texts;
   }
 }
 
@@ -2895,7 +2892,6 @@ var packagesInstallAction = async ({
   args: { dependencies, devDependencies }
 }) => {
   const logger = loggerService;
-  const pmService = PackageManagerService.getInstance();
   if ((!dependencies || dependencies.length === 0) && (!devDependencies || devDependencies.length === 0)) {
     throw new Error('At least one package must be specified for the "packagesInstall" action');
   }
@@ -2914,7 +2910,7 @@ var packagesInstallAction = async ({
   const installPackages = async (packages, isDev) => {
     for (const pkg of packages) {
       const { name, exact } = formatPackage(pkg);
-      const command = pmService.getInstallCommand(name, isDev, exact);
+      const command = packageManagerService.getInstallCommand(name, isDev, exact);
       logger.info(`Installing ${name}...`);
       const { error } = await shell(command);
       if (error) {
@@ -2947,7 +2943,8 @@ var actionsHandler = {
 };
 
 // src/services/recipeLoader.ts
-import { exists, readFile } from "fs/promises";
+import { existsSync } from "fs";
+import { readFile } from "fs/promises";
 
 // node_modules/js-yaml/dist/js-yaml.mjs
 /*! js-yaml 4.1.0 https://github.com/nodeca/js-yaml @license MIT */
@@ -5605,7 +5602,7 @@ async function loadRecipe(recipeIdentifier) {
     } else {
       throw new Error("Remote packages are not supported");
     }
-    if (!await exists(recipePath)) {
+    if (!existsSync(recipePath)) {
       throw new Error(`Recipe file not found: ${recipePath}`);
     }
     const fileContent = await readFile(recipePath, "utf8");
@@ -5675,9 +5672,8 @@ var logger2 = loggerService;
 program2.name(name).description(description).version(version).option("--pm <package-manager>", "Package manager to use (npm, pnpm, yarn, bun)");
 program2.command("recipe").description("Execute a recipe").argument("<name-or-path>", "Recipe name / Path to local recipe file").action(async (recipeNameOrPath) => {
   try {
-    logger2.logGroup(name + " v" + version);
+    logger2.infoGroup(name + " v" + version);
     const options = program2.opts();
-    const packageManagerService = PackageManagerService.getInstance();
     if (options.pm) {
       const validPMs = ["npm", "pnpm", "yarn", "bun"];
       if (!validPMs.includes(options.pm)) {

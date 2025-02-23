@@ -1,5 +1,5 @@
 import { packagesInstallAction } from '@/actions/packages/install';
-import { PackageManagerService } from '@/services/packageManager';
+import { packageManagerService } from '@/services/packageManager';
 import { argsToContext } from '@/test-helpers/actionContext';
 import { MockCleaner, mockModule } from '@/test-helpers/mockModule';
 import { afterEach, beforeEach, describe, expect, it, Mock, spyOn } from 'bun:test';
@@ -9,9 +9,9 @@ describe('packagesInstall action', () => {
   let cleanShellMock: MockCleaner;
 
   beforeEach(async () => {
-    PackageManagerService.getInstance().setPackageManager('npm');
+    packageManagerService.setPackageManager('npm');
 
-    getInstallCommandSpy = spyOn(PackageManagerService.prototype, 'getInstallCommand');
+    getInstallCommandSpy = spyOn(packageManagerService, 'getInstallCommand');
 
     cleanShellMock = await mockModule('../services/shell', () => ({
       shell: () =>

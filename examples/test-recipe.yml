@@ -1,6 +1,8 @@
 recipe:
-  - console.log:
-      - text: "Starting recipe execution"
+  - console.info:
+      - "Starting recipe execution"
+  - console.checkGroup: Message 1
+  - console.info: Message 2
   - packages.install:
       dependencies:
         - lodash
@@ -14,5 +16,5 @@ recipe:
         to: test.md
       - from: skeleton
         to: config
-  - console.log:
-      - text: "Recipe execution completed" 
+  - console.info:
+      - "Recipe execution completed" 

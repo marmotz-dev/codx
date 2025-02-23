@@ -29,7 +29,9 @@ describe('Logger', () => {
       });
 
       it(`should throw an error when no text is provided`, async () => {
-        expect(LoggerActions[method](argsToContext([]))).rejects.toThrow('A text list is required for logger actions');
+        expect(LoggerActions[method](argsToContext([]))).rejects.toThrow(
+          `A text list is required for ${method} action`,
+        );
       });
 
       it(`should handle multiple texts`, async () => {
@@ -52,7 +54,7 @@ describe('Logger', () => {
 
       it(`should throw an error when no text is provided`, async () => {
         expect((LoggerActions as any)[method](argsToContext<string>(''))).rejects.toThrow(
-          'A text is required for logger actions',
+          `A text is required for ${method} action`,
         );
       });
     });

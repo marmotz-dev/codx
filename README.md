@@ -3,15 +3,7 @@
 Codx is a command-line tool that automates the installation and configuration of third-party libraries and tools in your
 projects. Instead of following lengthy documentation steps manually, you can use Codx recipes to automate the process.
 
-## Table of Contents
-
-1. [Getting Started](#getting-started)
-2. [Installation](#installation)
-3. [Usage](#usage)
-4. [Actions Reference](docs/actions.md)
-5. [Writing Recipes](docs/writing-recipes.md)
-
-## Getting Started
+## Why use Codx ?
 
 Codx allows you to:
 
@@ -39,3 +31,8 @@ You can also launch Codx without installation :
 
 To execute a recipe: `codx recipe <recipe-name>`
 Or if you have a local recipe file: `codx recipe path/to/recipe.yml`
+
+## Documentation
+
+* [English](docs/en/index.md)
+* [Français](docs/fr/index.md)
