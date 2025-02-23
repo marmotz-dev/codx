@@ -10,7 +10,8 @@
     "build": "bun build src/cli.ts --target=node --format=esm --outdir=./bin --env=disable",
     "dev": "bun run build --watch",
     "test": "bun test",
-    "test:coverage": "rm -rf coverage/ && bun test --coverage --coverage-reporter=lcov && genhtml coverage/lcov.info -o coverage/ && bunx http-server coverage",
+    "test:ci": "bun test --coverage --coverage-reporter=lcov",
+    "test:coverage": "rm -rf coverage/ && bun test:ci && genhtml coverage/lcov.info -o coverage/ && bunx http-server coverage",
     "prepare": "husky",
     "lint": "eslint \"src/**/*.ts\"",
     "lint:fix": "eslint \"src/**/*.ts\" --fix"
