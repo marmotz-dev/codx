@@ -1,5 +1,5 @@
 import { Action } from '@/actions/action.type';
-import { FsCopyArgs } from '@/actions/fs/copy.type';
+import { FsCopyArgs } from '@/actions/fs/fs.type';
 import { loggerService } from '@/services/logger';
 import { copyFile, lstat, mkdir } from 'fs/promises';
 import { readdir } from 'node:fs/promises';

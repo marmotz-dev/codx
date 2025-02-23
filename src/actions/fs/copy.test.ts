@@ -1,24 +1,31 @@
 import { fsCopyAction } from '@/actions/fs/copy';
 import { argsToContext, createActionContext } from '@/test-helpers/actionContext';
-import { beforeEach, describe, expect, it, jest, mock, spyOn } from 'bun:test';
-import { copyFile, mkdir } from 'fs/promises';
+import { MockCleaner, mockModule } from '@/test-helpers/mockModule';
+import { afterEach, beforeEach, describe, expect, it, jest, spyOn } from 'bun:test';
+import { copyFile, lstat, mkdir } from 'fs/promises';
+import { readdir } from 'node:fs/promises';
 import { resolve } from 'path';
 
 describe('copy action', () => {
   const mockRecipeDir = '/path/to/recipe';
   const mockProjectDir = '/path/to/project';
+  let cleanFsMock: MockCleaner;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     // Mock process.cwd()
     spyOn(process, 'cwd').mockReturnValue(mockProjectDir);
 
     // Mock fs functions
-    mock.module('fs/promises', () => ({
+    cleanFsMock = await mockModule('fs/promises', () => ({
       lstat: jest.fn().mockResolvedValue({ isDirectory: () => false, isFile: () => true }),
       mkdir: jest.fn().mockResolvedValue(undefined),
       copyFile: jest.fn().mockResolvedValue(undefined),
       readdir: jest.fn(),
     }));
+  });
+
+  afterEach(() => {
+    cleanFsMock();
   });
 
   describe('Copy files', () => {
@@ -60,9 +67,7 @@ describe('copy action', () => {
     });
 
     it('should throw error if file copy fails', async () => {
-      mock.module('fs/promises', () => ({
-        copyFile: jest.fn().mockRejectedValue(new Error('Copy failed')),
-      }));
+      (copyFile as jest.Mock).mockRejectedValue(new Error('Copy failed'));
 
       const files = [{ from: 'test.json', to: 'test.json' }];
 
@@ -73,27 +78,25 @@ describe('copy action', () => {
   describe('Copy directories', () => {
     it('should copy entire directory structure recursively', async () => {
       // Mock directory structure with nested files and subdirectories
-      mock.module('fs/promises', () => ({
-        lstat: jest
-          .fn()
-          .mockResolvedValueOnce({ isDirectory: () => true, isFile: () => false })
-          .mockResolvedValueOnce({ isDirectory: () => false, isFile: () => true })
-          .mockResolvedValueOnce({ isDirectory: () => false, isFile: () => true }),
-        readdir: jest.fn().mockResolvedValue([
-          {
-            name: 'file1.txt',
-            isDirectory: () => false,
-            isFile: () => true,
-          },
-          {
-            name: 'file2.txt',
-            isDirectory: () => false,
-            isFile: () => true,
-          },
-        ]),
-        mkdir: jest.fn().mockResolvedValue(undefined),
-        copyFile: jest.fn().mockResolvedValue(undefined),
-      }));
+      (lstat as jest.Mock)
+        .mockResolvedValueOnce({ isDirectory: () => true, isFile: () => false })
+        .mockResolvedValueOnce({ isDirectory: () => false, isFile: () => true })
+        .mockResolvedValueOnce({ isDirectory: () => false, isFile: () => true });
+
+      (readdir as jest.Mock).mockResolvedValue([
+        {
+          name: 'file1.txt',
+          isDirectory: () => false,
+          isFile: () => true,
+        },
+        {
+          name: 'file2.txt',
+          isDirectory: () => false,
+          isFile: () => true,
+        },
+      ]);
+      (mkdir as jest.Mock).mockResolvedValue(undefined);
+      (copyFile as jest.Mock).mockResolvedValue(undefined);
 
       const files = [
         {
@@ -116,36 +119,32 @@ describe('copy action', () => {
     });
 
     it('should handle deeply nested directory structure', async () => {
-      mock.module('fs/promises', () => ({
-        lstat: jest
-          .fn()
-          .mockResolvedValueOnce({ isDirectory: () => true, isFile: () => false })
-          .mockResolvedValueOnce({ isDirectory: () => true, isFile: () => false })
-          .mockResolvedValueOnce({ isDirectory: () => false, isFile: () => true }),
-        readdir: jest
-          .fn()
-          .mockResolvedValueOnce([
-            {
-              name: 'subdir',
-              isDirectory: () => true,
-              isFile: () => false,
-            },
-            {
-              name: 'file.txt',
-              isDirectory: () => false,
-              isFile: () => true,
-            },
-          ])
-          .mockResolvedValueOnce([
-            {
-              name: 'deepfile.txt',
-              isDirectory: () => false,
-              isFile: () => true,
-            },
-          ]),
-        mkdir: jest.fn().mockResolvedValue(undefined),
-        copyFile: jest.fn().mockResolvedValue(undefined),
-      }));
+      (lstat as jest.Mock)
+        .mockResolvedValueOnce({ isDirectory: () => true, isFile: () => false })
+        .mockResolvedValueOnce({ isDirectory: () => true, isFile: () => false })
+        .mockResolvedValueOnce({ isDirectory: () => false, isFile: () => true });
+      (readdir as jest.Mock)
+        .mockResolvedValueOnce([
+          {
+            name: 'subdir',
+            isDirectory: () => true,
+            isFile: () => false,
+          },
+          {
+            name: 'file.txt',
+            isDirectory: () => false,
+            isFile: () => true,
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            name: 'deepfile.txt',
+            isDirectory: () => false,
+            isFile: () => true,
+          },
+        ]);
+      (mkdir as jest.Mock).mockResolvedValue(undefined);
+      (copyFile as jest.Mock).mockResolvedValue(undefined);
 
       const files = [
         {
@@ -168,36 +167,32 @@ describe('copy action', () => {
     });
 
     it('should handle mixed file and directory copy', async () => {
-      mock.module('fs/promises', () => ({
-        lstat: jest
-          .fn()
-          .mockResolvedValueOnce({ isDirectory: () => true, isFile: () => false })
-          .mockResolvedValueOnce({ isDirectory: () => false, isFile: () => true })
-          .mockResolvedValueOnce({ isDirectory: () => true, isFile: () => false }),
-        readdir: jest
-          .fn()
-          .mockResolvedValueOnce([
-            {
-              name: 'config',
-              isDirectory: () => true,
-              isFile: () => false,
-            },
-            {
-              name: 'README.md',
-              isDirectory: () => false,
-              isFile: () => true,
-            },
-          ])
-          .mockResolvedValueOnce([
-            {
-              name: 'settings.json',
-              isDirectory: () => false,
-              isFile: () => true,
-            },
-          ]),
-        mkdir: jest.fn().mockResolvedValue(undefined),
-        copyFile: jest.fn().mockResolvedValue(undefined),
-      }));
+      (lstat as jest.Mock)
+        .mockResolvedValueOnce({ isDirectory: () => true, isFile: () => false })
+        .mockResolvedValueOnce({ isDirectory: () => false, isFile: () => true })
+        .mockResolvedValueOnce({ isDirectory: () => true, isFile: () => false });
+      (readdir as jest.Mock)
+        .mockResolvedValueOnce([
+          {
+            name: 'config',
+            isDirectory: () => true,
+            isFile: () => false,
+          },
+          {
+            name: 'README.md',
+            isDirectory: () => false,
+            isFile: () => true,
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            name: 'settings.json',
+            isDirectory: () => false,
+            isFile: () => true,
+          },
+        ]);
+      (mkdir as jest.Mock).mockResolvedValue(undefined);
+      (copyFile as jest.Mock).mockResolvedValue(undefined);
 
       const files = [
         {

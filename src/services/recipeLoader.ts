@@ -2,13 +2,12 @@
 import { loggerService } from '@/services/logger';
 // import { extract as tarExtract } from 'tar';
 import { Recipe } from '@/services/recipe.type';
-import * as fs from 'fs';
-import * as yaml from 'js-yaml';
+import { exists, readFile } from 'fs/promises';
+import { load } from 'js-yaml';
 // import { finished } from 'node:stream/promises';
 // import { type ReadableStream } from 'node:stream/web';
 // import * as os from 'os';
-import * as path from 'path';
-import { dirname } from 'path';
+import { dirname, resolve } from 'path';
 
 // interface NpmPackageData {
 //   'dist-tags': {
@@ -31,7 +30,7 @@ export async function loadRecipe(recipeIdentifier: string): Promise<{ recipe: Re
 
     if (isYamlFile(recipeIdentifier)) {
       logger.info(`Loading recipe from file ${recipeIdentifier}`);
-      recipePath = path.resolve(recipeIdentifier);
+      recipePath = resolve(recipeIdentifier);
     } else {
       throw new Error('Remote packages are not supported');
       // const { name, version } = this.parsePackageVersion(recipeIdentifier);
@@ -39,14 +38,14 @@ export async function loadRecipe(recipeIdentifier: string): Promise<{ recipe: Re
       // recipePath = await this.downloadAndExtractPackage(packageName, version);
     }
 
-    if (!fs.existsSync(recipePath)) {
+    if (!(await exists(recipePath))) {
       throw new Error(`Recipe file not found: ${recipePath}`);
     }
 
-    const fileContent = fs.readFileSync(recipePath, 'utf8');
+    const fileContent = await readFile(recipePath, 'utf8');
 
     return {
-      recipe: yaml.load(fileContent) as Recipe,
+      recipe: load(fileContent) as Recipe,
       recipeDirectory: dirname(recipePath),
     };
   } catch (error) {

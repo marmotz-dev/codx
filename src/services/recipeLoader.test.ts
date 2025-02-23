@@ -1,18 +1,22 @@
 import { loadRecipe } from '@/services/recipeLoader';
-import { beforeEach, describe, expect, it, mock } from 'bun:test';
+import { MockCleaner, mockModule } from '@/test-helpers/mockModule';
+import { afterEach, beforeEach, describe, expect, it, jest } from 'bun:test';
+import { exists } from 'fs/promises';
 import { resolve } from 'path';
 
 describe('RecipeLoader', () => {
-  const fsMockFunctions = {
-    readFileSync: () => 'recipe:\n  - log:\n    - text: "test"',
-    existsSync: () => true,
-    mkdtempSync: () => '/tmp/test',
-    rmSync: () => undefined,
-  };
+  let cleanFsMock: MockCleaner;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     // Mock filesystem operations
-    mock.module('fs', () => fsMockFunctions);
+    cleanFsMock = await mockModule('fs/promises', () => ({
+      readFile: jest.fn().mockResolvedValue('recipe:\n  - log:\n    - text: "test"'),
+      exists: jest.fn().mockResolvedValue(true),
+    }));
+  });
+
+  afterEach(() => {
+    cleanFsMock();
   });
 
   it('should load a recipe from a local file', async () => {
@@ -26,10 +30,7 @@ describe('RecipeLoader', () => {
   });
 
   it('should throw an error if recipe.yml was not found', async () => {
-    mock.module('fs', () => ({
-      ...fsMockFunctions,
-      existsSync: (path: string) => !path.endsWith('recipe.yml'),
-    }));
+    (exists as jest.Mock).mockResolvedValue(false);
     const rootDir = resolve('.');
 
     expect(loadRecipe('unknown-recipe.yml')).rejects.toThrow(`Recipe file not found: ${rootDir}/unknown-recipe.yml`);

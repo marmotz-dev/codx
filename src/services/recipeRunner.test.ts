@@ -5,6 +5,7 @@ import { PackageManagerService } from '@/services/packageManager';
 import { AnyAction, Recipe } from '@/services/recipe.type';
 import { recipeRunner } from '@/services/recipeRunner';
 import { argsToContext } from '@/test-helpers/actionContext';
+import { mockModule } from '@/test-helpers/mockModule';
 import { describe, expect, it, mock, spyOn } from 'bun:test';
 
 describe('RecipeRunner', () => {
@@ -80,7 +81,7 @@ describe('RecipeRunner', () => {
           recipeDirectory: mockRecipeDirectory,
         }),
       );
-      mock.module('./recipeLoader', () => ({
+      const cleanRecipeLoaderMocker = await mockModule('@/services/recipeLoader', () => ({
         loadRecipe: loadRecipeMock,
       }));
 
@@ -90,17 +91,21 @@ describe('RecipeRunner', () => {
 
       expect(loadRecipeMock).toHaveBeenCalledWith('test-recipe.yml');
       expect(executeRecipeMock).toHaveBeenCalledWith(mockRecipe, mockRecipeDirectory);
+
+      cleanRecipeLoaderMocker();
     });
 
     it('should propagate errors from loadRecipe', async () => {
       const loadRecipeMock = mock(() => {
         throw new Error('Failed to load recipe');
       });
-      mock.module('./recipeLoader', () => ({
+      const cleanRecipeLoaderMocker = await mockModule('@/services/recipeLoader', () => ({
         loadRecipe: loadRecipeMock,
       }));
 
       expect(recipeRunner.run('error-recipe.yml')).rejects.toThrow('Failed to load recipe');
+
+      cleanRecipeLoaderMocker();
     });
   });
 });

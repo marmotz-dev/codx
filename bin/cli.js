@@ -727,8 +727,8 @@ var require_suggestSimilar = __commonJS((exports) => {
 var require_command = __commonJS((exports) => {
   var EventEmitter = __require("node:events").EventEmitter;
   var childProcess = __require("node:child_process");
-  var path2 = __require("node:path");
-  var fs2 = __require("node:fs");
+  var path = __require("node:path");
+  var fs = __require("node:fs");
   var process3 = __require("node:process");
   var { Argument, humanReadableArgName } = require_argument();
   var { CommanderError } = require_error();
@@ -1250,7 +1250,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
       this.processedArgs = [];
     }
     _checkForMissingExecutable(executableFile, executableDir, subcommandName) {
-      if (fs2.existsSync(executableFile))
+      if (fs.existsSync(executableFile))
         return;
       const executableDirMessage = executableDir ? `searched for local subcommand relative to directory '${executableDir}'` : "no directory for search for local subcommand, use .executableDir() to supply a custom directory";
       const executableMissing = `'${executableFile}' does not exist
@@ -1264,12 +1264,12 @@ Expecting one of '${allowedValues.join("', '")}'`);
       let launchWithNode = false;
       const sourceExt = [".js", ".ts", ".tsx", ".mjs", ".cjs"];
       function findFile(baseDir, baseName) {
-        const localBin = path2.resolve(baseDir, baseName);
-        if (fs2.existsSync(localBin))
+        const localBin = path.resolve(baseDir, baseName);
+        if (fs.existsSync(localBin))
           return localBin;
-        if (sourceExt.includes(path2.extname(baseName)))
+        if (sourceExt.includes(path.extname(baseName)))
           return;
-        const foundExt = sourceExt.find((ext) => fs2.existsSync(`${localBin}${ext}`));
+        const foundExt = sourceExt.find((ext) => fs.existsSync(`${localBin}${ext}`));
         if (foundExt)
           return `${localBin}${foundExt}`;
         return;
@@ -1281,23 +1281,23 @@ Expecting one of '${allowedValues.join("', '")}'`);
       if (this._scriptPath) {
         let resolvedScriptPath;
         try {
-          resolvedScriptPath = fs2.realpathSync(this._scriptPath);
+          resolvedScriptPath = fs.realpathSync(this._scriptPath);
         } catch {
           resolvedScriptPath = this._scriptPath;
         }
-        executableDir = path2.resolve(path2.dirname(resolvedScriptPath), executableDir);
+        executableDir = path.resolve(path.dirname(resolvedScriptPath), executableDir);
       }
       if (executableDir) {
         let localFile = findFile(executableDir, executableFile);
         if (!localFile && !subcommand._executableFile && this._scriptPath) {
-          const legacyName = path2.basename(this._scriptPath, path2.extname(this._scriptPath));
+          const legacyName = path.basename(this._scriptPath, path.extname(this._scriptPath));
           if (legacyName !== this._name) {
             localFile = findFile(executableDir, `${legacyName}-${subcommand._name}`);
           }
         }
         executableFile = localFile || executableFile;
       }
-      launchWithNode = sourceExt.includes(path2.extname(executableFile));
+      launchWithNode = sourceExt.includes(path.extname(executableFile));
       let proc;
       if (process3.platform !== "win32") {
         if (launchWithNode) {
@@ -1860,13 +1860,13 @@ Expecting one of '${allowedValues.join("', '")}'`);
       return this;
     }
     nameFromFilename(filename) {
-      this._name = path2.basename(filename, path2.extname(filename));
+      this._name = path.basename(filename, path.extname(filename));
       return this;
     }
-    executableDir(path3) {
-      if (path3 === undefined)
+    executableDir(path2) {
+      if (path2 === undefined)
         return this._executableDir;
-      this._executableDir = path3;
+      this._executableDir = path2;
       return this;
     }
     helpInformation(contextOptions) {
@@ -2837,11 +2837,58 @@ async function copyDirectory(sourceDir, targetDir) {
   }
 }
 
+// src/actions/fs/delete.ts
+import { rm } from "node:fs/promises";
+import { resolve as resolve2 } from "path";
+var fsDeleteAction = async ({ args: filesOrDirectories, projectDirectory }) => {
+  filesOrDirectories = Array.isArray(filesOrDirectories) ? filesOrDirectories : [filesOrDirectories];
+  const logger = loggerService;
+  if (!filesOrDirectories || filesOrDirectories.length === 0) {
+    throw new Error('At least one file or directory must be specified for the "delete" action');
+  }
+  for (const fileOrDirectory of filesOrDirectories) {
+    try {
+      const targetPath = resolve2(projectDirectory, fileOrDirectory);
+      await rm(targetPath);
+      logger.success(`${targetPath} has been deleted`);
+    } catch (error) {
+      logger.error(`Failed to delete "${fileOrDirectory}"`);
+      throw error;
+    }
+  }
+};
+
+// src/actions/fs/mkdir.ts
+import { mkdir as mkdir2 } from "fs/promises";
+import { resolve as resolve3 } from "path";
+var fsMkdirAction = async ({ args: directories, projectDirectory }) => {
+  directories = Array.isArray(directories) ? directories : [directories];
+  const logger = loggerService;
+  if (!directories || directories.length === 0) {
+    throw new Error('At least one directory must be specified for the "mkdir" action');
+  }
+  for (const directory of directories) {
+    try {
+      const targetPath = resolve3(projectDirectory, directory);
+      await mkdir2(targetPath, { recursive: true });
+      logger.success(`${targetPath} has been created`);
+    } catch (error) {
+      logger.error(`Failed to create "${directory}" directory`);
+      throw error;
+    }
+  }
+};
+
 // src/actions/fs/fs.const.ts
 var FS_NAMESPACE = "fs";
-
-// src/actions/fs/copy.const.ts
 var FS_COPY_NAME = `${FS_NAMESPACE}.copy`;
+var FS_MKDIR_NAME = `${FS_NAMESPACE}.mkdir`;
+var FS_DELETE_NAME = `${FS_NAMESPACE}.delete`;
+var FsActions = {
+  [FS_COPY_NAME]: fsCopyAction,
+  [FS_MKDIR_NAME]: fsMkdirAction,
+  [FS_DELETE_NAME]: fsDeleteAction
+};
 
 // src/actions/packages/install.ts
 var packagesInstallAction = async ({
@@ -2895,12 +2942,12 @@ var PACKAGES_INSTALL_NAME = `${PACKAGES_NAMESPACE}.install`;
 // src/actionsHandler.ts
 var actionsHandler = {
   ...ConsoleActions,
-  [FS_COPY_NAME]: fsCopyAction,
+  ...FsActions,
   [PACKAGES_INSTALL_NAME]: packagesInstallAction
 };
 
 // src/services/recipeLoader.ts
-import * as fs from "fs";
+import { exists, readFile } from "fs/promises";
 
 // node_modules/js-yaml/dist/js-yaml.mjs
 /*! js-yaml 4.1.0 https://github.com/nodeca/js-yaml @license MIT */
@@ -5547,22 +5594,21 @@ var safeLoadAll = renamed("safeLoadAll", "loadAll");
 var safeDump = renamed("safeDump", "dump");
 
 // src/services/recipeLoader.ts
-import * as path from "path";
-import { dirname as dirname2 } from "path";
+import { dirname as dirname2, resolve as resolve4 } from "path";
 var logger = loggerService;
 async function loadRecipe(recipeIdentifier) {
   try {
     let recipePath;
     if (isYamlFile(recipeIdentifier)) {
       logger.info(`Loading recipe from file ${recipeIdentifier}`);
-      recipePath = path.resolve(recipeIdentifier);
+      recipePath = resolve4(recipeIdentifier);
     } else {
       throw new Error("Remote packages are not supported");
     }
-    if (!fs.existsSync(recipePath)) {
+    if (!await exists(recipePath)) {
       throw new Error(`Recipe file not found: ${recipePath}`);
     }
-    const fileContent = fs.readFileSync(recipePath, "utf8");
+    const fileContent = await readFile(recipePath, "utf8");
     return {
       recipe: load(fileContent),
       recipeDirectory: dirname2(recipePath)
