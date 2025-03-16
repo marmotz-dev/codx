@@ -1,7 +1,10 @@
 {
   "compileOnSave": true,
   "compilerOptions": {
+    "declaration": true,
+    "emitDecoratorMetadata": true,
     "esModuleInterop": true,
+    "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
     "module": "ES2022",
     "moduleResolution": "bundler",
@@ -11,6 +14,7 @@
         "./src/*"
       ]
     },
+    "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
     "target": "ES2022"

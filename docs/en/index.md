@@ -1,41 +1,30 @@
 # Codx
 
-Codx is a command-line tool that automates the installation and configuration of third-party libraries and tools in your
-projects. Instead of manually following complex documentation steps, you can use Codx recipes to automate the process.
+Codx (pronounced like "codex" [kɔ.dɛks]) is a command-line tool that automates the installation and configuration of
+third-party libraries and tools in your projects. Instead of manually following often lengthy documentation steps, you
+can use Codx recipes to automate the process.
 
-## Table of Contents
-
-1. [Getting Started](#getting-started)
-2. [Installation](#installation)
-3. [Usage](#usage)
-4. [Action Reference](actions.md)
-5. [Writing Recipes](writing-recipes.md)
-
-## Getting Started
+## Why use Codx?
 
 Codx allows you to:
 
 - Install dependencies with specific versions
-- Create configuration files
+- Manipulate the file system
+- Execute third-party commands
 - And much more...
 
-## Installation
+## Main features
 
-You can install Codx globally using the package manager of your choice:
+- **Automation**: Run predefined recipes to quickly set up your development environment
+- **Flexibility**: Create your own recipes to automate repetitive tasks
+- **Simplicity**: Intuitive and easy-to-use command-line interface
 
-* with npm: `npm install -g codx`
-* with yarn: `yarn global add codx`
-* with pnpm: `pnpm add -g codx`
-* with bun: `bun add -g codx`
+## Documentation
 
-You can also run Codx without installation:
+- [Installation and usage](utilisation.md)
+- [Writing recipes](writing-recipes.md)
+- [Variables and Interpolation](variables-and-interpolation.md)
+- [Actions](actions.md)
+- [Conditions](conditions.md)
 
-* with npm: `npx codx`
-* with yarn: `yarn dlx codx`
-* with pnpm: `pnpm dlx codx`
-* with bun: `bunx codx`
-
-## Usage
-
-To execute a recipe: `codx recipe <recipe-name>`
-Or if you have a local recipe file: `codx recipe path/to/recipe.yml`
+[Installation and usage →](utilisation.md)

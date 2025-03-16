@@ -1,0 +1,668 @@
+{
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string"
+    },
+    "author": {
+      "type": "string"
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/StepSchema"
+      }
+    }
+  },
+  "required": [
+    "description",
+    "steps"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "StepSchema": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "action": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ChangeDirActionDataSchema"
+            },
+            {
+              "$ref": "#/definitions/CommandActionDataSchema"
+            },
+            {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/FileSystemActionCreateDataSchema"
+                },
+                {
+                  "$ref": "#/definitions/FileSystemActionDeleteDataSchema"
+                },
+                {
+                  "$ref": "#/definitions/FileSystemActionExistsDataSchema"
+                },
+                {
+                  "$ref": "#/definitions/FileSystemActionMkdirDataSchema"
+                },
+                {
+                  "$ref": "#/definitions/FileSystemActionCopyDataSchema"
+                },
+                {
+                  "$ref": "#/definitions/FileSystemActionMoveDataSchema"
+                }
+              ],
+              "description": "FileSystemActionDataSchema"
+            },
+            {
+              "$ref": "#/definitions/MessageActionDataSchema"
+            },
+            {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/PackageActionInstallDataSchema"
+                },
+                {
+                  "$ref": "#/definitions/PackageActionRemoveDataSchema"
+                },
+                {
+                  "$ref": "#/definitions/PackageActionUpdateDataSchema"
+                },
+                {
+                  "$ref": "#/definitions/PackageActionCheckDataSchema"
+                },
+                {
+                  "$ref": "#/definitions/PackageActionRunDataSchema"
+                }
+              ],
+              "description": "PackageActionDataSchema"
+            },
+            {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/PromptActionTextDataSchema"
+                },
+                {
+                  "$ref": "#/definitions/PromptActionNumberDataSchema"
+                },
+                {
+                  "$ref": "#/definitions/PromptActionSelectDataSchema"
+                },
+                {
+                  "$ref": "#/definitions/PromptActionConfirmDataSchema"
+                },
+                {
+                  "$ref": "#/definitions/PromptActionCheckboxDataSchema"
+                }
+              ],
+              "description": "PromptActionDataSchema"
+            }
+          ],
+          "description": "ActionsDataSchema"
+        },
+        "condition": {
+          "type": "string"
+        },
+        "onSuccess": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/StepSchema"
+          }
+        },
+        "onFailure": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/StepSchema"
+          }
+        },
+        "finally": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/StepSchema"
+          }
+        },
+        "workingDirectory": {
+          "type": "string"
+        },
+        "variable": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "ChangeDirActionDataSchema": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "changeDir"
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "path"
+      ],
+      "additionalProperties": false,
+      "description": "ChangeDirActionDataSchema"
+    },
+    "CommandActionDataSchema": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "command"
+        },
+        "command": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "command"
+      ],
+      "additionalProperties": false,
+      "description": "CommandActionDataSchema"
+    },
+    "FileSystemActionCreateDataSchema": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "fileSystem"
+        },
+        "operation": {
+          "type": "string",
+          "const": "create"
+        },
+        "path": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "overwrite": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": [
+        "type",
+        "operation",
+        "path"
+      ],
+      "additionalProperties": false,
+      "description": "FileSystemActionCreateDataSchema"
+    },
+    "FileSystemActionDeleteDataSchema": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "fileSystem"
+        },
+        "operation": {
+          "type": "string",
+          "const": "delete"
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "operation",
+        "path"
+      ],
+      "additionalProperties": false,
+      "description": "FileSystemActionDeleteDataSchema"
+    },
+    "FileSystemActionExistsDataSchema": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "fileSystem"
+        },
+        "operation": {
+          "type": "string",
+          "const": "exists"
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "operation",
+        "path"
+      ],
+      "additionalProperties": false,
+      "description": "FileSystemActionExistsDataSchema"
+    },
+    "FileSystemActionMkdirDataSchema": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "fileSystem"
+        },
+        "operation": {
+          "type": "string",
+          "const": "mkdir"
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "operation",
+        "path"
+      ],
+      "additionalProperties": false,
+      "description": "FileSystemActionMkdirDataSchema"
+    },
+    "FileSystemActionCopyDataSchema": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "fileSystem"
+        },
+        "operation": {
+          "type": "string",
+          "const": "copy"
+        },
+        "source": {
+          "type": "string"
+        },
+        "destination": {
+          "type": "string"
+        },
+        "overwrite": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": [
+        "type",
+        "operation",
+        "source",
+        "destination"
+      ],
+      "additionalProperties": false,
+      "description": "FileSystemActionCopyDataSchema"
+    },
+    "FileSystemActionMoveDataSchema": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "fileSystem"
+        },
+        "operation": {
+          "type": "string",
+          "const": "move"
+        },
+        "source": {
+          "type": "string"
+        },
+        "destination": {
+          "type": "string"
+        },
+        "overwrite": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": [
+        "type",
+        "operation",
+        "source",
+        "destination"
+      ],
+      "additionalProperties": false,
+      "description": "FileSystemActionMoveDataSchema"
+    },
+    "MessageActionDataSchema": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "message"
+        },
+        "content": {
+          "type": "string"
+        },
+        "style": {
+          "type": "string",
+          "enum": [
+            "default",
+            "header",
+            "info",
+            "success",
+            "warning",
+            "error"
+          ],
+          "default": "default"
+        }
+      },
+      "required": [
+        "type",
+        "content"
+      ],
+      "additionalProperties": false,
+      "description": "MessageActionDataSchema"
+    },
+    "PackageActionInstallDataSchema": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "package"
+        },
+        "operation": {
+          "type": "string",
+          "const": "install"
+        },
+        "packages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dev": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": [
+        "type",
+        "operation",
+        "packages"
+      ],
+      "additionalProperties": false,
+      "description": "PackageActionInstallDataSchema"
+    },
+    "PackageActionRemoveDataSchema": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "package"
+        },
+        "operation": {
+          "type": "string",
+          "const": "remove"
+        },
+        "packages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "operation",
+        "packages"
+      ],
+      "additionalProperties": false,
+      "description": "PackageActionRemoveDataSchema"
+    },
+    "PackageActionUpdateDataSchema": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "package"
+        },
+        "operation": {
+          "type": "string",
+          "const": "update"
+        },
+        "packages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "operation",
+        "packages"
+      ],
+      "additionalProperties": false,
+      "description": "PackageActionUpdateDataSchema"
+    },
+    "PackageActionCheckDataSchema": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "package"
+        },
+        "operation": {
+          "type": "string",
+          "const": "check"
+        },
+        "packages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "package": {
+                "type": "string"
+              },
+              "minVersion": {
+                "type": "string"
+              },
+              "maxVersion": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "package"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "type",
+        "operation",
+        "packages"
+      ],
+      "additionalProperties": false,
+      "description": "PackageActionCheckDataSchema"
+    },
+    "PackageActionRunDataSchema": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "package"
+        },
+        "operation": {
+          "type": "string",
+          "const": "run"
+        },
+        "package": {
+          "type": "string"
+        },
+        "options": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "operation",
+        "package"
+      ],
+      "additionalProperties": false,
+      "description": "PackageActionRunDataSchema"
+    },
+    "PromptActionTextDataSchema": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "prompt"
+        },
+        "promptType": {
+          "type": "string",
+          "const": "text"
+        },
+        "message": {
+          "type": "string"
+        },
+        "defaultValue": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "promptType",
+        "message"
+      ],
+      "additionalProperties": false,
+      "description": "PromptActionTextDataSchema"
+    },
+    "PromptActionNumberDataSchema": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "prompt"
+        },
+        "promptType": {
+          "type": "string",
+          "const": "number"
+        },
+        "message": {
+          "type": "string"
+        },
+        "defaultValue": {
+          "type": [
+            "number",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "promptType",
+        "message"
+      ],
+      "additionalProperties": false,
+      "description": "PromptActionNumberDataSchema"
+    },
+    "PromptActionSelectDataSchema": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "prompt"
+        },
+        "promptType": {
+          "type": "string",
+          "const": "select"
+        },
+        "message": {
+          "type": "string"
+        },
+        "choices": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "defaultValue": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "promptType",
+        "message",
+        "choices"
+      ],
+      "additionalProperties": false,
+      "description": "PromptActionSelectDataSchema"
+    },
+    "PromptActionConfirmDataSchema": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "prompt"
+        },
+        "promptType": {
+          "type": "string",
+          "const": "confirm"
+        },
+        "message": {
+          "type": "string"
+        },
+        "defaultValue": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": [
+        "type",
+        "promptType",
+        "message"
+      ],
+      "additionalProperties": false,
+      "description": "PromptActionConfirmDataSchema"
+    },
+    "PromptActionCheckboxDataSchema": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "prompt"
+        },
+        "promptType": {
+          "type": "string",
+          "const": "checkbox"
+        },
+        "message": {
+          "type": "string"
+        },
+        "choices": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "defaultValues": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "promptType",
+        "message",
+        "choices"
+      ],
+      "additionalProperties": false,
+      "description": "PromptActionCheckboxDataSchema"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

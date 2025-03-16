@@ -1,4 +1,9 @@
-# Codx documentation
+# Codx Documentation
 
-* [English](en/index.md)
-* [Français](fr/index.md)
+Welcome to the Codx documentation, a command-line tool that automates the installation and configuration of libraries
+and third-party tools in your projects.
+
+## Available languages
+
+- [English](en/index.md)
+- [French](fr/index.md)
