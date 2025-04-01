@@ -29,8 +29,8 @@ You can also launch Codx without installation :
 
 ## Usage
 
-To execute a recipe: `codx recipe <recipe-name>`
-Or if you have a local recipe file: `codx recipe path/to/recipe.yml`
+To execute a recipe: `codx run <recipe-name>`
+Or if you have a local recipe file: `codx run path/to/recipe.yml`
 
 ## Documentation
 

@@ -1,0 +1,33 @@
+description: "Test recipe for messages"
+author: "Marmotz"
+
+steps:
+  - action:
+      type: "message"
+      content: "Installation en cours..."
+
+  - action:
+      type: "message"
+      content: "Installation du projet"
+      style: "header"
+
+  - action:
+      type: "message"
+      content: "Installation en cours..."
+      style: "info"
+
+  - action:
+      type: "message"
+      content: "Installation terminée avec succès !"
+      style: "success"
+
+  - action:
+      type: "message"
+      content: "Fichier de configuration manquant. Création d'un nouveau fichier."
+      style: "warning"
+
+  - action:
+      type: "message"
+      content: "Erreur lors de l'installation. Veuillez vérifier votre connexion internet."
+      style: "error"
+  

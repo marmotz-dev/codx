@@ -1,0 +1,53 @@
+description: "Test recipe for messages"
+author: "Marmotz"
+
+steps:
+  - name: "Saisir le nom du projet"
+    action:
+      type: "prompt"
+      promptType: "text"
+      message: "Nom du projet :"
+      defaultValue: "mon-projet"
+    variable: "projectName"
+
+  - name: "Définir le port du serveur"
+    action:
+      type: "prompt"
+      promptType: "number"
+      message: "Port du serveur :"
+      defaultValue: 3000
+    variable: "serverPort"
+
+  - name: "Choisir un framework"
+    action:
+      type: "prompt"
+      promptType: "select"
+      message: "Framework à utiliser :"
+      choices:
+        react: "React"
+        vue: "Vue.js"
+        angular: "Angular"
+      defaultValue: "react"
+    variable: "framework"
+
+  - name: "Sélectionner des outils"
+    action:
+      type: "prompt"
+      promptType: "checkbox"
+      message: "Outils à installer :"
+      choices:
+        eslint: "ESLint"
+        prettier: "Prettier"
+        typescript: "TypeScript"
+      defaultValues:
+        - eslint
+        - prettier
+    variable: "selectedTools"
+
+  - name: "Confirmer l'installation de TypeScript"
+    action:
+      type: "prompt"
+      promptType: "confirm"
+      message: "Installer TypeScript ?"
+      defaultValue: true
+    variable: "installTypescript"

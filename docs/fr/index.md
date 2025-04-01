@@ -1,43 +1,31 @@
 # Codx
 
-Codx est un outil en ligne de commande qui automatise l'installation et la configuration des bibliothèques et outils
-tiers dans vos
-projets. Au lieu de suivre manuellement des étapes complexes de documentation, vous pouvez utiliser des recettes Codx
-pour automatiser le processus.
+Codx (prononcez comme "codex" [kɔ.dɛks]) est un outil en ligne de commande qui automatise l'installation et la
+configuration de bibliothèques et d'outils
+tiers dans vos projets. Au lieu de suivre manuellement les étapes de documentation souvent longues, vous pouvez utiliser
+les recettes Codx pour automatiser le processus.
 
-## Table des matières
-
-1. [Pour commencer](#pour-commencer)
-2. [Installation](#installation)
-3. [Utilisation](#utilisation)
-4. [Référence des actions](actions.md)
-5. [Écrire des recettes](writing-recipes.md)
-
-## Pour commencer
+## Pourquoi utiliser Codx ?
 
 Codx vous permet de :
 
 - Installer des dépendances avec des versions spécifiques
-- Créer des fichiers de configuration
-- Et plus encore...
+- Manipuler le système de fichiers
+- Exécuter des commandes tierces
+- Et bien plus encore...
 
-## Installation
+## Fonctionnalités principales
 
-Vous pouvez installer Codx globalement en utilisant le gestionnaire de paquets de votre choix :
+- **Automatisation** : Exécutez des recettes prédéfinies pour configurer rapidement votre environnement de développement
+- **Flexibilité** : Créez vos propres recettes pour automatiser des tâches répétitives
+- **Simplicité** : Interface en ligne de commande intuitive et facile à utiliser
 
-* avec npm : `npm install -g codx`
-* avec yarn : `yarn global add codx`
-* avec pnpm : `pnpm add -g codx`
-* avec bun : `bun add -g codx`
+## Documentation
 
-Vous pouvez également lancer Codx sans installation :
+- [Installation et utilisation](utilisation.md)
+- [Écriture de recettes](ecriture-recettes.md)
+- [Variables et interpolation](variables-et-interpolation.md)
+- [Actions](actions.md)
+- [Conditions](conditions.md)
 
-* avec npm : `npx codx`
-* avec yarn : `yarn dlx codx`
-* avec pnpm : `pnpm dlx codx`
-* avec bun : `bunx codx`
-
-## Utilisation
-
-Pour exécuter une recette : `codx recipe <nom-de-la-recette>`
-Ou si vous avez un fichier de recette local : `codx recipe chemin/vers/recette.yml`
+[Installation et utilisation →](utilisation.md)

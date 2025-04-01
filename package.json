@@ -4,11 +4,13 @@
   "version": "0.1.0",
   "type": "module",
   "bin": {
-    "codx": "./bin/cli.js"
+    "codx": "./dist/cli.js"
   },
   "scripts": {
-    "build": "bun build src/cli.ts --target=node --format=esm --outdir=./bin --env=disable",
-    "dev": "bun run build --watch",
+    "generate:cli": "bun build src/cli.ts --target=node --format=esm --outdir=./dist --env=disable",
+    "generate:cli:watch": "bun run generate:cli --watch",
+    "generate:json-schema": "bun run src/generateRecipeJsonSchema.ts dist/codx-schema.json",
+    "generate:json-schema:watch": "bun --watch src/generateRecipeJsonSchema.ts dist/codx-schema.json",
     "test": "bun test",
     "test:ci": "bun test --coverage --coverage-reporter=lcov",
     "test:coverage": "rm -rf coverage/ && bun test:ci && genhtml coverage/lcov.info -o coverage/ && bunx http-server coverage",
@@ -17,32 +19,31 @@
     "lint:fix": "eslint \"src/**/*.ts\" --fix"
   },
   "files": [
-    "bin"
+    "dist"
   ],
   "dependencies": {
+    "@inquirer/prompts": "^7.4.0",
     "chalk": "^5.4.1",
     "commander": "^13.1.0",
-    "js-yaml": "^4.1.0"
+    "filtrex": "^3.1.0",
+    "js-yaml": "^4.1.0",
+    "semver": "^7.7.1",
+    "tar": "^7.4.3",
+    "zod": "^3.24.2",
+    "zod-to-json-schema": "^3.24.5"
   },
   "devDependencies": {
-    "@eslint/js": "^9.20.0",
-    "@types/bun": "^1.2.2",
+    "@eslint/js": "^9.23.0",
+    "@types/bun": "^1.2.5",
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^22.13.4",
-    "@types/tar": "^6.1.13",
-    "@typescript-eslint/eslint-plugin": "^8.24.0",
-    "@typescript-eslint/parser": "^8.24.0",
-    "eslint": "^9.20.1",
-    "eslint-config-prettier": "^10.0.1",
+    "@types/node": "^22.13.11",
+    "@types/semver": "^7.5.8",
+    "@typescript-eslint/eslint-plugin": "^8.27.0",
+    "@typescript-eslint/parser": "^8.27.0",
+    "eslint": "^9.23.0",
+    "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.3",
     "husky": "^9.1.7",
-    "prettier": "^3.5.1",
-    "tar": "^7.4.3",
-    "typescript": "^5.7.3"
-  },
-  "exports": {
-    ".": {
-      "import": "./dist/index.js"
-    }
+    "prettier": "^3.5.3"
   }
 }
