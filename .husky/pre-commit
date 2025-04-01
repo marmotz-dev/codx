@@ -1,2 +1,4 @@
 bun run lint:fix
-bun run build
+bun run generate:cli
+bun run generate:json-schema
+git add dist

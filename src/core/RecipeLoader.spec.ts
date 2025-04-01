@@ -251,7 +251,7 @@ describe('RecipeLoader', () => {
       };
       Readable.from = mock(() => mockReadableStream) as unknown as typeof Readable.from;
 
-      const mockFileStreamHandlers: Record<string, Function> = {};
+      const mockFileStreamHandlers: any = {};
       const mockFileStream = {
         on: mock((event, callback) => {
           mockFileStreamHandlers[event] = callback;
