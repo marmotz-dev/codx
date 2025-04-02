@@ -3,6 +3,7 @@ import { CodxError } from '@/core/CodxError';
 import { Logger } from '@/core/Logger';
 import { diContainer } from '@/di/Container';
 import chalk from 'chalk';
+import ora from 'ora';
 
 export interface SearchActionOptions {
   verbose: boolean;
@@ -12,6 +13,8 @@ type NpmPackagesResponse = {
   objects: Array<{
     package: {
       name: string;
+      sanitized_name?: string;
+      keywords?: string[];
       description?: string;
       version: string;
       publisher?: {
@@ -35,7 +38,14 @@ export class SearchCommand extends BaseCommand {
       logger.setVerbose();
     }
 
+    const spinner = ora({
+      text: chalk.blue(`Searching recipes for "${searchTerm}":`),
+      color: 'yellow',
+    }).start();
+
     const searchResponse = await this.searchRecipes(searchTerm);
+
+    spinner.stop();
 
     this.displayRecipes(searchTerm, searchResponse);
   }
@@ -49,10 +59,14 @@ export class SearchCommand extends BaseCommand {
     this.logger.message(chalk.blue(`\nSearch results for "${searchTerm}":\n`));
 
     searchResponse.objects.forEach(({ package: pkg }, index: number) => {
-      this.logger.message(chalk.green(`${index + 1}. ${pkg.name}`));
+      this.logger.message(chalk.green.bold(`${index + 1}. ${pkg.name}`));
       this.logger.message(`   ${pkg.description ?? 'No description'}`);
-      this.logger.message(`   Version: ${pkg.version} | Author: ${pkg.publisher?.username ?? 'Unknown'}`);
-      this.logger.message(`   Link: ${pkg.links?.npm ?? pkg.links?.homepage ?? ''}`);
+      this.logger.message(
+        chalk.grey(
+          `   ${chalk.bold('Version:')} ${pkg.version} | ${chalk.bold('Author:')} ${pkg.publisher?.username ?? 'Unknown'} | ${chalk.bold('Keywords:')} ${pkg.keywords?.join(', ') ?? 'None'}`,
+        ),
+      );
+      this.logger.message(chalk.blue(`   Link: ${pkg.links?.npm ?? pkg.links?.homepage ?? ''}`));
       this.logger.message('');
     });
 
@@ -79,6 +93,30 @@ export class SearchCommand extends BaseCommand {
     if (data.objects.length === 0) {
       throw new CodxError(`No packages found matching "${searchTerm}"`);
     }
+
+    data.objects = data.objects.filter((pkg) => {
+      const searchTerms = searchTerm.toLowerCase().split(' ');
+
+      const name = pkg.package.name.toLowerCase();
+      const description = pkg.package.description?.toLowerCase();
+      const sanitizedName = pkg.package.sanitized_name?.toLowerCase();
+      const keywords = pkg.package.keywords?.map((keyword) => keyword.toLowerCase());
+
+      for (let term of searchTerms) {
+        if (
+          name.includes(term) ||
+          description?.includes(term) ||
+          sanitizedName?.includes(term) ||
+          keywords?.includes(term)
+        ) {
+          return true;
+        }
+      }
+
+      return false;
+    });
+
+    data.total = data.objects.length;
 
     return data;
   }
