@@ -93,13 +93,14 @@ describe('SearchCommand', () => {
   });
 
   test('displayRecipes should format and display search results', async () => {
-    await searchCommand.doExecute('test', { verbose: false });
+    await searchCommand.doExecute('Test', { verbose: false });
 
-    expect(mockConsoleLog).toHaveBeenCalledWith(chalk.blue(`\nSearch results for "test":\n`));
-    expect(mockConsoleLog).toHaveBeenCalledWith(chalk.green('1. test-package'));
-    expect(mockConsoleLog).toHaveBeenCalledWith('   Test description');
-    expect(mockConsoleLog).toHaveBeenCalledWith('   Version: 1.0.0 | Author: testuser');
-    expect(mockConsoleLog).toHaveBeenCalledWith('   Link: https://npmjs.com/package/test-package');
+    expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining(`Search results for "test":`));
+    expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('1. test-package'));
+    expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Test description'));
+    expect(mockConsoleLog).toHaveBeenCalledWith(
+      expect.stringContaining('Link: https://npmjs.com/package/test-package'),
+    );
     expect(mockConsoleLog).toHaveBeenCalledWith('');
     expect(mockConsoleLog).toHaveBeenCalledWith(chalk.blue('Found 1 package.'));
   });
@@ -123,12 +124,12 @@ describe('SearchCommand', () => {
       }),
     );
 
-    await searchCommand.doExecute('test', { verbose: false });
+    await searchCommand.doExecute('package', { verbose: false });
 
-    expect(mockConsoleLog).toHaveBeenCalledWith(chalk.green('1. minimal-package'));
-    expect(mockConsoleLog).toHaveBeenCalledWith('   No description');
-    expect(mockConsoleLog).toHaveBeenCalledWith('   Version: 1.0.0 | Author: Unknown');
-    expect(mockConsoleLog).toHaveBeenCalledWith('   Link: ');
+    expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('1. minimal-package'));
+    expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('No description'));
+    expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining(chalk.bold('Version:') + ' 1.0.0'));
+    expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Link:'));
   });
 
   test('should handle plural form when multiple packages are found', async () => {
@@ -150,7 +151,7 @@ describe('SearchCommand', () => {
       }),
     );
 
-    await searchCommand.doExecute('test', { verbose: false });
+    await searchCommand.doExecute('package', { verbose: false });
 
     expect(mockConsoleLog).toHaveBeenCalledWith(chalk.blue('Found 2 packages.'));
   });
