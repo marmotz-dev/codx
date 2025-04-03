@@ -27385,11 +27385,15 @@ class SearchCommand extends BaseCommand {
       logger.setVerbose();
     }
     const spinner = ora({
-      text: source_default.blue(`Searching recipes for "${searchTerm}":`),
+      text: source_default.blue(`Searching recipes for "${searchTerm}"`),
       color: "yellow"
     }).start();
-    const searchResponse = await this.searchRecipes(searchTerm);
-    spinner.stop();
+    let searchResponse;
+    try {
+      searchResponse = await this.searchRecipes(searchTerm);
+    } finally {
+      spinner.stop();
+    }
     this.displayRecipes(searchTerm, searchResponse);
   }
   displayRecipes(searchTerm, searchResponse) {

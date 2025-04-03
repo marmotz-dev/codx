@@ -39,13 +39,16 @@ export class SearchCommand extends BaseCommand {
     }
 
     const spinner = ora({
-      text: chalk.blue(`Searching recipes for "${searchTerm}":`),
+      text: chalk.blue(`Searching recipes for "${searchTerm}"`),
       color: 'yellow',
     }).start();
 
-    const searchResponse = await this.searchRecipes(searchTerm);
-
-    spinner.stop();
+    let searchResponse: NpmPackagesResponse;
+    try {
+      searchResponse = await this.searchRecipes(searchTerm);
+    } finally {
+      spinner.stop();
+    }
 
     this.displayRecipes(searchTerm, searchResponse);
   }
