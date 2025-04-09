@@ -39,6 +39,12 @@ Each step in a recipe can contain the following elements:
 - **workingDirectory** (optional): The execution path of the step
 - **variable** (optional): The name of the variable where to store the result of the action
 
+The `onSuccess` and `onFailure` properties work like a try/catch block in programming:
+- If the action executes successfully, the actions in `onSuccess` are executed, but not those in `onFailure`.
+- If the action fails and there is an `onFailure` block, the actions in `onFailure` are executed, then execution continues with the next step.
+- If the action fails and there is no `onFailure` block, the error is propagated and the recipe execution stops.
+- If an error occurs during the execution of `onSuccess` or `onFailure` actions, that error is propagated.
+
 Example of a step:
 
 ```yaml

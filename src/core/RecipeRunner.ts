@@ -100,8 +100,12 @@ export class RecipeRunner {
 
       await this.handleStepSuccess(step);
     } catch (error) {
-      await this.handleStepError(step);
-      throw error;
+      if (step.onFailure) {
+        await this.handleStepError(step);
+      } else {
+        // If there's no onFailure, propagate the original error
+        throw error;
+      }
     } finally {
       if (workingDirectory && workingDirectory === this.context.projectDirectory.get()) {
         this.context.projectDirectory.change(currentWorkingDirectory);

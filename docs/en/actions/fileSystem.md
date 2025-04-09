@@ -376,4 +376,4 @@ You can handle errors that may occur during file operations using the `onSuccess
 
 [↑ List of Actions](../actions.md)
 
-[← Command](command.md) ─ [Message →](message.md)
+[← Fail](fail.md) ─ [Message →](message.md)

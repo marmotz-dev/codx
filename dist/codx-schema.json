@@ -35,6 +35,9 @@
               "$ref": "#/definitions/CommandActionDataSchema"
             },
             {
+              "$ref": "#/definitions/FailActionDataSchema"
+            },
+            {
               "anyOf": [
                 {
                   "$ref": "#/definitions/FileSystemActionCreateDataSchema"
@@ -171,6 +174,23 @@
       ],
       "additionalProperties": false,
       "description": "CommandActionDataSchema"
+    },
+    "FailActionDataSchema": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "fail"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "description": "FailActionDataSchema"
     },
     "FileSystemActionCreateDataSchema": {
       "type": "object",

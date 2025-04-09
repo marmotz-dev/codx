@@ -9,10 +9,11 @@ Codx offers several types of actions to automate different tasks:
 
 1. [ChangeDir](actions/changeDir.md) - Change the working directory
 2. [Command](actions/command.md) - Execute shell commands
-3. [FileSystem](actions/fileSystem.md) - Manipulate files and directories
-4. [Message](actions/message.md) - Display messages to the user
-5. [Package](actions/package.md) - Manage packages and dependencies
-6. [Prompt](actions/prompt.md) - Request information from the user
+3. [Fail](actions/fail.md) - Intentionally raise an error
+4. [FileSystem](actions/fileSystem.md) - Manipulate files and directories
+5. [Message](actions/message.md) - Display messages to the user
+6. [Package](actions/package.md) - Manage packages and dependencies
+7. [Prompt](actions/prompt.md) - Request information from the user
 
 Each action has a specific type and associated parameters. Below is a brief overview of each type of action.
 
@@ -33,6 +34,14 @@ tasks such as installing dependencies, compiling code, or any other operation re
 You can execute any valid shell command, including those using variables previously defined in your recipe.
 
 For more details, see the [complete documentation of the Command action](actions/command.md).
+
+## Fail
+
+The `fail` action allows you to intentionally raise an error during the execution of a recipe. This action is useful for stopping the execution of a recipe when a specific condition is not met.
+
+You can specify a custom error message that will be displayed when the error is raised.
+
+For more details, see the [complete documentation of the Fail action](actions/fail.md).
 
 ## FileSystem
 
