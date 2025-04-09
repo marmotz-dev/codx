@@ -9,10 +9,11 @@ Codx propose plusieurs types d'actions pour automatiser différentes tâches :
 
 1. [ChangeDir](actions/changeDir.md) - Changer de répertoire de travail
 2. [Command](actions/command.md) - Exécuter des commandes shell
-3. [FileSystem](actions/fileSystem.md) - Manipuler des fichiers et des répertoires
-4. [Message](actions/message.md) - Afficher des messages à l'utilisateur
-5. [Package](actions/package.md) - Gérer des paquets et des dépendances
-6. [Prompt](actions/prompt.md) - Demander des informations à l'utilisateur
+3. [Fail](actions/fail.md) - Lever une erreur intentionnellement
+4. [FileSystem](actions/fileSystem.md) - Manipuler des fichiers et des répertoires
+5. [Message](actions/message.md) - Afficher des messages à l'utilisateur
+6. [Package](actions/package.md) - Gérer des paquets et des dépendances
+7. [Prompt](actions/prompt.md) - Demander des informations à l'utilisateur
 
 Chaque action a un type spécifique et des paramètres associés. Vous trouverez ci-dessous un bref aperçu de chaque type
 d'action.
@@ -37,6 +38,14 @@ Vous pouvez exécuter n'importe quelle commande shell valide, y compris celles u
 précédemment dans votre recette.
 
 Pour plus de détails, consultez la [documentation complète de l'action Command](actions/command.md).
+
+## Fail
+
+L'action `fail` permet de lever intentionnellement une erreur pendant l'exécution d'une recette. Cette action est utile pour arrêter l'exécution d'une recette lorsqu'une condition spécifique n'est pas remplie.
+
+Vous pouvez spécifier un message d'erreur personnalisé qui sera affiché lorsque l'erreur est levée.
+
+Pour plus de détails, consultez la [documentation complète de l'action Fail](actions/fail.md).
 
 ## FileSystem
 

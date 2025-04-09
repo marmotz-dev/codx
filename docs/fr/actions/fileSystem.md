@@ -380,4 +380,4 @@ Vous pouvez gérer les erreurs qui peuvent survenir lors des opérations sur les
 
 [↑ Liste des actions](../actions.md)
 
-[← Command](command.md) ─ [Message →](message.md)
+[← Fail](fail.md) ─ [Message →](message.md)

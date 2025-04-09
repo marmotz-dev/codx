@@ -39,6 +39,12 @@ Chaque étape d'une recette peut contenir les éléments suivants :
 - **workingDirectory** (optionnel) : Le chemin d'exécution de l'étape
 - **variable** (optionnel) : Le nom de la variable où stocker le résultat de l'action
 
+Les propriétés `onSuccess` et `onFailure` fonctionnent comme un bloc try/catch en programmation :
+- Si l'action s'exécute avec succès, les actions dans `onSuccess` sont exécutées, mais pas celles dans `onFailure`.
+- Si l'action échoue et qu'il y a un bloc `onFailure`, les actions dans `onFailure` sont exécutées, puis l'exécution continue avec l'étape suivante.
+- Si l'action échoue et qu'il n'y a pas de bloc `onFailure`, l'erreur est propagée et l'exécution de la recette s'arrête.
+- Si une erreur se produit dans l'exécution des actions `onSuccess` ou `onFailure`, cette erreur est propagée.
+
 Exemple d'étape :
 
 ```yaml

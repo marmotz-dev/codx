@@ -14,6 +14,7 @@ describe('SearchCommand', () => {
 
   beforeEach(() => {
     mock.restore();
+    diContainer.reset();
     const logger = diContainer.get(Logger);
     loggerSetVerboseSpy = spyOn(logger, 'setVerbose');
 
