@@ -170,7 +170,6 @@ describe('RecipeLoader', () => {
       const recipePath = '/path/to/recipe.yml';
       const invalidRecipe = {
         // Missing required fields to trigger schema validation error
-        description: 'Invalid Recipe',
       } as Recipe;
 
       (readFile as unknown as Mock<() => Promise<string>>).mockResolvedValue('mock content');

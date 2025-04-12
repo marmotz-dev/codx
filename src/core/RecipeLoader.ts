@@ -11,7 +11,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { Readable } from 'node:stream';
 import { extract } from 'tar';
-import { ZodError } from 'zod';
+import { z } from 'zod';
 
 export class RecipeLoader {
   constructor(
@@ -155,31 +155,6 @@ export class RecipeLoader {
     return await response.json();
   }
 
-  private getErrorMessages(error: ZodError) {
-    const errors = error.errors.reduce(
-      (acc, error) => {
-        // On récupère le chemin de l'erreur (par ex: ["email"] ou ["user", "name"])
-        const path = error.path.join('.');
-
-        // On ajoute l'erreur au tableau correspondant à ce chemin
-        if (!acc[path]) {
-          acc[path] = [];
-        }
-        acc[path].push(error.message);
-
-        return acc;
-      },
-      {} as { [key: string]: string[] },
-    );
-
-    return (
-      'Recipe validation errors:\n' +
-      Object.entries(errors)
-        .map(([path, errors]) => ` • ${path}: ${errors.join(', ')}`)
-        .join('\n')
-    );
-  }
-
   /**
    * Gets the npm package name for a recipe
    * @param recipeName Recipe name
@@ -206,7 +181,14 @@ export class RecipeLoader {
 
     const result = RecipeSchema.safeParse(recipe);
     if (!result.success) {
-      throw new CodxError('Invalid recipe schema', new Error(this.getErrorMessages(result.error)));
+      throw new CodxError(
+        'Invalid recipe schema:\n' +
+          z
+            .prettifyError(result.error)
+            .split('\n')
+            .map((line) => `  ${line}`)
+            .join('\n'),
+      );
     }
 
     return result.data;
