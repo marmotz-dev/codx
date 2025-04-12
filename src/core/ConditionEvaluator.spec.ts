@@ -18,6 +18,7 @@ describe('ConditionEvaluator', () => {
       count: 5,
       name: 'test',
       isActive: true,
+      array: ['foo', 'bar'],
     };
 
     expect(evaluator.evaluate('count > 3', variables)).toBe(true);
@@ -25,6 +26,7 @@ describe('ConditionEvaluator', () => {
     expect(evaluator.evaluate('name == "test"', variables)).toBe(true);
     expect(evaluator.evaluate('isActive', variables)).toBe(true);
     expect(evaluator.evaluate('count > 3 and name == "test"', variables)).toBe(true);
+    expect(evaluator.evaluate('"foo" in array', variables)).toBe(true);
   });
 
   it('should evaluate false conditions correctly', () => {
@@ -32,12 +34,14 @@ describe('ConditionEvaluator', () => {
       count: 5,
       name: 'test',
       isActive: false,
+      array: ['foo', 'bar'],
     };
 
     expect(evaluator.evaluate('count > 10', variables)).toBe(false);
     expect(evaluator.evaluate('name == "other"', variables)).toBe(false);
     expect(evaluator.evaluate('isActive', variables)).toBe(false);
     expect(evaluator.evaluate('count > 10 or name == "other"', variables)).toBe(false);
+    expect(evaluator.evaluate('"baz" in array', variables)).toBe(false);
   });
 
   it('should handle complex expressions', () => {

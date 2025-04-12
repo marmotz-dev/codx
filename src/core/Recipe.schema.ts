@@ -3,8 +3,8 @@ import { z, ZodType } from 'zod';
 
 // Recursive definition for Step
 export type Step = {
-  name?: string;
   action: ActionsData;
+  name?: string;
   condition?: string;
   onSuccess?: Step[];
   onFailure?: Step[];
@@ -15,8 +15,8 @@ export type Step = {
 
 export const StepSchema: ZodType<Step> = z.lazy(() =>
   z.object({
-    name: z.string().optional(),
     action: ActionsDataSchema,
+    name: z.string().optional(),
     condition: z.string().optional(),
     onSuccess: z.array(StepSchema).optional(),
     onFailure: z.array(StepSchema).optional(),

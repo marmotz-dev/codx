@@ -23,9 +23,6 @@
     "StepSchema": {
       "type": "object",
       "properties": {
-        "name": {
-          "type": "string"
-        },
         "action": {
           "anyOf": [
             {
@@ -40,6 +37,9 @@
             {
               "anyOf": [
                 {
+                  "$ref": "#/definitions/FileSystemActionCopyDataSchema"
+                },
+                {
                   "$ref": "#/definitions/FileSystemActionCreateDataSchema"
                 },
                 {
@@ -50,9 +50,6 @@
                 },
                 {
                   "$ref": "#/definitions/FileSystemActionMkdirDataSchema"
-                },
-                {
-                  "$ref": "#/definitions/FileSystemActionCopyDataSchema"
                 },
                 {
                   "$ref": "#/definitions/FileSystemActionMoveDataSchema"
@@ -105,6 +102,9 @@
             }
           ],
           "description": "ActionsDataSchema"
+        },
+        "name": {
+          "type": "string"
         },
         "condition": {
           "type": "string"
@@ -191,6 +191,37 @@
       ],
       "additionalProperties": false,
       "description": "FailActionDataSchema"
+    },
+    "FileSystemActionCopyDataSchema": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "fileSystem"
+        },
+        "operation": {
+          "type": "string",
+          "const": "copy"
+        },
+        "source": {
+          "type": "string"
+        },
+        "destination": {
+          "type": "string"
+        },
+        "overwrite": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": [
+        "type",
+        "operation",
+        "source",
+        "destination"
+      ],
+      "additionalProperties": false,
+      "description": "FileSystemActionCopyDataSchema"
     },
     "FileSystemActionCreateDataSchema": {
       "type": "object",
@@ -290,37 +321,6 @@
       ],
       "additionalProperties": false,
       "description": "FileSystemActionMkdirDataSchema"
-    },
-    "FileSystemActionCopyDataSchema": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "const": "fileSystem"
-        },
-        "operation": {
-          "type": "string",
-          "const": "copy"
-        },
-        "source": {
-          "type": "string"
-        },
-        "destination": {
-          "type": "string"
-        },
-        "overwrite": {
-          "type": "boolean",
-          "default": false
-        }
-      },
-      "required": [
-        "type",
-        "operation",
-        "source",
-        "destination"
-      ],
-      "additionalProperties": false,
-      "description": "FileSystemActionCopyDataSchema"
     },
     "FileSystemActionMoveDataSchema": {
       "type": "object",
