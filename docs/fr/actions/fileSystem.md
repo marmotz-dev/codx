@@ -6,22 +6,25 @@ de l'automatisation de la configuration de projets.
 
 ## Opérations disponibles
 
-L'action `fileSystem` prend en charge [plusieurs opérations](#détail-des-opérations), chacune avec ses propres
+L'action `fileSystem` prend en charge [plusieurs opérations](#détails-des-opérations), chacune avec ses propres
 paramètres :
 
 1. `copy`: [Copier un fichier ou un répertoire](#copier-un-fichier-ou-un-répertoire)
-2. `create`: [Créer un fichier](#créer-un-fichier)
-3. `delete`: [Supprimer un fichier ou un répertoire](#supprimer-un-fichier-ou-un-répertoire)
-4. `exists`: [Vérifier si un fichier ou un répertoire existe](#vérifier-si-un-fichier-ou-un-répertoire-existe)
-5. `mkdir`: [Créer un répertoire](#créer-un-répertoire)
-6. `move`: [Déplacer un fichier ou un répertoire](#déplacer-un-fichier-ou-un-répertoire)
+2. `delete`: [Supprimer un fichier ou un répertoire](#supprimer-un-fichier-ou-un-répertoire)
+3. `exists`: [Vérifier si un fichier ou un répertoire existe](#vérifier-si-un-fichier-ou-un-répertoire-existe)
+4. `mkdir`: [Créer un répertoire](#créer-un-répertoire)
+5. `move`: [Déplacer un fichier ou un répertoire](#déplacer-un-fichier-ou-un-répertoire)
+
+> **Note**: Pour les opérations de manipulation du contenu des fichiers comme la création de fichiers, l'ajout de
+> contenu aux fichiers, ou la mise à jour de contenu avec des expressions régulières, consultez
+> l'action [FileManipulation](fileManipulation.md).
 
 ## Paramètres communs
 
-| Paramètre   | Type   | Obligatoire | Description                                                                                 |
-|-------------|--------|-------------|---------------------------------------------------------------------------------------------|
-| `type`      | string | Oui         | Doit être `"fileSystem"`                                                                    |
-| `operation` | string | Oui         | L'opération à effectuer (`"create"`, `"delete"`, `"exists"`, `"mkdir"`, `"copy"`, `"move"`) |
+| Paramètre   | Type   | Obligatoire | Description                                                                     |
+|-------------|--------|-------------|---------------------------------------------------------------------------------|
+| `type`      | string | Oui         | Doit être `"fileSystem"`                                                        |
+| `operation` | string | Oui         | L'opération à effectuer (`"delete"`, `"exists"`, `"mkdir"`, `"copy"`, `"move"`) |
 
 ## Détails des opérations
 
@@ -79,47 +82,6 @@ votre projet, vous pouvez faire quelque chose comme cela :
     overwrite: true
 ```
 
-### Créer un fichier
-
-L'opération `create` permet de créer un nouveau fichier avec un contenu spécifié.
-
-#### Paramètres spécifiques
-
-| Paramètre   | Type    | Obligatoire | Valeur par défaut | Description                                   |
-|-------------|---------|-------------|-------------------|-----------------------------------------------|
-| `operation` | string  | Oui         | -                 | Doit être `"create"`                          |
-| `path`      | string  | Oui         | -                 | Le chemin du fichier à créer                  |
-| `content`   | string  | Non         | -                 | Le contenu à écrire dans le fichier           |
-| `overwrite` | boolean | Non         | `false`           | Si `true`, écrase le fichier s'il existe déjà |
-
-#### Valeur de retour
-
-Cette opération retourne un objet avec les propriétés suivantes :
-
-| Propriété     | Type    | Toujours retourné | Description                               |
-|---------------|---------|-------------------|-------------------------------------------|
-| `path`        | string  | Oui               | Chemin absolu du nouveau fichier          |
-| `overwritten` | boolean | Oui               | Indique si le fichier a été écrasé ou non |
-
-#### Exemple
-
-```yaml
-- action:
-    type: "fileSystem"
-    operation: "create"
-    path: ".eslintrc.json"
-    content: |
-      {
-        "extends": ["react-app", "prettier"],
-        "plugins": ["react"],
-        "rules": {
-          "react/jsx-uses-react": "error",
-          "react/jsx-uses-vars": "error"
-        }
-      }
-    overwrite: true
-```
-
 ### Supprimer un fichier ou un répertoire
 
 L'opération `delete` permet de supprimer un fichier ou un répertoire.
@@ -129,7 +91,7 @@ L'opération `delete` permet de supprimer un fichier ou un répertoire.
 | Paramètre   | Type   | Obligatoire | Description                                       |
 |-------------|--------|-------------|---------------------------------------------------|
 | `operation` | string | Oui         | Doit être `"delete"`                              |
-| `path`      | string | Oui         | Le chemin du fichier ou du répertoire à supprimer |
+| `path`      | string | Oui         | Le chemin du fichier ou du répertoire à supprimer | 
 
 #### Valeur de retour
 
@@ -380,4 +342,4 @@ Vous pouvez gérer les erreurs qui peuvent survenir lors des opérations sur les
 
 [↑ Liste des actions](../actions.md)
 
-[← Fail](fail.md) ─ [Message →](message.md)
+[← FileManipulation](fileManipulation.md) ─ [Message →](message.md)

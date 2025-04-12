@@ -2,6 +2,7 @@ import { IAction } from '@/actions/Action.interface';
 import { ChangeDirAction } from '@/actions/changeDir/ChangeDirAction';
 import { CommandAction } from '@/actions/command/CommandAction';
 import { FailAction } from '@/actions/fail/FailAction';
+import { FileManipulationAction } from '@/actions/fileManipulation/FileManipulationAction';
 import { FileSystemAction } from '@/actions/fileSystem/FileSystemAction';
 import { MessageAction } from '@/actions/message/MessageAction';
 import { PackageAction } from '@/actions/package/PackageAction';
@@ -14,6 +15,7 @@ export const actionRegistry: ActionRegistry = {
   changeDir: ChangeDirAction,
   command: CommandAction,
   fail: FailAction,
+  fileManipulation: FileManipulationAction,
   fileSystem: FileSystemAction,
   message: MessageAction,
   package: PackageAction,

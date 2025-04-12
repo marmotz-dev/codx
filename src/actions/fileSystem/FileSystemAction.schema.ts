@@ -13,19 +13,6 @@ export const FileSystemActionCopyDataSchema = z
 
 export type FileSystemActionCopyData = z.infer<typeof FileSystemActionCopyDataSchema>;
 
-// create
-export const FileSystemActionCreateDataSchema = z
-  .object({
-    type: z.literal('fileSystem'),
-    operation: z.literal('create'),
-    path: z.string(),
-    content: z.string().optional(),
-    overwrite: z.boolean().optional().default(false),
-  })
-  .describe('FileSystemActionCreateDataSchema');
-
-export type FileSystemActionCreateData = z.infer<typeof FileSystemActionCreateDataSchema>;
-
 // delete
 export const FileSystemActionDeleteDataSchema = z
   .object({
@@ -75,7 +62,6 @@ export type FileSystemActionMoveData = z.infer<typeof FileSystemActionMoveDataSc
 export const FileSystemActionDataSchema = z
   .union([
     FileSystemActionCopyDataSchema,
-    FileSystemActionCreateDataSchema,
     FileSystemActionDeleteDataSchema,
     FileSystemActionExistsDataSchema,
     FileSystemActionMkdirDataSchema,

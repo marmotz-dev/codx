@@ -14434,6 +14434,40 @@ var FailActionDataSchema = z.object({
   message: z.string().optional()
 }).describe("FailActionDataSchema");
 
+// src/actions/fileManipulation/FileManipulationAction.schema.ts
+var FileManipulationActionAppendDataSchema = z.object({
+  type: z.literal("fileManipulation"),
+  operation: z.literal("append"),
+  path: z.string(),
+  content: z.string()
+}).describe("FileManipulationActionAppendDataSchema");
+var FileManipulationActionCreateDataSchema = z.object({
+  type: z.literal("fileManipulation"),
+  operation: z.literal("create"),
+  path: z.string(),
+  content: z.string().optional(),
+  overwrite: z.boolean().optional().default(false)
+}).describe("FileManipulationActionCreateDataSchema");
+var FileManipulationActionPrependDataSchema = z.object({
+  type: z.literal("fileManipulation"),
+  operation: z.literal("prepend"),
+  path: z.string(),
+  content: z.string()
+}).describe("FileManipulationActionPrependDataSchema");
+var FileManipulationActionUpdateDataSchema = z.object({
+  type: z.literal("fileManipulation"),
+  operation: z.literal("update"),
+  path: z.string(),
+  pattern: z.string(),
+  content: z.string()
+}).describe("FileManipulationActionUpdateDataSchema");
+var FileManipulationActionDataSchema = z.union([
+  FileManipulationActionAppendDataSchema,
+  FileManipulationActionCreateDataSchema,
+  FileManipulationActionPrependDataSchema,
+  FileManipulationActionUpdateDataSchema
+]).describe("FileManipulationActionDataSchema");
+
 // src/actions/fileSystem/FileSystemAction.schema.ts
 var FileSystemActionCopyDataSchema = z.object({
   type: z.literal("fileSystem"),
@@ -14442,13 +14476,6 @@ var FileSystemActionCopyDataSchema = z.object({
   destination: z.string(),
   overwrite: z.boolean().optional().default(false)
 }).describe("FileSystemActionCopyDataSchema");
-var FileSystemActionCreateDataSchema = z.object({
-  type: z.literal("fileSystem"),
-  operation: z.literal("create"),
-  path: z.string(),
-  content: z.string().optional(),
-  overwrite: z.boolean().optional().default(false)
-}).describe("FileSystemActionCreateDataSchema");
 var FileSystemActionDeleteDataSchema = z.object({
   type: z.literal("fileSystem"),
   operation: z.literal("delete"),
@@ -14473,7 +14500,6 @@ var FileSystemActionMoveDataSchema = z.object({
 }).describe("FileSystemActionMoveDataSchema");
 var FileSystemActionDataSchema = z.union([
   FileSystemActionCopyDataSchema,
-  FileSystemActionCreateDataSchema,
   FileSystemActionDeleteDataSchema,
   FileSystemActionExistsDataSchema,
   FileSystemActionMkdirDataSchema,
@@ -14573,6 +14599,7 @@ var ActionsDataSchema = z.union([
   ChangeDirActionDataSchema,
   CommandActionDataSchema,
   FailActionDataSchema,
+  FileManipulationActionDataSchema,
   FileSystemActionDataSchema,
   MessageActionDataSchema,
   PackageActionDataSchema,
@@ -26177,9 +26204,122 @@ class FailAction extends BaseAction {
   }
 }
 
-// src/actions/fileSystem/FileSystemAction.ts
-import { copyFileSync, existsSync as existsSync3, mkdirSync as mkdirSync4, renameSync, unlinkSync, writeFileSync } from "node:fs";
+// src/actions/fileManipulation/FileManipulationAction.ts
+import { existsSync as existsSync3, mkdirSync as mkdirSync4, readFileSync, writeFileSync } from "node:fs";
 import { dirname as dirname6 } from "node:path";
+
+class FileManipulationAction extends BaseAction {
+  async execute(actionData) {
+    const { operation } = actionData;
+    switch (operation) {
+      case "append":
+        return this.executeAppend(actionData);
+      case "create":
+        return this.executeCreate(actionData);
+      case "prepend":
+        return this.executePrepend(actionData);
+      case "update":
+        return this.executeUpdate(actionData);
+      default:
+        throw new CodxError(`Unrecognized file manipulation operation: ${operation}`);
+    }
+  }
+  createParentDirIfNeeded(path8) {
+    const parentPath = dirname6(path8);
+    if (!existsSync3(parentPath)) {
+      mkdirSync4(parentPath, { recursive: true });
+    }
+  }
+  executeAppend(actionData) {
+    const { path: path8, content } = actionData;
+    const interpolatedPath = this.interpolate(path8);
+    const absolutePath = this.context.projectDirectory.resolve(interpolatedPath);
+    if (!existsSync3(absolutePath)) {
+      throw new CodxError(`File "${absolutePath}" does not exist.`);
+    }
+    const interpolatedContent = this.interpolate(content);
+    const existingContent = readFileSync(absolutePath, "utf8");
+    const newContent = existingContent + interpolatedContent;
+    writeFileSync(absolutePath, newContent);
+    this.logger.success(`Content appended successfully to: ${absolutePath}`);
+    return {
+      path: absolutePath,
+      appended: true
+    };
+  }
+  executeCreate(actionData) {
+    const { path: path8, content, overwrite = false } = actionData;
+    const interpolatedPath = this.interpolate(path8);
+    const absolutePath = this.context.projectDirectory.resolve(interpolatedPath);
+    let overwritten = false;
+    if (existsSync3(absolutePath)) {
+      if (overwrite) {
+        overwritten = true;
+      } else {
+        throw new CodxError(`File "${absolutePath}" already exists and the "overwrite" option is not enabled.`);
+      }
+    }
+    this.createParentDirIfNeeded(absolutePath);
+    const interpolatedContent = this.interpolate(content ?? "");
+    writeFileSync(absolutePath, interpolatedContent);
+    this.logger.success(`File created successfully: ${absolutePath}`);
+    return {
+      path: absolutePath,
+      overwritten
+    };
+  }
+  executePrepend(actionData) {
+    const { path: path8, content } = actionData;
+    const interpolatedPath = this.interpolate(path8);
+    const absolutePath = this.context.projectDirectory.resolve(interpolatedPath);
+    if (!existsSync3(absolutePath)) {
+      throw new CodxError(`File "${absolutePath}" does not exist.`);
+    }
+    const interpolatedContent = this.interpolate(content);
+    const existingContent = readFileSync(absolutePath, "utf8");
+    const newContent = interpolatedContent + existingContent;
+    writeFileSync(absolutePath, newContent);
+    this.logger.success(`Content prepended successfully to: ${absolutePath}`);
+    return {
+      path: absolutePath,
+      prepended: true
+    };
+  }
+  executeUpdate(actionData) {
+    const { path: path8, pattern, content } = actionData;
+    const interpolatedPath = this.interpolate(path8);
+    const absolutePath = this.context.projectDirectory.resolve(interpolatedPath);
+    if (!existsSync3(absolutePath)) {
+      throw new CodxError(`File "${absolutePath}" does not exist.`);
+    }
+    const interpolatedPattern = this.interpolate(pattern);
+    const interpolatedContent = this.interpolate(content);
+    const existingContent = readFileSync(absolutePath, "utf8");
+    try {
+      const regex = new RegExp(interpolatedPattern, "g");
+      const newContent = existingContent.replace(regex, interpolatedContent);
+      if (newContent === existingContent) {
+        this.logger.warning(`Pattern "${interpolatedPattern}" not found in file: ${absolutePath}`);
+        return {
+          path: absolutePath,
+          updated: false
+        };
+      }
+      writeFileSync(absolutePath, newContent);
+      this.logger.success(`Content updated successfully in: ${absolutePath}`);
+      return {
+        path: absolutePath,
+        updated: true
+      };
+    } catch (error) {
+      throw new CodxError(`Invalid regular expression pattern: ${interpolatedPattern}`, error);
+    }
+  }
+}
+
+// src/actions/fileSystem/FileSystemAction.ts
+import { copyFileSync, existsSync as existsSync4, mkdirSync as mkdirSync5, renameSync, unlinkSync } from "node:fs";
+import { dirname as dirname7 } from "node:path";
 
 class FileSystemAction extends BaseAction {
   async execute(actionData) {
@@ -26187,8 +26327,6 @@ class FileSystemAction extends BaseAction {
     switch (operation) {
       case "copy":
         return this.executeCopy(actionData);
-      case "create":
-        return this.executeCreate(actionData);
       case "delete":
         return this.executeDelete(actionData);
       case "exists":
@@ -26216,14 +26354,14 @@ class FileSystemAction extends BaseAction {
     } catch {
       this.logger.warning(`Source file "${interpolatedSourcePath}" is not in the recipe directory.`);
     }
-    if (!sourcePath || !existsSync3(sourcePath)) {
+    if (!sourcePath || !existsSync4(sourcePath)) {
       try {
         sourcePath = this.context.projectDirectory.resolve(interpolatedSourcePath);
       } catch {
         this.logger.warning(`Source file "${interpolatedSourcePath}" is not in the project directory.`);
       }
     }
-    if (!sourcePath || !existsSync3(sourcePath)) {
+    if (!sourcePath || !existsSync4(sourcePath)) {
       throw new CodxError(`Source file "${interpolatedSourcePath}" is neither in the recipe directory nor in the project directory.`);
     }
     const interpolatedDestinationPath = this.interpolate(destination);
@@ -26234,25 +26372,25 @@ class FileSystemAction extends BaseAction {
     return { sourcePath, destinationPath, overwrite };
   }
   checkDestPath(dest, overwrite) {
-    if (existsSync3(dest) && !overwrite) {
+    if (existsSync4(dest) && !overwrite) {
       throw new CodxError(`Destination file "${dest}" already exists and the "overwrite" option is not enabled.`);
     }
   }
   checkSourcePath(source) {
-    if (!existsSync3(source)) {
+    if (!existsSync4(source)) {
       throw new CodxError(`Source file "${source}" does not exist.`);
     }
   }
   createParentDirIfNeeded(path8) {
-    const parentPath = dirname6(path8);
-    if (!existsSync3(parentPath)) {
-      mkdirSync4(parentPath, { recursive: true });
+    const parentPath = dirname7(path8);
+    if (!existsSync4(parentPath)) {
+      mkdirSync5(parentPath, { recursive: true });
     }
   }
   executeCopy(actionData) {
     const { sourcePath, destinationPath, overwrite = false } = this.checkCreateAndGetPath(actionData);
     let overwritten = false;
-    if (existsSync3(destinationPath)) {
+    if (existsSync4(destinationPath)) {
       if (overwrite) {
         overwritten = true;
       } else {
@@ -26267,33 +26405,12 @@ class FileSystemAction extends BaseAction {
       overwritten
     };
   }
-  executeCreate(actionData) {
-    const { path: path8, content, overwrite = false } = actionData;
-    const interpolatedPath = this.interpolate(path8);
-    const absolutePath = this.context.projectDirectory.resolve(interpolatedPath);
-    let overwritten = false;
-    if (existsSync3(absolutePath)) {
-      if (overwrite) {
-        overwritten = true;
-      } else {
-        throw new CodxError(`File "${absolutePath}" already exists and the "overwrite" option is not enabled.`);
-      }
-    }
-    this.createParentDirIfNeeded(absolutePath);
-    const interpolatedContent = this.interpolate(content ?? "");
-    writeFileSync(absolutePath, interpolatedContent);
-    this.logger.success(`File created successfully: ${absolutePath}`);
-    return {
-      path: absolutePath,
-      overwritten
-    };
-  }
   executeDelete(actionData) {
     const { path: path8 } = actionData;
     const interpolatedPath = this.interpolate(path8);
     const absolutePath = this.context.projectDirectory.resolve(interpolatedPath);
     let deleted = false;
-    if (!existsSync3(absolutePath)) {
+    if (!existsSync4(absolutePath)) {
       this.logger.info(`File "${absolutePath}" does not exist, nothing to delete.`);
     } else {
       unlinkSync(absolutePath);
@@ -26309,7 +26426,7 @@ class FileSystemAction extends BaseAction {
     const { path: path8 } = actionData;
     const interpolatedPath = this.interpolate(path8);
     const absolutePath = this.context.projectDirectory.resolve(interpolatedPath);
-    const exists = existsSync3(absolutePath);
+    const exists = existsSync4(absolutePath);
     if (exists) {
       this.logger.info(`File "${absolutePath}" exists.`);
     } else {
@@ -26324,12 +26441,12 @@ class FileSystemAction extends BaseAction {
     const { path: path8 } = actionData;
     const interpolatedPath = this.interpolate(path8);
     const absolutePath = this.context.projectDirectory.resolve(interpolatedPath);
-    const exists = existsSync3(absolutePath);
+    const exists = existsSync4(absolutePath);
     if (exists) {
       this.logger.warning(`Path "${absolutePath}" already exists.`);
     } else {
       try {
-        mkdirSync4(absolutePath);
+        mkdirSync5(absolutePath);
         this.logger.success(`Directory "${absolutePath}" created.`);
       } catch (e) {
         const message = `Unable to create directory "${absolutePath}".`;
@@ -26345,7 +26462,7 @@ class FileSystemAction extends BaseAction {
   executeMove(actionData) {
     const { sourcePath, destinationPath, overwrite = false } = this.checkCreateAndGetPath(actionData);
     let overwritten = false;
-    if (existsSync3(destinationPath)) {
+    if (existsSync4(destinationPath)) {
       if (overwrite) {
         overwritten = true;
       } else {
@@ -26393,7 +26510,7 @@ MessageAction = __legacyDecorateClassTS([
 
 // src/actions/package/PackageAction.ts
 var import_semver = __toESM(require_semver2(), 1);
-import { existsSync as existsSync4, readFileSync } from "node:fs";
+import { existsSync as existsSync5, readFileSync as readFileSync2 } from "node:fs";
 import { join as join3 } from "node:path";
 
 class PackageAction extends BaseCommandAction {
@@ -26511,8 +26628,8 @@ class PackageAction extends BaseCommandAction {
     try {
       const workingDir = this.context.projectDirectory.get();
       const packageJsonPath = join3(workingDir, "node_modules", packageName, "package.json");
-      if (existsSync4(packageJsonPath)) {
-        const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
+      if (existsSync5(packageJsonPath)) {
+        const packageJson = JSON.parse(readFileSync2(packageJsonPath, "utf8"));
         if (packageJson.version) {
           return packageJson.version;
         }
@@ -26627,6 +26744,7 @@ var actionRegistry = {
   changeDir: ChangeDirAction,
   command: CommandAction,
   fail: FailAction,
+  fileManipulation: FileManipulationAction,
   fileSystem: FileSystemAction,
   message: MessageAction,
   package: PackageAction,

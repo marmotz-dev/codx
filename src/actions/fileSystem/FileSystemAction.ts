@@ -1,7 +1,6 @@
 import { BaseAction } from '@/actions/BaseAction';
 import {
   FileSystemActionCopyData,
-  FileSystemActionCreateData,
   FileSystemActionData,
   FileSystemActionDeleteData,
   FileSystemActionExistsData,
@@ -9,7 +8,7 @@ import {
   FileSystemActionMoveData,
 } from '@/actions/fileSystem/FileSystemAction.schema';
 import { CodxError } from '@/core/CodxError';
-import { copyFileSync, existsSync, mkdirSync, renameSync, unlinkSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, renameSync, unlinkSync } from 'node:fs';
 import { dirname } from 'node:path';
 
 /**
@@ -26,9 +25,6 @@ export class FileSystemAction extends BaseAction {
     switch (operation) {
       case 'copy':
         return this.executeCopy(actionData);
-
-      case 'create':
-        return this.executeCreate(actionData);
 
       case 'delete':
         return this.executeDelete(actionData);
@@ -135,39 +131,6 @@ export class FileSystemAction extends BaseAction {
     return {
       source: sourcePath,
       destination: destinationPath,
-      overwritten,
-    };
-  }
-
-  /**
-   * Creates a file with the specified content
-   * @param {FileSystemActionCreateData} actionData Action data
-   */
-  private executeCreate(actionData: FileSystemActionCreateData) {
-    const { path, content, overwrite = false } = actionData;
-
-    const interpolatedPath = this.interpolate(path);
-    const absolutePath = this.context.projectDirectory.resolve(interpolatedPath);
-    let overwritten = false;
-
-    if (existsSync(absolutePath)) {
-      if (overwrite) {
-        overwritten = true;
-      } else {
-        throw new CodxError(`File "${absolutePath}" already exists and the "overwrite" option is not enabled.`);
-      }
-    }
-
-    this.createParentDirIfNeeded(absolutePath);
-
-    const interpolatedContent = this.interpolate(content ?? '');
-
-    // Write the content to the file
-    writeFileSync(absolutePath, interpolatedContent);
-    this.logger.success(`File created successfully: ${absolutePath}`);
-
-    return {
-      path: absolutePath,
       overwritten,
     };
   }

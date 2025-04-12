@@ -1,7 +1,6 @@
 import { FileSystemAction } from '@/actions/fileSystem/FileSystemAction';
 import {
   FileSystemActionCopyData,
-  FileSystemActionCreateData,
   FileSystemActionData,
   FileSystemActionMoveData,
 } from '@/actions/fileSystem/FileSystemAction.schema';
@@ -69,56 +68,6 @@ describe('FileSystemAction', () => {
   afterEach(() => {
     mockFsCleaner();
     mock.restore();
-  });
-
-  describe('Operation CREATE', () => {
-    test('should create a file with content', async () => {
-      // Mock file does not exist
-      (existsSync as any).mockReturnValue(false);
-
-      const actionData = {
-        type: 'fileSystem',
-        operation: 'create',
-        path: mockFilePath,
-        content: mockContent,
-      } as FileSystemActionCreateData;
-
-      await action.execute(actionData);
-
-      expect(writeFileSync).toHaveBeenCalledWith(mockAbsolutePath, mockInterpolatedContent);
-      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('File created successfully'));
-    });
-
-    test('should throw error when file exists and overwrite option is not enabled', async () => {
-      (existsSync as any).mockReturnValue(true);
-
-      const actionData = {
-        type: 'fileSystem',
-        operation: 'create',
-        path: mockFilePath,
-        content: mockContent,
-      } as FileSystemActionData;
-
-      expect(action.execute(actionData)).rejects.toThrow(CodxError);
-      expect(action.execute(actionData)).rejects.toThrow('already exists and the "overwrite" option is not enabled');
-    });
-
-    test('should create a file with content when file exists and overwrite option is enabled', async () => {
-      (existsSync as any).mockReturnValue(true);
-
-      const actionData = {
-        type: 'fileSystem',
-        operation: 'create',
-        path: mockFilePath,
-        content: mockContent,
-        overwrite: true,
-      } as FileSystemActionData;
-
-      await action.execute(actionData);
-
-      expect(writeFileSync).toHaveBeenCalledWith(mockAbsolutePath, mockInterpolatedContent);
-      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('File created successfully'));
-    });
   });
 
   describe('Operation DELETE', () => {
