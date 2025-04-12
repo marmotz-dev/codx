@@ -93,7 +93,7 @@ export class RecipeRunner {
           this.context.store.set(variable, result);
         } else {
           this.logger.debug(
-            `Result of action ${actionData.type} (non stored in variable) is ${JSON.stringify(result)}`,
+            `Result of action ${actionData.type} (non stored in variable) is ${JSON.stringify(result, null, 2)}`,
           );
         }
       }
@@ -153,11 +153,15 @@ export class RecipeRunner {
 
   private shouldExecuteStep(condition?: string): boolean {
     if (condition) {
+      this.logger.debug(`Evaluating condition: ${condition}`);
+
       const conditionResult = this.conditionEvaluator.evaluate(condition, this.context.store.getAll());
       if (!conditionResult) {
         this.logger.warning('Condition not met, step skipped.');
 
         return false;
+      } else {
+        this.logger.debug(`Condition met, step executed.`);
       }
     }
 
