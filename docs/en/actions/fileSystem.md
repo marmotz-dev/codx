@@ -9,18 +9,20 @@ configuration.
 The `fileSystem` action supports [several operations](#operation-details), each with its own parameters:
 
 1. `copy`: [Copy a file or directory](#copy-a-file-or-directory)
-2. `create`: [Create a file](#create-a-file)
-3. `delete`: [Delete a file or directory](#delete-a-file-or-directory)
-4. `exists`: [Check if a file or directory exists](#check-if-a-file-or-directory-exists)
-5. `mkdir`: [Create a directory](#create-a-directory)
-6. `move`: [Move a file or directory](#move-a-file-or-directory)
+2. `delete`: [Delete a file or directory](#delete-a-file-or-directory)
+3. `exists`: [Check if a file or directory exists](#check-if-a-file-or-directory-exists)
+4. `mkdir`: [Create a directory](#create-a-directory)
+5. `move`: [Move a file or directory](#move-a-file-or-directory)
+
+> **Note**: For file content manipulation operations like creating files, adding content to files, or updating content
+> with regular expressions, see the [FileManipulation](fileManipulation.md) action.
 
 ## Common Parameters
 
-| Parameter   | Type   | Required | Description                                                                                  |
-|-------------|--------|----------|----------------------------------------------------------------------------------------------|
-| `type`      | string | Yes      | Must be `"fileSystem"`                                                                       |
-| `operation` | string | Yes      | The operation to perform (`"create"`, `"delete"`, `"exists"`, `"mkdir"`, `"copy"`, `"move"`) |
+| Parameter   | Type   | Required | Description                                                                      |
+|-------------|--------|----------|----------------------------------------------------------------------------------|
+| `type`      | string | Yes      | Must be `"fileSystem"`                                                           |
+| `operation` | string | Yes      | The operation to perform (`"delete"`, `"exists"`, `"mkdir"`, `"copy"`, `"move"`) |
 
 ## Operation Details
 
@@ -74,47 +76,6 @@ something like this:
     operation: "copy"
     source: "{$RECIPE_DIRECTORY}/templates/.eslintrc.json"
     destination: "{$PROJECT_DIRECTORY}/.eslintrc.json"
-    overwrite: true
-```
-
-### Create a File
-
-The `create` operation allows you to create a new file with specified content.
-
-#### Specific Parameters
-
-| Parameter   | Type    | Required | Default Value | Description                                         |
-|-------------|---------|----------|---------------|-----------------------------------------------------|
-| `operation` | string  | Yes      | -             | Must be `"create"`                                  |
-| `path`      | string  | Yes      | -             | The path of the file to create                      |
-| `content`   | string  | No       | -             | The content to write to the file                    |
-| `overwrite` | boolean | No       | `false`       | If `true`, overwrites the file if it already exists |
-
-#### Return Value
-
-This operation returns an object with the following properties:
-
-| Property      | Type    | Always returned | Description                                       |
-|---------------|---------|-----------------|---------------------------------------------------|
-| `path`        | string  | Yes             | Absolute path of the new file                     |
-| `overwritten` | boolean | Yes             | Indicates whether the file was overwritten or not |
-
-#### Example
-
-```yaml
-- action:
-    type: "fileSystem"
-    operation: "create"
-    path: ".eslintrc.json"
-    content: |
-      {
-        "extends": ["react-app", "prettier"],
-        "plugins": ["react"],
-        "rules": {
-          "react/jsx-uses-react": "error",
-          "react/jsx-uses-vars": "error"
-        }
-      }
     overwrite: true
 ```
 
@@ -376,4 +337,4 @@ You can handle errors that may occur during file operations using the `onSuccess
 
 [↑ List of Actions](../actions.md)
 
-[← Fail](fail.md) ─ [Message →](message.md)
+[← FileManipulation](fileManipulation.md) ─ [Message →](message.md)

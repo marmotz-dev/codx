@@ -1,13 +1,14 @@
 # Fail Action
 
-The `fail` action allows you to intentionally raise an error during the execution of a recipe. This action is useful for stopping the execution of a recipe when a specific condition is not met.
+The `fail` action allows you to intentionally raise an error during the execution of a recipe. This action is useful for
+stopping the execution of a recipe when a specific condition is not met.
 
 ## Parameters
 
-| Parameter | Type   | Required | Description                                                                                |
-|-----------|--------|----------|--------------------------------------------------------------------------------------------|
-| `type`    | string | Yes      | Must be `"fail"`                                                                           |
-| `message` | string | No       | The error message to display. Default: "Explicit failure triggered by fail action"         |
+| Parameter | Type   | Required | Description                                                                        |
+|-----------|--------|----------|------------------------------------------------------------------------------------|
+| `type`    | string | Yes      | Must be `"fail"`                                                                   |
+| `message` | string | No       | The error message to display. Default: "Explicit failure triggered by fail action" |
 
 ## Return Value
 
@@ -63,7 +64,8 @@ The `fail` action is particularly useful in combination with `onFailure` blocks 
 
 - **Clear Error Messages**: Provide descriptive error messages that explain why the failure occurred.
 - **Conditional Failures**: Use the `condition` attribute to make failures conditional based on specific criteria.
-- **Error Recovery**: Always provide an `onFailure` block when you want to recover from the error and continue execution.
+- **Error Recovery**: Always provide an `onFailure` block when you want to recover from the error and continue
+  execution.
 
 ## Alternatives
 
@@ -74,4 +76,4 @@ For some scenarios, you might want to consider these alternatives:
 
 [↑ List of Actions](../actions.md)
 
-[← Command](command.md) ─ [FileSystem →](fileSystem.md)
+[← Command](command.md) ─ [FileManipulation →](fileManipulation.md)

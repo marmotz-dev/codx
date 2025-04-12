@@ -1,6 +1,7 @@
 import { ChangeDirActionDataSchema } from '@/actions/changeDir/ChangeDirAction.schema';
 import { CommandActionDataSchema } from '@/actions/command/CommandAction.schema';
 import { FailActionDataSchema } from '@/actions/fail/FailAction.schema';
+import { FileManipulationActionDataSchema } from '@/actions/fileManipulation/FileManipulationAction.schema';
 import { FileSystemActionDataSchema } from '@/actions/fileSystem/FileSystemAction.schema';
 import { MessageActionDataSchema } from '@/actions/message/MessageAction.schema';
 import { PackageActionDataSchema } from '@/actions/package/PackageAction.schema';
@@ -13,6 +14,7 @@ export const ActionsDataSchema = z
     ChangeDirActionDataSchema,
     CommandActionDataSchema,
     FailActionDataSchema,
+    FileManipulationActionDataSchema,
     FileSystemActionDataSchema,
     MessageActionDataSchema,
     PackageActionDataSchema,
