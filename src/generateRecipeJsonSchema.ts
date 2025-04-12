@@ -1,10 +1,8 @@
-import { ActionsDataSchema } from '@/actions/Actions.schema';
-import { RecipeSchema, StepSchema } from '@/core/Recipe.schema';
+import { RecipeSchema } from '@/core/Recipe.schema';
 import chalk from 'chalk';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
-import { ZodType, ZodUnion } from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
+import { z } from 'zod';
 
 // Output path
 let outputPath = process.argv[2];
@@ -21,27 +19,7 @@ if (!existsSync(parentPath)) {
   mkdirSync(parentPath, { recursive: true });
 }
 
-// Load definitions
-const definitions: Record<string, ZodType> = { StepSchema };
-
-function loadDefinitions(schema: ZodUnion<any>) {
-  schema.options.forEach((childSchema: ZodType, index: number) => {
-    if (childSchema instanceof ZodUnion) {
-      loadDefinitions(childSchema);
-    } else if (childSchema.description) {
-      definitions[childSchema.description] = childSchema;
-    } else {
-      console.warn(`Missing description for ${index}th child of ${schema.description}`);
-    }
-  });
-}
-
-loadDefinitions(ActionsDataSchema);
-
-// Generate schema
-const schema = zodToJsonSchema(RecipeSchema, {
-  definitions,
-});
+const schema = z.toJSONSchema(RecipeSchema);
 
 writeFileSync(resolve(process.cwd(), outputPath), JSON.stringify(schema, undefined, 2));
 
