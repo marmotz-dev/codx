@@ -16,7 +16,20 @@
     "test:coverage": "rm -rf coverage/ && bun test:ci && genhtml coverage/lcov.info -o coverage/ && bunx http-server coverage",
     "prepare": "husky",
     "lint": "eslint \"src/**/*.ts\"",
-    "lint:fix": "eslint \"src/**/*.ts\" --fix"
+    "lint:fix": "eslint \"src/**/*.ts\" --fix",
+    "bump:patch": "bun run version:update patch",
+    "bump:minor": "bun run version:update minor",
+    "bump:major": "bun run version:update major",
+    "version:update": "bun run version:pre && npm version $1 --no-git-tag-version && bun run version:post",
+    "version:pre": "git checkout develop && git pull",
+    "version:post": "concurrently -m1 -k bun:version:post:*",
+    "version:post:generate-cli": "bun run generate:cli && git add dist/cli.js",
+    "version:post:generate-schema": "bun run generate:json-schema && git add dist/codx-schema.json",
+    "version:post:commit-develop": "export VERSION=$(node -p \"require('./package.json').version\") && git add package.json && git commit --no-edit -mv$VERSION",
+    "version:post:merge-main": "git checkout main && git pull && git merge develop",
+    "version:post:tag-main": "export VERSION=$(node -p \"require('./package.json').version\") && git tag -a $VERSION",
+    "--version:post:push": "git push origin main --tags",
+    "version:post:checkout-develop": "git checkout develop"
   },
   "files": [
     "dist"
@@ -41,6 +54,7 @@
     "@types/semver": "^7.5.8",
     "@typescript-eslint/eslint-plugin": "^8.27.0",
     "@typescript-eslint/parser": "^8.27.0",
+    "concurrently": "^9.1.2",
     "eslint": "^9.23.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.3",
