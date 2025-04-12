@@ -27476,7 +27476,7 @@ var {
 // package.json
 var name2 = "codx";
 var description = "Execute recipes to speed your project setup !";
-var version2 = "0.2.1";
+var version2 = "0.2.2";
 
 // src/cli/CodxCli.ts
 class CodxCli {
