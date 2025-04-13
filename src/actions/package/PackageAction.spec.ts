@@ -5,7 +5,9 @@ import {
   PackageActionRunData,
   PackageActionUpdateData,
 } from '@/actions/package/PackageAction.schema';
-import { CodxError } from '@/core/CodxError';
+import { EmptyPackageCodxError } from '@/core/errors/EmptyPackageCodxError';
+import { EmptyPackageListCodxError } from '@/core/errors/EmptyPackageListCodxError';
+import { PackageManagerNotFoundCodxError } from '@/core/errors/PackageManagerNotFoundCodxError';
 import { PACKAGE_COMMANDS } from '@/core/PackageManagerDetector';
 import { Store } from '@/core/Store';
 import { diContainer } from '@/di/Container';
@@ -45,7 +47,7 @@ describe('PackageAction', () => {
           packages: [],
         } as any;
 
-        expect(action.execute(actionData1)).rejects.toThrow(CodxError);
+        expect(action.execute(actionData1)).rejects.toThrow(EmptyPackageListCodxError);
         expect(action.execute(actionData1)).rejects.toThrow('Package list is empty or invalid.');
 
         const actionData2 = {
@@ -54,7 +56,7 @@ describe('PackageAction', () => {
           packages: null,
         } as any;
 
-        expect(action.execute(actionData2)).rejects.toThrow(CodxError);
+        expect(action.execute(actionData2)).rejects.toThrow(EmptyPackageListCodxError);
         expect(action.execute(actionData2)).rejects.toThrow('Package list is empty or invalid.');
       });
     });
@@ -174,7 +176,7 @@ describe('PackageAction', () => {
           packages: [],
         } as unknown as PackageActionInstallData;
 
-        expect(action.execute(actionData)).rejects.toThrow(CodxError);
+        expect(action.execute(actionData)).rejects.toThrow(EmptyPackageListCodxError);
         expect(action.execute(actionData)).rejects.toThrow('Package list is empty or invalid.');
       });
 
@@ -187,7 +189,7 @@ describe('PackageAction', () => {
           packages: ['package'],
         } as unknown as PackageActionInstallData;
 
-        expect(action.execute(actionData)).rejects.toThrow(CodxError);
+        expect(action.execute(actionData)).rejects.toThrow(PackageManagerNotFoundCodxError);
         expect(action.execute(actionData)).rejects.toThrow('Package manager not found.');
 
         store.setInternal('$PACKAGE_COMMANDS', mockPackageCommands);
@@ -237,7 +239,7 @@ describe('PackageAction', () => {
           packages: [],
         } as unknown as PackageActionRemoveData;
 
-        expect(action.execute(actionData)).rejects.toThrow(CodxError);
+        expect(action.execute(actionData)).rejects.toThrow(EmptyPackageListCodxError);
         expect(action.execute(actionData)).rejects.toThrow('Package list is empty or invalid.');
       });
 
@@ -250,7 +252,7 @@ describe('PackageAction', () => {
           packages: ['package'],
         } as unknown as PackageActionInstallData;
 
-        expect(action.execute(actionData)).rejects.toThrow(CodxError);
+        expect(action.execute(actionData)).rejects.toThrow(PackageManagerNotFoundCodxError);
         expect(action.execute(actionData)).rejects.toThrow('Package manager not found.');
 
         store.setInternal('$PACKAGE_COMMANDS', mockPackageCommands);
@@ -284,7 +286,7 @@ describe('PackageAction', () => {
           packages: [],
         } as unknown as PackageActionRemoveData;
 
-        expect(action.execute(actionData)).rejects.toThrow(CodxError);
+        expect(action.execute(actionData)).rejects.toThrow(EmptyPackageListCodxError);
         expect(action.execute(actionData)).rejects.toThrow('Package list is empty or invalid.');
       });
 
@@ -297,7 +299,7 @@ describe('PackageAction', () => {
           packages: ['package'],
         } as unknown as PackageActionInstallData;
 
-        expect(action.execute(actionData)).rejects.toThrow(CodxError);
+        expect(action.execute(actionData)).rejects.toThrow(PackageManagerNotFoundCodxError);
         expect(action.execute(actionData)).rejects.toThrow('Package manager not found.');
 
         store.setInternal('$PACKAGE_COMMANDS', mockPackageCommands);
@@ -331,7 +333,7 @@ describe('PackageAction', () => {
           options: mockOptions,
         } as PackageActionRunData;
 
-        expect(action.execute(actionData)).rejects.toThrow(CodxError);
+        expect(action.execute(actionData)).rejects.toThrow(EmptyPackageCodxError);
         expect(action.execute(actionData)).rejects.toThrow('Package is empty.');
       });
 
@@ -344,7 +346,7 @@ describe('PackageAction', () => {
           package: 'package',
         } as unknown as PackageActionRunData;
 
-        expect(action.execute(actionData)).rejects.toThrow(CodxError);
+        expect(action.execute(actionData)).rejects.toThrow(PackageManagerNotFoundCodxError);
         expect(action.execute(actionData)).rejects.toThrow('Package manager not found.');
 
         store.setInternal('$PACKAGE_COMMANDS', mockPackageCommands);

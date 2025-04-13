@@ -26,5 +26,6 @@ Codx allows you to:
 - [Variables and Interpolation](variables-and-interpolation.md)
 - [Actions](actions.md)
 - [Conditions](conditions.md)
+- [Error Handling](errors.md)
 
 [Installation and usage →](utilisation.md)

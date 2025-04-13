@@ -88,6 +88,15 @@ les attributs `onSuccess` et `onFailure` :
         command: "curl -fsSL https://nodejs.org/install.sh | bash"
 ```
 
+### Erreurs possibles
+
+Cette action peut lancer les erreurs suivantes :
+ 
+| Type d'erreur               | Description                                                         |
+|-----------------------------|---------------------------------------------------------------------|
+| `CommandCancelledCodxError` | Lancée lorsque l'utilisateur annule l'exécution de la commande.     |
+| `CommandExecutionCodxError` | Lancée lorsqu'il y a une erreur lors de l'exécution de la commande. |
+
 ## Bonnes pratiques
 
 - **Portabilité** : Tenez compte des différences entre les systèmes d'exploitation. Certaines commandes peuvent ne pas

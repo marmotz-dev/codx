@@ -1,7 +1,8 @@
 import { ChangeDirAction } from '@/actions/changeDir/ChangeDirAction';
 import { ChangeDirActionData } from '@/actions/changeDir/ChangeDirAction.schema';
-import { CodxError } from '@/core/CodxError';
 import { Context } from '@/core/Context';
+import { DirectoryChangeCodxError } from '@/core/errors/DirectoryChangeCodxError';
+import { MissingDirectoryPathCodxError } from '@/core/errors/MissingDirectoryPathCodxError';
 import { ProjectDirectory } from '@/core/ProjectDirectory';
 import { Store } from '@/core/Store';
 import { diContainer } from '@/di/Container';
@@ -21,8 +22,8 @@ describe('ChangeDirAction', () => {
     const action = diContainer.get(ChangeDirAction);
     const actionData = {} as ChangeDirActionData;
 
-    expect(action.execute(actionData)).rejects.toThrow(CodxError);
-    expect(action.execute(actionData)).rejects.toThrow('Directory path is required for the changeDir action');
+    expect(action.execute(actionData)).rejects.toThrow(MissingDirectoryPathCodxError);
+    expect(action.execute(actionData)).rejects.toThrow('Directory path is required for this action');
   });
 
   test('should change directory successfully', async () => {
@@ -60,7 +61,7 @@ describe('ChangeDirAction', () => {
     const action = diContainer.get(ChangeDirAction);
     const actionData = { path: mockPath } as ChangeDirActionData;
 
-    expect(action.execute(actionData)).rejects.toThrow(CodxError);
+    expect(action.execute(actionData)).rejects.toThrow(DirectoryChangeCodxError);
     expect(action.execute(actionData)).rejects.toThrow('Error changing directory');
   });
 });

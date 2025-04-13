@@ -221,6 +221,17 @@ Vous pouvez gérer les erreurs qui peuvent survenir lors des opérations sur les
         style: "error"
 ```
 
+#### Erreurs possibles
+
+Cette action peut lancer les erreurs suivantes :
+ 
+| Type d'erreur                  | Description                                                                                               |
+|--------------------------------|-----------------------------------------------------------------------------------------------------------|
+| `UnknownOperationCodxError`    | Lancée lorsqu'une opération inconnue est spécifiée.                                                       |
+| `FileNotFoundCodxError`        | Lancée lorsque le fichier à manipuler n'existe pas (pour les opérations `append`, `prepend` et `update`). |
+| `FileAlreadyExistsCodxError`   | Lancée lors de la tentative de création d'un fichier qui existe déjà sans l'option `overwrite`.           |
+| `InvalidRegexPatternCodxError` | Lancée lorsque le modèle d'expression régulière pour l'opération `update` est invalide.                   |
+
 ### Bonnes pratiques
 
 - **Existence du fichier** : Pour les opérations `prepend`, `append` et `update`, assurez-vous que le fichier existe

@@ -1,6 +1,7 @@
 import { BaseAction } from '@/actions/BaseAction';
 import { ChangeDirActionData } from '@/actions/changeDir/ChangeDirAction.schema';
-import { CodxError } from '@/core/CodxError';
+import { DirectoryChangeCodxError } from '@/core/errors/DirectoryChangeCodxError';
+import { MissingDirectoryPathCodxError } from '@/core/errors/MissingDirectoryPathCodxError';
 
 /**
  * Action to change the working directory
@@ -14,7 +15,7 @@ export class ChangeDirAction extends BaseAction {
     const { path } = actionData;
 
     if (!path) {
-      throw new CodxError('Directory path is required for the changeDir action');
+      throw new MissingDirectoryPathCodxError();
     }
 
     const interpolatedPath = this.interpolate(path);
@@ -23,7 +24,7 @@ export class ChangeDirAction extends BaseAction {
       this.context.projectDirectory.change(interpolatedPath);
       this.logger.info(`Current working directory: ${this.context.projectDirectory.get()}`);
     } catch (error) {
-      throw new CodxError('Error changing directory', error);
+      throw new DirectoryChangeCodxError(error as Error);
     }
   }
 }

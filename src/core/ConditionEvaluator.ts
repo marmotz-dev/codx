@@ -8,6 +8,22 @@ export class ConditionEvaluator {
     try {
       const check = compileExpression(condition, {
         customProp: useDotAccessOperatorAndOptionalChaining,
+        extraFunctions: {
+          instanceOf: (o: any, c: any) => {
+            if (typeof o !== 'object' || typeof c !== 'string') {
+              return false;
+            }
+
+            // check if o or parent class is instance of c
+            do {
+              if (o?.name === c || o?.constructor?.name === c) {
+                return true;
+              }
+            } while ((o = Object.getPrototypeOf(o)));
+
+            return false;
+          },
+        },
       });
 
       return check({

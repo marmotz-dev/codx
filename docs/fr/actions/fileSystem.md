@@ -266,6 +266,20 @@ Vous pouvez gérer les erreurs qui peuvent survenir lors des opérations sur les
         style: "warning"
 ```
 
+#### Erreurs possibles
+
+Cette action peut lancer les erreurs suivantes :
+
+| Type d'erreur                           | Description                                                                                         |
+|-----------------------------------------|-----------------------------------------------------------------------------------------------------|
+| `UnknownOperationCodxError`             | Lancée lorsqu'une opération inconnue est spécifiée.                                                 |
+| `MissingSourcePathCodxError`            | Lancée lorsque le chemin source est manquant pour les opérations `copy` ou `move`.                  |
+| `MissingDestinationPathCodxError`       | Lancée lorsque le chemin de destination est manquant pour les opérations `copy` ou `move`.          |
+| `OutsideSourceFileCodxError`            | Lancée lorsque le fichier source est en dehors du répertoire du projet ou de la recette.            |
+| `DestinationFileAlreadyExistsCodxError` | Lancée lorsque le fichier de destination existe déjà et que l'option `overwrite` n'est pas activée. |
+| `SourceFileNotFoundCodxError`           | Lancée lorsque le fichier source n'existe pas.                                                      |
+| `DirectoryCreationCodxError`            | Lancée lorsqu'il y a une erreur lors de la création d'un répertoire.                                |
+
 ### Bonnes pratiques
 
 - **Vérification préalable** : Utilisez l'opération `exists` pour vérifier si un fichier ou un répertoire existe avant

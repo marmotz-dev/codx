@@ -3,7 +3,7 @@ import { ActionRegistry } from '@/actions/ActionRegistry';
 import { ActionsData, ActionsDataSchema } from '@/actions/Actions.schema';
 import { BaseAction } from '@/actions/BaseAction';
 import { MessageAction } from '@/actions/message/MessageAction';
-import { CodxError } from '@/core/CodxError';
+import { UnknownActionCodxError } from '@/core/errors/UnknownActionCodxError';
 import { beforeEach, describe, expect, it } from 'bun:test';
 
 describe('ActionFactory', () => {
@@ -40,8 +40,8 @@ describe('ActionFactory', () => {
     } as unknown as ActionsData;
 
     const getAction = () => actionFactory.createAction(actionData);
-    expect(getAction).toThrow(CodxError);
-    expect(getAction).toThrow('Unknown action type: non-existent-action');
+    expect(getAction).toThrow(UnknownActionCodxError);
+    expect(getAction).toThrow('Unknown action: non-existent-action');
   });
 
   it('should use default registry if no registry is provided in constructor', () => {

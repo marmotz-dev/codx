@@ -1,9 +1,9 @@
 import { BaseCommand } from '@/cli/BaseCommand';
-import { diContainer } from '@/di/Container';
 import { Logger } from '@/core/Logger';
 import { PackageManagerDetector, PackageManagers } from '@/core/PackageManagerDetector';
 import { RecipeLoader } from '@/core/RecipeLoader';
 import { RecipeRunner } from '@/core/RecipeRunner';
+import { diContainer } from '@/di/Container';
 
 export interface RunActionOptions {
   pm?: PackageManagers;

@@ -1,6 +1,6 @@
-import { diContainer } from '@/di/Container';
 import { ProjectDirectory } from '@/core/ProjectDirectory';
 import { RecipeDirectory } from '@/core/RecipeDirectory';
+import { diContainer } from '@/di/Container';
 import { beforeEach, spyOn } from 'bun:test';
 
 export function setupWorkingDirectories() {

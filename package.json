@@ -30,6 +30,7 @@
     "version:post:merge-main": "git checkout main && git pull && git merge develop",
     "version:post:tag-main": "export VERSION=$(node -p \"require('./package.json').version\") && git tag $VERSION",
     "version:post:push-main": "git push origin main --tags",
+    "version:post:publish": "npm publish",
     "version:post:checkout-develop": "git checkout develop"
   },
   "files": [

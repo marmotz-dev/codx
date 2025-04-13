@@ -100,6 +100,9 @@ export class RecipeRunner {
 
       await this.handleStepSuccess(step);
     } catch (error) {
+      // Store the error in the context for use in conditions
+      this.context.store.set('error', error);
+
       if (step.onFailure) {
         await this.handleStepError(step);
       } else {

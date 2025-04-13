@@ -6,7 +6,10 @@ import {
   FileManipulationActionPrependData,
   FileManipulationActionUpdateData,
 } from '@/actions/fileManipulation/FileManipulationAction.schema';
-import { CodxError } from '@/core/CodxError';
+import { FileAlreadyExistsCodxError } from '@/core/errors/FileAlreadyExistsCodxError';
+import { FileNotFoundCodxError } from '@/core/errors/FileNotFoundCodxError';
+import { InvalidRegexPatternCodxError } from '@/core/errors/InvalidRegexPatternCodxError';
+import { UnknownOperationCodxError } from '@/core/errors/UnknownOperationCodxError';
 import { Store } from '@/core/Store';
 import { diContainer } from '@/di/Container';
 import { MockCleaner, mockModule } from '@/testHelpers/mockModule';
@@ -146,7 +149,7 @@ describe('FileManipulationAction', () => {
         content: mockContent,
       } as FileManipulationActionData;
 
-      expect(action.execute(actionData)).rejects.toThrow(CodxError);
+      expect(action.execute(actionData)).rejects.toThrow(FileAlreadyExistsCodxError);
       expect(action.execute(actionData)).rejects.toThrow('already exists and the "overwrite" option is not enabled');
     });
 
@@ -201,7 +204,7 @@ describe('FileManipulationAction', () => {
         content: mockPrependContent,
       } as FileManipulationActionPrependData;
 
-      expect(action.execute(actionData)).rejects.toThrow(CodxError);
+      expect(action.execute(actionData)).rejects.toThrow(FileNotFoundCodxError);
       expect(action.execute(actionData)).rejects.toThrow('does not exist');
     });
   });
@@ -236,8 +239,8 @@ describe('FileManipulationAction', () => {
         content: mockAppendContent,
       } as FileManipulationActionAppendData;
 
-      expect(action.execute(actionData)).rejects.toThrow(CodxError);
-      expect(action.execute(actionData)).rejects.toThrow('does not exist');
+      expect(action.execute(actionData)).rejects.toThrow(FileNotFoundCodxError);
+      expect(action.execute(actionData)).rejects.toThrow(`File "${mockAbsolutePath}" does not exist.`);
     });
   });
 
@@ -276,8 +279,8 @@ describe('FileManipulationAction', () => {
         content: mockUpdateContent,
       } as FileManipulationActionUpdateData;
 
-      expect(action.execute(actionData)).rejects.toThrow(CodxError);
-      expect(action.execute(actionData)).rejects.toThrow('does not exist');
+      expect(action.execute(actionData)).rejects.toThrow(FileNotFoundCodxError);
+      expect(action.execute(actionData)).rejects.toThrow(`File "${mockAbsolutePath}" does not exist.`);
     });
 
     test('should log warning when pattern is not found', async () => {
@@ -324,8 +327,10 @@ describe('FileManipulationAction', () => {
         content: mockUpdateContent,
       } as FileManipulationActionUpdateData;
 
-      expect(action.execute(actionData)).rejects.toThrow(CodxError);
-      expect(action.execute(actionData)).rejects.toThrow('Invalid regular expression pattern');
+      expect(action.execute(actionData)).rejects.toThrow(InvalidRegexPatternCodxError);
+      expect(action.execute(actionData)).rejects.toThrow(
+        `Invalid regular expression pattern "${mockPattern}": Invalid regex`,
+      );
 
       // Restore original RegExp
       global.RegExp = originalRegExp;
@@ -477,7 +482,7 @@ describe('FileManipulationAction', () => {
       path: mockFilePath,
     } as FileManipulationActionData;
 
-    expect(action.execute(actionData)).rejects.toThrow(CodxError);
-    expect(action.execute(actionData)).rejects.toThrow('Unrecognized file manipulation operation: invalid');
+    expect(action.execute(actionData)).rejects.toThrow(UnknownOperationCodxError);
+    expect(action.execute(actionData)).rejects.toThrow('Unknown operation: invalid');
   });
 });

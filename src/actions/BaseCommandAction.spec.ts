@@ -1,5 +1,6 @@
 import { BaseCommandAction } from '@/actions/BaseCommandAction';
-import { CodxError } from '@/core/CodxError';
+import { CommandCancelledCodxError } from '@/core/errors/CommandCancelledCodxError';
+import { CommandExecutionCodxError } from '@/core/errors/CommandExecutionCodxError';
 import { Store } from '@/core/Store';
 import { diContainer } from '@/di/Container';
 import { MockCleaner, mockModule } from '@/testHelpers/mockModule';
@@ -93,7 +94,7 @@ describe('BaseCommandAction', () => {
     test('should throw error when user cancels confirmation', async () => {
       mockInquirerConfirm.mockResolvedValue(false);
 
-      expect(action['executeCommand'](mockCommand)).rejects.toThrow(CodxError);
+      expect(action['executeCommand'](mockCommand)).rejects.toThrow(CommandCancelledCodxError);
       expect(action['executeCommand'](mockCommand)).rejects.toThrow('Command execution cancelled by user.');
 
       expect(spawnSync).not.toHaveBeenCalled();
@@ -105,7 +106,7 @@ describe('BaseCommandAction', () => {
 
       spyOn(action as any, 'runCommand').mockRejectedValue(mockError);
 
-      expect(action['executeCommand'](mockCommand, false)).rejects.toThrow(CodxError);
+      expect(action['executeCommand'](mockCommand, false)).rejects.toThrow(CommandExecutionCodxError);
       expect(action['executeCommand'](mockCommand, false)).rejects.toThrow('Error executing command');
     });
   });

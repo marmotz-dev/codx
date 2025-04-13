@@ -1,21 +1,11 @@
 import { BaseAction } from '@/actions/BaseAction';
 import { MessageActionData } from '@/actions/message/MessageAction.schema';
-import { CodxError } from '@/core/CodxError';
-import { Context } from '@/core/Context';
-import { Inject } from '@/di/InjectDecorator';
-import { Logger } from '@/core/Logger';
+import { MissingContentCodxError } from '@/core/errors/MissingContentCodxError';
 
 /**
  * Action to display messages in the console
  */
 export class MessageAction extends BaseAction {
-  constructor(
-    @Inject(Logger) private readonly logger: Logger,
-    @Inject(Context) context: Context,
-  ) {
-    super(context);
-  }
-
   /**
    * Executes the message action
    * @param {MessageActionData} actionData Action data
@@ -24,7 +14,7 @@ export class MessageAction extends BaseAction {
     const { content, style = 'default' } = actionData;
 
     if (!content) {
-      throw new CodxError('Message action requires a content parameter');
+      throw new MissingContentCodxError();
     }
 
     const interpolatedContent = this.interpolate(content);

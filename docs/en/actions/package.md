@@ -264,6 +264,19 @@ You can handle errors that may occur during package operations using the `onSucc
         style: "error"
 ```
 
+#### Possible Errors
+
+This action can throw the following errors:
+
+| Error Type                        | Description                                                                                                   |
+|-----------------------------------|---------------------------------------------------------------------------------------------------------------|
+| `EmptyPackageCodxError`           | Thrown when the `package` parameter is missing in the `run` operation.                                        |
+| `EmptyPackageListCodxError`       | Thrown when the `packages` list is empty or missing in `check`, `install`, `remove`, and `update` operations. |
+| `FileUnreadableCodxError`         | Thrown when there's an error reading the package.json file.                                                   |
+| `PackageManagerNotFoundCodxError` | Thrown when no package manager is found.                                                                      |
+| `CommandCancelledCodxError`       | Thrown when the user cancels the command execution.                                                           |
+| `CommandExecutionCodxError`       | Thrown when there's an error executing the command.                                                           |
+
 ### Package Manager Detection
 
 Codx automatically detects which package manager to use (npm, yarn, pnpm, bun) based on the system. You can also

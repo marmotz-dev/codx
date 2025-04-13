@@ -1,7 +1,7 @@
-import { Inject } from '@/di/InjectDecorator';
 import { ProjectDirectory } from '@/core/ProjectDirectory';
 import { RecipeDirectory } from '@/core/RecipeDirectory';
 import { Store } from '@/core/Store';
+import { Inject } from '@/di/InjectDecorator';
 import { relative } from 'node:path';
 
 /**

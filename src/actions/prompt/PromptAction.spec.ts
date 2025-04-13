@@ -6,7 +6,7 @@ import {
   PromptActionSelectData,
   PromptActionTextData,
 } from '@/actions/prompt/PromptAction.schema';
-import { CodxError } from '@/core/CodxError';
+import { MissingMessageCodxError } from '@/core/errors/MissingMessageCodxError';
 import { diContainer } from '@/di/Container';
 import { MockCleaner, mockModule } from '@/testHelpers/mockModule';
 import * as prompts from '@inquirer/prompts';
@@ -39,9 +39,7 @@ describe('PromptAction', () => {
     test('throws error when message is missing', async () => {
       const actionData = { type: 'prompt', promptType: 'text' } as any;
 
-      expect(promptAction.execute(actionData)).rejects.toThrow(
-        new CodxError('Prompt action requires a message parameter'),
-      );
+      expect(promptAction.execute(actionData)).rejects.toThrow(new MissingMessageCodxError());
     });
 
     test('handles text prompt', async () => {

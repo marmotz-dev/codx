@@ -266,6 +266,14 @@ Puis, une fois répondu :
 ? Nom du projet : foobar
 ```
 
+### Erreurs possibles
+
+Cette action peut lancer les erreurs suivantes :
+ 
+| Type d'erreur             | Description                                         |
+|---------------------------|-----------------------------------------------------|
+| `MissingMessageCodxError` | Lancée lorsque le paramètre `message` est manquant. |
+
 ### Utilisation des résultats
 
 Les résultats des prompts sont stockés dans des variables qui peuvent être utilisées dans les étapes suivantes de la

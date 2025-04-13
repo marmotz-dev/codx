@@ -138,6 +138,37 @@ describe('RecipeRunner', () => {
     expect(mockFinallyAction.execute).toHaveBeenCalled();
   });
 
+  test('should store error in context when step fails', async () => {
+    const testError = new CodxError('Test error');
+    const mockMainAction = {
+      execute: mock(() => {
+        throw testError;
+      }),
+    };
+
+    const mockFailureAction = {
+      execute: mock(() => Promise.resolve()),
+    };
+
+    spyOn(actionFactory, 'createAction').mockReturnValueOnce(mockMainAction).mockReturnValueOnce(mockFailureAction);
+    spyOn(store, 'set').mockImplementation(() => {});
+
+    const recipe = {
+      description: 'A test recipe',
+      steps: [
+        {
+          action: 'action',
+          onFailure: [{ action: 'onFailure' }],
+        },
+      ],
+    } as unknown as Recipe;
+
+    await recipeRunner.run(recipe);
+
+    expect(mockMainAction.execute).toHaveBeenCalled();
+    expect(store.set).toHaveBeenCalledWith('error', testError);
+  });
+
   test('should save action return value to the specified variable', async () => {
     const mockReturnValue = 'test-return-value';
     const mockVariableName = 'TEST_VARIABLE';

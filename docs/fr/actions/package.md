@@ -266,6 +266,19 @@ Vous pouvez gérer les erreurs qui peuvent survenir lors des opérations sur les
         style: "error"
 ```
 
+#### Erreurs possibles
+
+Cette action peut lancer les erreurs suivantes :
+ 
+| Type d'erreur                     | Description                                                                                                            |
+|-----------------------------------|------------------------------------------------------------------------------------------------------------------------|
+| `EmptyPackageCodxError`           | Lancée lorsque le paramètre `package` est manquant dans l'opération `run`.                                             |
+| `EmptyPackageListCodxError`       | Lancée lorsque la liste `packages` est vide ou manquante dans les opérations `check`, `install`, `remove` et `update`. |
+| `FileUnreadableCodxError`         | Lancée lorsqu'il y a une erreur lors de la lecture du fichier package.json.                                            |
+| `PackageManagerNotFoundCodxError` | Lancée lorsqu'aucun gestionnaire de paquets n'est trouvé.                                                              |
+| `CommandCancelledCodxError`       | Lancée lorsque l'utilisateur annule l'exécution de la commande.                                                        |
+| `CommandExecutionCodxError`       | Lancée lorsqu'il y a une erreur lors de l'exécution de la commande.                                                    |
+
 ### Détection du gestionnaire de paquets
 
 Codx détecte automatiquement le gestionnaire de paquets à utiliser (npm, yarn, pnpm, bun) en fonction du système. Vous

@@ -266,6 +266,14 @@ Then, once answered:
 ? Project name: foobar
 ```
 
+### Possible Errors
+
+This action can throw the following errors:
+ 
+| Error Type                | Description                                     |
+|---------------------------|-------------------------------------------------|
+| `MissingMessageCodxError` | Thrown when the `message` parameter is missing. |
+
 ### Using Results
 
 The results of prompts are stored in variables that can be used in subsequent steps of the recipe.

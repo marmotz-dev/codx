@@ -4,7 +4,13 @@ import {
   FileSystemActionData,
   FileSystemActionMoveData,
 } from '@/actions/fileSystem/FileSystemAction.schema';
-import { CodxError } from '@/core/CodxError';
+import { DestinationFileAlreadyExistsCodxError } from '@/core/errors/DestinationFileAlreadyExistsCodxError';
+import { DirectoryCreationCodxError } from '@/core/errors/DirectoryCreationCodxError';
+import { MissingDestinationPathCodxError } from '@/core/errors/MissingDestinationPathCodxError';
+import { MissingSourcePathCodxError } from '@/core/errors/MissingSourcePathCodxError';
+import { OutsideSourceFileCodxError } from '@/core/errors/OutsideSourceFileCodxError';
+import { SourceFileNotFoundCodxError } from '@/core/errors/SourceFileNotFoundCodxError';
+import { UnknownOperationCodxError } from '@/core/errors/UnknownOperationCodxError';
 import { Store } from '@/core/Store';
 import { diContainer } from '@/di/Container';
 import { MockCleaner, mockModule } from '@/testHelpers/mockModule';
@@ -132,7 +138,7 @@ describe('FileSystemAction', () => {
         destination: mockDestinationPath,
       } as FileSystemActionData;
 
-      expect(action.execute(actionData)).rejects.toThrow(CodxError);
+      expect(action.execute(actionData)).rejects.toThrow(MissingSourcePathCodxError);
       expect(action.execute(actionData)).rejects.toThrow('Source path is required for this action');
     });
 
@@ -143,7 +149,7 @@ describe('FileSystemAction', () => {
         source: mockSourcePath,
       } as FileSystemActionData;
 
-      expect(action.execute(actionData)).rejects.toThrow(CodxError);
+      expect(action.execute(actionData)).rejects.toThrow(MissingDestinationPathCodxError);
       expect(action.execute(actionData)).rejects.toThrow('Destination path is required for this action');
     });
 
@@ -156,7 +162,7 @@ describe('FileSystemAction', () => {
         destination: mockDestinationPath,
       } as FileSystemActionData;
 
-      expect(action.execute(actionData)).rejects.toThrow(CodxError);
+      expect(action.execute(actionData)).rejects.toThrow(OutsideSourceFileCodxError);
       expect(action.execute(actionData)).rejects.toThrow(
         `Source file "${mockAbsoluteSourcePath}" is neither in the recipe directory nor in the project directory.`,
       );
@@ -172,7 +178,7 @@ describe('FileSystemAction', () => {
         destination: mockDestinationPath,
       } as FileSystemActionData;
 
-      expect(action.execute(actionData)).rejects.toThrow(CodxError);
+      expect(action.execute(actionData)).rejects.toThrow(DestinationFileAlreadyExistsCodxError);
       expect(action.execute(actionData)).rejects.toThrow(
         `Destination file "${mockAbsoluteDestinationPath}" already exists and the "overwrite" option is not enabled.`,
       );
@@ -218,7 +224,7 @@ describe('FileSystemAction', () => {
         destination: mockDestinationPath,
       } as FileSystemActionData;
 
-      expect(action.execute(actionData)).rejects.toThrow(CodxError);
+      expect(action.execute(actionData)).rejects.toThrow(MissingSourcePathCodxError);
       expect(action.execute(actionData)).rejects.toThrow('Source path is required for this action');
     });
 
@@ -229,7 +235,7 @@ describe('FileSystemAction', () => {
         source: mockSourcePath,
       } as FileSystemActionData;
 
-      expect(action.execute(actionData)).rejects.toThrow(CodxError);
+      expect(action.execute(actionData)).rejects.toThrow(MissingDestinationPathCodxError);
       expect(action.execute(actionData)).rejects.toThrow('Destination path is required for this action');
     });
 
@@ -285,7 +291,7 @@ describe('FileSystemAction', () => {
         overwrite: false,
       } as FileSystemActionData;
 
-      expect(action.execute(actionData)).rejects.toThrow(CodxError);
+      expect(action.execute(actionData)).rejects.toThrow(DestinationFileAlreadyExistsCodxError);
       expect(action.execute(actionData)).rejects.toThrow(
         `Destination file "${mockAbsoluteDestinationPath}" already exists and the "overwrite" option is not enabled.`,
       );
@@ -343,7 +349,7 @@ describe('FileSystemAction', () => {
         path: mockFilePath,
       } as FileSystemActionData;
 
-      expect(action.execute(actionData)).rejects.toThrow(CodxError);
+      expect(action.execute(actionData)).rejects.toThrow(DirectoryCreationCodxError);
       expect(action.execute(actionData)).rejects.toThrow(`Unable to create directory "${mockAbsolutePath}"`);
 
       expect(console.error).toHaveBeenCalledWith(chalk.red('✗ ') + `Unable to create directory "${mockAbsolutePath}".`);
@@ -357,8 +363,8 @@ describe('FileSystemAction', () => {
       path: mockFilePath,
     } as FileSystemActionData;
 
-    expect(action.execute(actionData)).rejects.toThrow(CodxError);
-    expect(action.execute(actionData)).rejects.toThrow('Unrecognized file operation: invalid');
+    expect(action.execute(actionData)).rejects.toThrow(UnknownOperationCodxError);
+    expect(action.execute(actionData)).rejects.toThrow('Unknown operation: invalid');
   });
 
   describe('checkCreateAndGetPath', () => {
@@ -367,7 +373,7 @@ describe('FileSystemAction', () => {
         destination: mockDestinationPath,
       } as FileSystemActionCopyData;
 
-      expect(() => (action as any).checkCreateAndGetPath(actionData)).toThrow(CodxError);
+      expect(() => (action as any).checkCreateAndGetPath(actionData)).toThrow(MissingSourcePathCodxError);
       expect(() => (action as any).checkCreateAndGetPath(actionData)).toThrow(
         'Source path is required for this action',
       );
@@ -378,7 +384,7 @@ describe('FileSystemAction', () => {
         source: mockSourcePath,
       } as FileSystemActionCopyData;
 
-      expect(() => (action as any).checkCreateAndGetPath(actionData)).toThrow(CodxError);
+      expect(() => (action as any).checkCreateAndGetPath(actionData)).toThrow(MissingDestinationPathCodxError);
       expect(() => (action as any).checkCreateAndGetPath(actionData)).toThrow(
         'Destination path is required for this action',
       );
@@ -392,8 +398,7 @@ describe('FileSystemAction', () => {
         destination: mockDestinationPath,
       } as FileSystemActionCopyData;
 
-      expect(() => (action as any).checkCreateAndGetPath(actionData)).toThrow(CodxError);
-      expect(() => (action as any).checkCreateAndGetPath(actionData)).toThrow('Source file');
+      expect(() => (action as any).checkCreateAndGetPath(actionData)).toThrow(OutsideSourceFileCodxError);
       expect(() => (action as any).checkCreateAndGetPath(actionData)).toThrow(
         `Source file "${mockAbsoluteSourcePath}" is neither in the recipe directory nor in the project directory.`,
       );
@@ -410,9 +415,9 @@ describe('FileSystemAction', () => {
         overwrite: false,
       } as FileSystemActionCopyData;
 
-      expect(() => (action as any).checkCreateAndGetPath(actionData)).toThrow(CodxError);
+      expect(() => (action as any).checkCreateAndGetPath(actionData)).toThrow(DestinationFileAlreadyExistsCodxError);
       expect(() => (action as any).checkCreateAndGetPath(actionData)).toThrow(
-        'already exists and the "overwrite" option is not enabled',
+        `Destination file "${mockAbsoluteDestinationPath}" already exists and the "overwrite" option is not enabled.`,
       );
     });
 
@@ -478,7 +483,7 @@ describe('FileSystemAction', () => {
       // Mock destination exists
       (existsSync as any).mockReturnValue(false);
 
-      expect(() => (action as any).checkSourcePath(mockAbsoluteSourcePath, false)).toThrow(CodxError);
+      expect(() => (action as any).checkSourcePath(mockAbsoluteSourcePath, false)).toThrow(SourceFileNotFoundCodxError);
       expect(() => (action as any).checkSourcePath(mockAbsoluteSourcePath, false)).toThrow(
         `Source file "${mockAbsoluteSourcePath}" does not exist.`,
       );
@@ -497,7 +502,9 @@ describe('FileSystemAction', () => {
       // Mock destination exists
       (existsSync as any).mockReturnValue(true);
 
-      expect(() => (action as any).checkDestPath(mockAbsoluteDestinationPath, false)).toThrow(CodxError);
+      expect(() => (action as any).checkDestPath(mockAbsoluteDestinationPath, false)).toThrow(
+        DestinationFileAlreadyExistsCodxError,
+      );
       expect(() => (action as any).checkDestPath(mockAbsoluteDestinationPath, false)).toThrow(
         'already exists and the "overwrite" option is not enabled',
       );

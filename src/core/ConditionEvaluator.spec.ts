@@ -1,5 +1,7 @@
+import { CodxError } from '@/core/CodxError';
 import { ConditionEvaluator } from '@/core/ConditionEvaluator';
 import { Context } from '@/core/Context';
+import { FileNotFoundCodxError } from '@/core/errors/FileNotFoundCodxError';
 import { diContainer } from '@/di/Container';
 import { beforeEach, describe, expect, it } from 'bun:test';
 
@@ -92,5 +94,27 @@ describe('ConditionEvaluator', () => {
     expect(evaluator.evaluate('true', {})).toBe(true);
     expect(evaluator.evaluate('false', {})).toBe(false);
     expect(evaluator.evaluate('a == 1', {})).toBe(false);
+  });
+
+  it('should handle the "instanceOf" function with error classes', () => {
+    const baseError = new CodxError('Base error');
+    const fileNotFoundError = new FileNotFoundCodxError('/file/path');
+
+    const variables = {
+      baseError,
+      fileNotFoundError,
+    };
+
+    // test success
+    expect(evaluator.evaluate('instanceOf(baseError, "CodxError")', variables)).toBe(true);
+    expect(evaluator.evaluate('instanceOf(baseError, "Error")', variables)).toBe(true);
+    expect(evaluator.evaluate('instanceOf(fileNotFoundError, "FileNotFoundCodxError")', variables)).toBe(true);
+    expect(evaluator.evaluate('instanceOf(fileNotFoundError, "CodxError")', variables)).toBe(true);
+    expect(evaluator.evaluate('instanceOf(fileNotFoundError, "Error")', variables)).toBe(true);
+    expect(evaluator.evaluate('not instanceOf(fileNotFoundError, "Foobar")', variables)).toBe(true);
+
+    // test fails
+    expect(evaluator.evaluate('instanceOf(baseError, true)', variables)).toBe(false);
+    expect(evaluator.evaluate('instanceOf(baseError, CodxError)', variables)).toBe(false);
   });
 });

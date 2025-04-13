@@ -14,6 +14,14 @@ stopping the execution of a recipe when a specific condition is not met.
 
 This action does not return a value as it always throws an error.
 
+## Possible Errors
+
+This action intentionally throws the following error:
+ 
+| Error Type                 | Description                                                                                                      |
+|----------------------------|------------------------------------------------------------------------------------------------------------------|
+| `ExplicitFailureCodxError` | Thrown when the action is executed, with the message provided in the `message` parameter or the default message. |
+
 ## Examples
 
 ### Simple Failure
