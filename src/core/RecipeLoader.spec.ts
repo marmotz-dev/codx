@@ -274,7 +274,7 @@ describe('RecipeLoader', () => {
 
       await downloadPromise;
 
-      expect(global.fetch).toHaveBeenCalledWith(url);
+      expect(globalThis.fetch).toHaveBeenCalledWith(url);
       expect(Readable.from).toHaveBeenCalledWith(mockResponse.body);
       expect(mockReadableStream.pipe).toHaveBeenCalled();
       expect(createWriteStream).toHaveBeenCalledWith(destination);
@@ -297,7 +297,7 @@ describe('RecipeLoader', () => {
       // The downloadFile method should throw an error
       expect(recipeLoader['downloadFile'](url, destination)).rejects.toThrow('HTTP Error: 404 Not Found');
 
-      expect(global.fetch).toHaveBeenCalledWith(url);
+      expect(globalThis.fetch).toHaveBeenCalledWith(url);
     });
 
     test('should handle file stream errors correctly', async () => {
@@ -354,14 +354,14 @@ describe('RecipeLoader', () => {
 
       const result = await recipeLoader['fetchJson'](url);
 
-      expect(global.fetch).toHaveBeenCalledWith(url);
+      expect(globalThis.fetch).toHaveBeenCalledWith(url);
       expect(mockResponse.json).toHaveBeenCalled();
       expect(result).toEqual(mockJsonData);
     });
 
     test('should throw an error when fetch fails', async () => {
       // Mock fetch to throw an error
-      global.fetch = mock(() => Promise.reject(new Error('Network error')));
+      globalThis.fetch = mock(() => Promise.reject(new Error('Network error'))) as unknown as typeof fetch;
 
       const url = 'https://registry.npmjs.org/test-package/1.0.0';
 
