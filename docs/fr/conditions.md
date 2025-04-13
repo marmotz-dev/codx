@@ -77,6 +77,18 @@ Vous pouvez utiliser différents opérateurs et expressions dans vos conditions 
 
 - `in` : vérifie si une valeur est présente dans un tableau
 
+### Fonction de vérification de type
+
+- `instanceOf(object, "class")` : vérifie si une valeur est une instance d'un type spécifique, particulièrement utile
+  pour la vérification des types d'erreurs
+
+Exemples :
+
+```yaml
+condition: 'instanceOf(error, "FileNotFoundCodxError")'
+condition: 'instanceOf(error, "HttpErrorCodxError")'
+```
+
 ### Exemples d'expressions complexes
 
 ```yaml
@@ -167,4 +179,4 @@ steps:
 Dans cet exemple, Tailwind CSS ne sera installé que si l'utilisateur a choisi de l'installer et a sélectionné Angular
 comme framework.
 
-[← Variables et interpolation](variables-et-interpolation.md)
+[← Variables et interpolation](variables-et-interpolation.md) | [Gestion des erreurs →](errors.md)

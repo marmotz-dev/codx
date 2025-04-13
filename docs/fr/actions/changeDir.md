@@ -94,6 +94,15 @@ utilisant les attributs `onSuccess` et `onFailure` :
         path: "{PROJECT_NAME}"
 ```
 
+### Erreurs possibles
+ 
+Cette action peut lancer les erreurs suivantes :
+
+| Type d'erreur                   | Description                                                                                                                         |
+|---------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| `MissingDirectoryPathCodxError` | Lancée lorsque le paramètre `path` est manquant.                                                                                    |
+| `DirectoryChangeCodxError`      | Lancée lorsqu'il y a une erreur lors du changement de répertoire (par exemple, le répertoire n'existe pas ou n'est pas accessible). |
+
 ## Bonnes pratiques
 
 - **Vérification préalable** : Vérifiez que le répertoire existe avant d'essayer d'y accéder, ou utilisez `onFailure`

@@ -4,13 +4,15 @@ This page explains how to use conditions in Codx recipes to execute steps condit
 
 ## Introduction to Conditions
 
-Conditions in Codx allow you to execute steps conditionally based on variables previously defined in the recipe. They are evaluated as true or false.
+Conditions in Codx allow you to execute steps conditionally based on variables previously defined in the recipe. They
+are evaluated as true or false.
 
 Each step in a recipe can include a `condition` attribute that determines whether the step will be executed or not.
 
 ## Condition Syntax
 
-Conditions are written as strings containing expressions that are evaluated using the [filtrex](https://github.com/cshaa/filtrex) library, which allows for secure expression evaluation.
+Conditions are written as strings containing expressions that are evaluated using
+the [filtrex](https://github.com/cshaa/filtrex) library, which allows for secure expression evaluation.
 
 Examples of condition syntax:
 
@@ -23,7 +25,8 @@ condition: 'not PACKAGE_JSON_EXISTS'
 
 ## Using Variables in Conditions
 
-Conditions can use all variables defined in the recipe. These variables can be defined by previous actions, especially actions of type `prompt`.
+Conditions can use all variables defined in the recipe. These variables can be defined by previous actions, especially
+actions of type `prompt`.
 
 Examples of using variables:
 
@@ -50,7 +53,8 @@ Examples of using variables:
     dev: true
 ```
 
-In this example, the "Installing ESLint" step will only be executed if the user has selected "ESLint" in the list of tools.
+In this example, the "Installing ESLint" step will only be executed if the user has selected "ESLint" in the list of
+tools.
 
 ## Operators and Expressions
 
@@ -72,6 +76,18 @@ You can use different operators and expressions in your conditions:
 
 - `in`: checks if a value is present in an array
 
+### Type Checking function
+
+- `instanceOf(object, "class")`: checks if a value is an instance of a specific type, particularly useful for error type
+  checking
+
+Examples:
+
+```yaml
+condition: 'instanceOf(error, "FileNotFoundCodxError")'
+condition: 'instanceOf(error, "HttpErrorCodxError")'
+```
+
 ### Examples of Complex Expressions
 
 ```yaml
@@ -82,7 +98,8 @@ condition: 'not (FRAMEWORK == "angular") && "eslint" in SELECTED_TOOLS'
 
 ### Comprehensive Documentation
 
-For more information on possible expressions, refer directly to the [filtrex](https://github.com/cshaa/filtrex) documentation.
+For more information on possible expressions, refer directly to the [filtrex](https://github.com/cshaa/filtrex)
+documentation.
 
 ## Conditions in Messages
 
@@ -101,7 +118,8 @@ You can also use conditions in messages to display text conditionally. The synta
     style: "success"
 ```
 
-In this example, the lines "- Tailwind CSS" and "- ESLint" will only be displayed if the corresponding conditions are met.
+In this example, the lines "- Tailwind CSS" and "- ESLint" will only be displayed if the corresponding conditions are
+met.
 
 ## Best Practices
 
@@ -156,6 +174,7 @@ steps:
           style: "success"
 ```
 
-In this example, Tailwind CSS will only be installed if the user has chosen to install it and has selected Angular as the framework.
+In this example, Tailwind CSS will only be installed if the user has chosen to install it and has selected Angular as
+the framework.
 
-[← Actions](actions.md)
+[← Actions](actions.md) | [Error Handling →](errors.md)

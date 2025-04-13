@@ -1,8 +1,8 @@
-import { diContainer } from '@/di/Container';
 import { Logger } from '@/core/Logger';
 import { PackageManagerDetector, PackageManagers } from '@/core/PackageManagerDetector';
 import { RecipeLoader } from '@/core/RecipeLoader';
 import { RecipeRunner } from '@/core/RecipeRunner';
+import { diContainer } from '@/di/Container';
 import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test';
 import { RunActionOptions, RunCommand } from './RunCommand';
 

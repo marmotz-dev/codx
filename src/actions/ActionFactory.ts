@@ -1,7 +1,7 @@
 import { IAction } from '@/actions/Action.interface';
 import { actionRegistry, ActionRegistry } from '@/actions/ActionRegistry';
 import { ActionsData } from '@/actions/Actions.schema';
-import { CodxError } from '@/core/CodxError';
+import { UnknownActionCodxError } from '@/core/errors/UnknownActionCodxError';
 import { diContainer } from '@/di/Container';
 
 /**
@@ -19,7 +19,7 @@ export class ActionFactory {
     const actionType = actionData.type;
 
     if (this.registry[actionType] === undefined) {
-      throw new CodxError(`Unknown action type: ${actionType}`);
+      throw new UnknownActionCodxError(actionType);
     }
 
     return diContainer.get(this.registry[actionType]);

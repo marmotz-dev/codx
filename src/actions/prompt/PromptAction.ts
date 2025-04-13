@@ -7,7 +7,7 @@ import {
   PromptActionSelectData,
   PromptActionTextData,
 } from '@/actions/prompt/PromptAction.schema';
-import { CodxError } from '@/core/CodxError';
+import { MissingMessageCodxError } from '@/core/errors/MissingMessageCodxError';
 import { checkbox, confirm, input, number, select } from '@inquirer/prompts';
 
 /**
@@ -23,7 +23,7 @@ export class PromptAction extends BaseAction {
     const { message, promptType } = actionData;
 
     if (!message) {
-      throw new CodxError('Prompt action requires a message parameter');
+      throw new MissingMessageCodxError();
     }
 
     let userInput: any;

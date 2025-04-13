@@ -262,6 +262,20 @@ You can handle errors that may occur during file operations using the `onSuccess
         style: "warning"
 ```
 
+#### Possible Errors
+
+This action can throw the following errors:
+ 
+| Error Type                              | Description                                                                                |
+|-----------------------------------------|--------------------------------------------------------------------------------------------|
+| `UnknownOperationCodxError`             | Thrown when an unknown operation is specified.                                             |
+| `MissingSourcePathCodxError`            | Thrown when the source path is missing for `copy` or `move` operations.                    |
+| `MissingDestinationPathCodxError`       | Thrown when the destination path is missing for `copy` or `move` operations.               |
+| `OutsideSourceFileCodxError`            | Thrown when the source file is outside the project or recipe directory.                    |
+| `DestinationFileAlreadyExistsCodxError` | Thrown when the destination file already exists and the `overwrite` option is not enabled. |
+| `SourceFileNotFoundCodxError`           | Thrown when the source file doesn't exist.                                                 |
+| `DirectoryCreationCodxError`            | Thrown when there's an error creating a directory.                                         |
+
 ### Best Practices
 
 - **Prior Verification**: Use the `exists` operation to check if a file or directory exists before manipulating it.

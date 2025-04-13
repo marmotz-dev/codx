@@ -93,6 +93,15 @@ the `onSuccess` and `onFailure` attributes:
         path: "{PROJECT_NAME}"
 ```
 
+### Possible Errors
+
+This action can throw the following errors:
+
+| Error Type                      | Description                                                                                                   |
+|---------------------------------|---------------------------------------------------------------------------------------------------------------|
+| `MissingDirectoryPathCodxError` | Thrown when the `path` parameter is missing.                                                                  |
+| `DirectoryChangeCodxError`      | Thrown when there's an error changing the directory (e.g., the directory doesn't exist or is not accessible). |
+ 
 ## Best Practices
 
 - **Prior Verification**: Check that the directory exists before trying to access it, or use `onFailure` to handle the

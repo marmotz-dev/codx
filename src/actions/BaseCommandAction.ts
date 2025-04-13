@@ -1,5 +1,6 @@
 import { BaseAction } from '@/actions/BaseAction';
-import { CodxError } from '@/core/CodxError';
+import { CommandCancelledCodxError } from '@/core/errors/CommandCancelledCodxError';
+import { CommandExecutionCodxError } from '@/core/errors/CommandExecutionCodxError';
 import { confirm } from '@inquirer/prompts';
 import chalk from 'chalk';
 import { spawnSync } from 'node:child_process';
@@ -29,7 +30,7 @@ export abstract class BaseCommandAction extends BaseAction {
       });
 
       if (!confirmExecution) {
-        throw new CodxError('Command execution cancelled by user.');
+        throw new CommandCancelledCodxError();
       }
     } else {
       this.logger.info(
@@ -40,7 +41,7 @@ export abstract class BaseCommandAction extends BaseAction {
     try {
       return await this.runCommand(interpolatedCommand, currentProjectDirectory);
     } catch (error) {
-      throw new CodxError('Error executing command', error);
+      throw new CommandExecutionCodxError(error as Error);
     }
   }
 

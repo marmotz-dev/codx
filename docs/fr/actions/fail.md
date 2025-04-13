@@ -14,6 +14,14 @@ pour arrêter l'exécution d'une recette lorsqu'une condition spécifique n'est 
 
 Cette action ne retourne pas de valeur car elle lève toujours une erreur.
 
+## Erreurs possibles
+
+Cette action lance intentionnellement l'erreur suivante :
+ 
+| Type d'erreur              | Description                                                                                                        |
+|----------------------------|--------------------------------------------------------------------------------------------------------------------|
+| `ExplicitFailureCodxError` | Lancée lorsque l'action est exécutée, avec le message fourni dans le paramètre `message` ou le message par défaut. |
+
 ## Exemples
 
 ### Échec simple

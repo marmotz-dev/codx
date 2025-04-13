@@ -10168,56 +10168,6 @@ function getMessage(message, previous) {
   return message;
 }
 
-// src/di/Container.ts
-class DIContainer {
-  dependencies = new Map;
-  get(token) {
-    let dependency = this.dependencies.get(token);
-    if (!dependency) {
-      if (typeof token === "function") {
-        try {
-          dependency = this.createInstance(token);
-          this.dependencies.set(token, dependency);
-        } catch (error) {
-          throw new CodxError(`Unable to instanciate ${token.name}`, error);
-        }
-      } else {
-        throw new CodxError(`Dependency not found for the token: ${token}`);
-      }
-    }
-    return dependency;
-  }
-  register(token, dependency) {
-    this.dependencies.set(token, dependency);
-  }
-  reset() {
-    this.dependencies.clear();
-  }
-  createInstance(ClassType) {
-    let currentClass = ClassType;
-    let injectionParams = [];
-    while (currentClass) {
-      const currentInjectionParams = injectionRegistry.get(currentClass) ?? [];
-      if (currentInjectionParams.length > 0) {
-        injectionParams = currentInjectionParams;
-        break;
-      }
-      currentClass = Object.getPrototypeOf(currentClass);
-    }
-    const args = [];
-    for (let i = 0;i < injectionParams.length; i++) {
-      const injectionParam = injectionParams.find((p) => p.parameterIndex === i);
-      if (injectionParam) {
-        args[i] = this.get(injectionParam.type);
-      } else {
-        args[i] = undefined;
-      }
-    }
-    return new ClassType(...args);
-  }
-}
-var diContainer = new DIContainer;
-
 // src/core/ConditionEvaluator.ts
 var import_filtrex = __toESM(require_filtrex(), 1);
 
@@ -10225,7 +10175,20 @@ class ConditionEvaluator {
   evaluate(condition, variables) {
     try {
       const check = import_filtrex.compileExpression(condition, {
-        customProp: import_filtrex.useDotAccessOperatorAndOptionalChaining
+        customProp: import_filtrex.useDotAccessOperatorAndOptionalChaining,
+        extraFunctions: {
+          instanceOf: (o, c) => {
+            if (typeof o !== "object" || typeof c !== "string") {
+              return false;
+            }
+            do {
+              if (o?.name === c || o?.constructor?.name === c) {
+                return true;
+              }
+            } while (o = Object.getPrototypeOf(o));
+            return false;
+          }
+        }
       });
       return check({
         ...variables,
@@ -25568,20 +25531,60 @@ BaseAction = __legacyDecorateClassTS([
   ])
 ], BaseAction);
 
+// src/core/errors/DirectoryChangeCodxError.ts
+class DirectoryChangeCodxError extends CodxError {
+  constructor(error3) {
+    super("Error changing directory", error3);
+    this.name = "DirectoryChangeCodxError";
+  }
+}
+
+// src/core/errors/MissingParameterCodxError.ts
+class MissingParameterCodxError extends CodxError {
+  constructor(parameter) {
+    super(`${parameter.substring(0, 1).toUpperCase() + parameter.substring(1)} is required for this action`);
+    this.name = "MissingParameterCodxError";
+  }
+}
+
+// src/core/errors/MissingDirectoryPathCodxError.ts
+class MissingDirectoryPathCodxError extends MissingParameterCodxError {
+  constructor() {
+    super("Directory path");
+    this.name = "MissingDirectoryPathCodxError";
+  }
+}
+
 // src/actions/changeDir/ChangeDirAction.ts
 class ChangeDirAction extends BaseAction {
   async execute(actionData) {
     const { path: path8 } = actionData;
     if (!path8) {
-      throw new CodxError("Directory path is required for the changeDir action");
+      throw new MissingDirectoryPathCodxError;
     }
     const interpolatedPath = this.interpolate(path8);
     try {
       this.context.projectDirectory.change(interpolatedPath);
       this.logger.info(`Current working directory: ${this.context.projectDirectory.get()}`);
     } catch (error3) {
-      throw new CodxError("Error changing directory", error3);
+      throw new DirectoryChangeCodxError(error3);
     }
+  }
+}
+
+// src/core/errors/CommandCancelledCodxError.ts
+class CommandCancelledCodxError extends CodxError {
+  constructor() {
+    super("Command execution cancelled by user.");
+    this.name = "CommandCancelledCodxError";
+  }
+}
+
+// src/core/errors/CommandExecutionCodxError.ts
+class CommandExecutionCodxError extends CodxError {
+  constructor(error3) {
+    super("Error executing command", error3);
+    this.name = "CommandExecutionCodxError";
   }
 }
 
@@ -27175,7 +27178,7 @@ class BaseCommandAction extends BaseAction {
         default: true
       });
       if (!confirmExecution) {
-        throw new CodxError("Command execution cancelled by user.");
+        throw new CommandCancelledCodxError;
       }
     } else {
       this.logger.info(`Executing command: ${source_default.yellow.bold(interpolatedCommand)} in ${source_default.grey.bold(currentProjectDirectory)}`);
@@ -27183,7 +27186,7 @@ class BaseCommandAction extends BaseAction {
     try {
       return await this.runCommand(interpolatedCommand, currentProjectDirectory);
     } catch (error3) {
-      throw new CodxError("Error executing command", error3);
+      throw new CommandExecutionCodxError(error3);
     }
   }
   async runCommand(command, cwd) {
@@ -27209,11 +27212,51 @@ class CommandAction extends BaseCommandAction {
   }
 }
 
+// src/core/errors/ExplicitFailureCodxError.ts
+class ExplicitFailureCodxError extends CodxError {
+  constructor(message) {
+    super(message);
+    this.name = "ExplicitFailureCodxError";
+  }
+}
+
 // src/actions/fail/FailAction.ts
 class FailAction extends BaseAction {
   async execute(actionData) {
     const { message = "Explicit failure triggered by fail action" } = actionData;
-    throw new CodxError(message);
+    throw new ExplicitFailureCodxError(message);
+  }
+}
+
+// src/core/errors/FileAlreadyExistsCodxError.ts
+class FileAlreadyExistsCodxError extends CodxError {
+  constructor(path8) {
+    super(`File "${path8}" already exists and the "overwrite" option is not enabled.`);
+    this.name = "FileAlreadyExistsCodxError";
+  }
+}
+
+// src/core/errors/FileNotFoundCodxError.ts
+class FileNotFoundCodxError extends CodxError {
+  constructor(path8) {
+    super(`File "${path8}" does not exist.`);
+    this.name = "FileNotFoundCodxError";
+  }
+}
+
+// src/core/errors/InvalidRegexPatternCodxError.ts
+class InvalidRegexPatternCodxError extends CodxError {
+  constructor(pattern, error3) {
+    super(`Invalid regular expression pattern "${pattern}"`, error3);
+    this.name = "InvalidRegexPatternCodxError";
+  }
+}
+
+// src/core/errors/UnknownOperationCodxError.ts
+class UnknownOperationCodxError extends CodxError {
+  constructor(operation) {
+    super(`Unknown operation: ${operation}`);
+    this.name = "UnknownOperationCodxError";
   }
 }
 
@@ -27234,7 +27277,7 @@ class FileManipulationAction extends BaseAction {
       case "update":
         return this.executeUpdate(actionData);
       default:
-        throw new CodxError(`Unrecognized file manipulation operation: ${operation}`);
+        throw new UnknownOperationCodxError(operation);
     }
   }
   executeAppend(actionData) {
@@ -27242,7 +27285,7 @@ class FileManipulationAction extends BaseAction {
     const interpolatedPath = this.interpolate(path8);
     const absolutePath = this.context.projectDirectory.resolve(interpolatedPath);
     if (!existsSync3(absolutePath)) {
-      throw new CodxError(`File "${absolutePath}" does not exist.`);
+      throw new FileNotFoundCodxError(absolutePath);
     }
     const interpolatedContent = this.interpolate(content);
     const existingContent = readFileSync(absolutePath, "utf8");
@@ -27263,7 +27306,7 @@ class FileManipulationAction extends BaseAction {
       if (overwrite) {
         overwritten = true;
       } else {
-        throw new CodxError(`File "${absolutePath}" already exists and the "overwrite" option is not enabled.`);
+        throw new FileAlreadyExistsCodxError(absolutePath);
       }
     }
     const parentPath = dirname6(absolutePath);
@@ -27283,7 +27326,7 @@ class FileManipulationAction extends BaseAction {
     const interpolatedPath = this.interpolate(path8);
     const absolutePath = this.context.projectDirectory.resolve(interpolatedPath);
     if (!existsSync3(absolutePath)) {
-      throw new CodxError(`File "${absolutePath}" does not exist.`);
+      throw new FileNotFoundCodxError(absolutePath);
     }
     const interpolatedContent = this.interpolate(content);
     const existingContent = readFileSync(absolutePath, "utf8");
@@ -27300,7 +27343,7 @@ class FileManipulationAction extends BaseAction {
     const interpolatedPath = this.interpolate(path8);
     const absolutePath = this.context.projectDirectory.resolve(interpolatedPath);
     if (!existsSync3(absolutePath)) {
-      throw new CodxError(`File "${absolutePath}" does not exist.`);
+      throw new FileNotFoundCodxError(absolutePath);
     }
     const interpolatedPattern = this.interpolate(pattern);
     const interpolatedContent = this.interpolate(content);
@@ -27322,8 +27365,56 @@ class FileManipulationAction extends BaseAction {
         updated: true
       };
     } catch (error3) {
-      throw new CodxError(`Invalid regular expression pattern: ${interpolatedPattern}`, error3);
+      throw new InvalidRegexPatternCodxError(interpolatedPattern, error3);
     }
+  }
+}
+
+// src/core/errors/DestinationFileAlreadyExistsCodxError.ts
+class DestinationFileAlreadyExistsCodxError extends CodxError {
+  constructor(path8) {
+    super(`Destination file "${path8}" already exists and the "overwrite" option is not enabled.`);
+    this.name = "DestinationFileAlreadyExistsCodxError";
+  }
+}
+
+// src/core/errors/DirectoryCreationCodxError.ts
+class DirectoryCreationCodxError extends CodxError {
+  constructor(path8, error3) {
+    super(`Unable to create directory "${path8}"`, error3);
+    this.name = "DirectoryCreationCodxError";
+  }
+}
+
+// src/core/errors/MissingDestinationPathCodxError.ts
+class MissingDestinationPathCodxError extends MissingParameterCodxError {
+  constructor() {
+    super("Destination path");
+    this.name = "MissingDestinationPathCodxError";
+  }
+}
+
+// src/core/errors/MissingSourcePathCodxError.ts
+class MissingSourcePathCodxError extends MissingParameterCodxError {
+  constructor() {
+    super("Source path");
+    this.name = "MissingSourcePathCodxError";
+  }
+}
+
+// src/core/errors/OutsideSourceFileCodxError.ts
+class OutsideSourceFileCodxError extends CodxError {
+  constructor(path8) {
+    super(`Source file "${path8}" is neither in the recipe directory nor in the project directory.`);
+    this.name = "OutsideSourceFileCodxError";
+  }
+}
+
+// src/core/errors/SourceFileNotFoundCodxError.ts
+class SourceFileNotFoundCodxError extends CodxError {
+  constructor(path8) {
+    super(`Source file "${path8}" does not exist.`);
+    this.name = "SourceFileNotFoundCodxError";
   }
 }
 
@@ -27346,16 +27437,16 @@ class FileSystemAction extends BaseAction {
       case "move":
         return this.executeMove(actionData);
       default:
-        throw new CodxError(`Unrecognized file operation: ${operation}`);
+        throw new UnknownOperationCodxError(operation);
     }
   }
   checkCreateAndGetPath(actionData) {
     const { source, destination, overwrite = false } = actionData;
     if (!source) {
-      throw new CodxError("Source path is required for this action");
+      throw new MissingSourcePathCodxError;
     }
     if (!destination) {
-      throw new CodxError("Destination path is required for this action");
+      throw new MissingDestinationPathCodxError;
     }
     const interpolatedSourcePath = this.interpolate(source);
     let sourcePath = undefined;
@@ -27372,7 +27463,7 @@ class FileSystemAction extends BaseAction {
       }
     }
     if (!sourcePath || !existsSync4(sourcePath)) {
-      throw new CodxError(`Source file "${interpolatedSourcePath}" is neither in the recipe directory nor in the project directory.`);
+      throw new OutsideSourceFileCodxError(interpolatedSourcePath);
     }
     const interpolatedDestinationPath = this.interpolate(destination);
     const destinationPath = this.context.projectDirectory.resolve(interpolatedDestinationPath);
@@ -27383,12 +27474,12 @@ class FileSystemAction extends BaseAction {
   }
   checkDestPath(dest, overwrite) {
     if (existsSync4(dest) && !overwrite) {
-      throw new CodxError(`Destination file "${dest}" already exists and the "overwrite" option is not enabled.`);
+      throw new DestinationFileAlreadyExistsCodxError(dest);
     }
   }
   checkSourcePath(source) {
     if (!existsSync4(source)) {
-      throw new CodxError(`Source file "${source}" does not exist.`);
+      throw new SourceFileNotFoundCodxError(source);
     }
   }
   createParentDirIfNeeded(path8) {
@@ -27404,7 +27495,7 @@ class FileSystemAction extends BaseAction {
       if (overwrite) {
         overwritten = true;
       } else {
-        throw new CodxError(`Destination "${destinationPath}" already exists and the "overwrite" option is not enabled.`);
+        throw new DestinationFileAlreadyExistsCodxError(destinationPath);
       }
     }
     copyFileSync(sourcePath, destinationPath);
@@ -27458,10 +27549,9 @@ class FileSystemAction extends BaseAction {
       try {
         mkdirSync5(absolutePath);
         this.logger.success(`Directory "${absolutePath}" created.`);
-      } catch (e) {
-        const message = `Unable to create directory "${absolutePath}".`;
-        this.logger.error(message);
-        throw new CodxError(message, e);
+      } catch (error3) {
+        this.logger.error(`Unable to create directory "${absolutePath}".`);
+        throw new DirectoryCreationCodxError(absolutePath, error3);
       }
     }
     return {
@@ -27489,17 +27579,20 @@ class FileSystemAction extends BaseAction {
   }
 }
 
+// src/core/errors/MissingContentCodxError.ts
+class MissingContentCodxError extends MissingParameterCodxError {
+  constructor() {
+    super("Content");
+    this.name = "MissingContentCodxError";
+  }
+}
+
 // src/actions/message/MessageAction.ts
 class MessageAction extends BaseAction {
-  logger;
-  constructor(logger, context) {
-    super(context);
-    this.logger = logger;
-  }
   async execute(actionData) {
     const { content, style = "default" } = actionData;
     if (!content) {
-      throw new CodxError("Message action requires a content parameter");
+      throw new MissingContentCodxError;
     }
     const interpolatedContent = this.interpolate(content);
     this.logger.message(interpolatedContent, style);
@@ -27509,14 +27602,38 @@ class MessageAction extends BaseAction {
     };
   }
 }
-MessageAction = __legacyDecorateClassTS([
-  __legacyDecorateParamTS(0, Inject(Logger)),
-  __legacyDecorateParamTS(1, Inject(Context)),
-  __legacyMetadataTS("design:paramtypes", [
-    typeof Logger === "undefined" ? Object : Logger,
-    typeof Context === "undefined" ? Object : Context
-  ])
-], MessageAction);
+
+// src/core/errors/EmptyPackageCodxError.ts
+class EmptyPackageCodxError extends CodxError {
+  constructor() {
+    super("Package is empty.");
+    this.name = "EmptyPackageCodxError";
+  }
+}
+
+// src/core/errors/EmptyPackageListCodxError.ts
+class EmptyPackageListCodxError extends CodxError {
+  constructor() {
+    super("Package list is empty or invalid.");
+    this.name = "EmptyPackageListCodxError";
+  }
+}
+
+// src/core/errors/FileUnreadableCodxError.ts
+class FileUnreadableCodxError extends CodxError {
+  constructor(path8, error3) {
+    super(`Error reading ${path8}`, error3);
+    this.name = "FileUnreadableCodxError";
+  }
+}
+
+// src/core/errors/PackageManagerNotFoundCodxError.ts
+class PackageManagerNotFoundCodxError extends CodxError {
+  constructor() {
+    super("Package manager not found.");
+    this.name = "PackageManagerNotFoundCodxError";
+  }
+}
 
 // src/actions/package/PackageAction.ts
 var import_semver = __toESM(require_semver2(), 1);
@@ -27570,7 +27687,7 @@ class PackageAction extends BaseCommandAction {
   async executeCheck(action) {
     const { packages } = action;
     if (!packages || !Array.isArray(packages) || packages.length === 0) {
-      throw new CodxError("Package list is empty or invalid.");
+      throw new EmptyPackageListCodxError;
     }
     const result = {};
     for (const pkgInfo of packages) {
@@ -27581,11 +27698,11 @@ class PackageAction extends BaseCommandAction {
   async executeInstall(action) {
     const { packages, dev } = action;
     if (!packages || !Array.isArray(packages) || packages.length === 0) {
-      throw new CodxError("Package list is empty or invalid.");
+      throw new EmptyPackageListCodxError;
     }
     const packageCommands = this.context.store.get("$PACKAGE_COMMANDS");
     if (!packageCommands) {
-      throw new CodxError("Package manager not found.");
+      throw new PackageManagerNotFoundCodxError;
     }
     let command = "";
     if (dev) {
@@ -27599,11 +27716,11 @@ class PackageAction extends BaseCommandAction {
   async executeRemove(action) {
     const { packages } = action;
     if (!packages || !Array.isArray(packages) || packages.length === 0) {
-      throw new CodxError("Package list is empty or invalid.");
+      throw new EmptyPackageListCodxError;
     }
     const packageCommands = this.context.store.get("$PACKAGE_COMMANDS");
     if (!packageCommands) {
-      throw new CodxError("Package manager not found.");
+      throw new PackageManagerNotFoundCodxError;
     }
     let command = packageCommands.remove;
     command += ` ${packages.join(" ")}`;
@@ -27612,11 +27729,11 @@ class PackageAction extends BaseCommandAction {
   async executeRun(actionData) {
     const { package: packageName, options = "" } = actionData;
     if (!packageName) {
-      throw new CodxError("Package is empty.");
+      throw new EmptyPackageCodxError;
     }
     const packageCommands = this.context.store.get("$PACKAGE_COMMANDS");
     if (!packageCommands) {
-      throw new CodxError("Package manager not found.");
+      throw new PackageManagerNotFoundCodxError;
     }
     const command = `${packageCommands.execute} ${packageName} ${options}`.trim();
     return this.executeCommand(command);
@@ -27624,11 +27741,11 @@ class PackageAction extends BaseCommandAction {
   async executeUpdate(action) {
     const { packages } = action;
     if (!packages || !Array.isArray(packages) || packages.length === 0) {
-      throw new CodxError("Package list is empty or invalid.");
+      throw new EmptyPackageListCodxError;
     }
     const packageCommands = this.context.store.get("$PACKAGE_COMMANDS");
     if (!packageCommands) {
-      throw new CodxError("Package manager not found.");
+      throw new PackageManagerNotFoundCodxError;
     }
     let command = packageCommands.update;
     command += ` ${packages.join(" ")}`;
@@ -27645,8 +27762,16 @@ class PackageAction extends BaseCommandAction {
         }
       }
     } catch (error3) {
-      throw new CodxError("Error reading package.json", error3);
+      throw new FileUnreadableCodxError("package.json", error3);
     }
+  }
+}
+
+// src/core/errors/MissingMessageCodxError.ts
+class MissingMessageCodxError extends MissingParameterCodxError {
+  constructor() {
+    super("Message");
+    this.name = "MissingMessageCodxError";
   }
 }
 
@@ -27655,7 +27780,7 @@ class PromptAction extends BaseAction {
   async execute(actionData) {
     const { message, promptType } = actionData;
     if (!message) {
-      throw new CodxError("Prompt action requires a message parameter");
+      throw new MissingMessageCodxError;
     }
     let userInput;
     switch (promptType) {
@@ -27761,6 +27886,64 @@ var actionRegistry = {
   prompt: PromptAction
 };
 
+// src/core/errors/UnknownActionCodxError.ts
+class UnknownActionCodxError extends CodxError {
+  constructor(action) {
+    super(`Unknown action: ${action}`);
+    this.name = "UnknownActionCodxError";
+  }
+}
+
+// src/di/Container.ts
+class DIContainer {
+  dependencies = new Map;
+  get(token) {
+    let dependency = this.dependencies.get(token);
+    if (!dependency) {
+      if (typeof token === "function") {
+        try {
+          dependency = this.createInstance(token);
+          this.dependencies.set(token, dependency);
+        } catch (error3) {
+          throw new CodxError(`Unable to instanciate ${token.name}`, error3);
+        }
+      } else {
+        throw new CodxError(`Dependency not found for the token: ${token}`);
+      }
+    }
+    return dependency;
+  }
+  register(token, dependency) {
+    this.dependencies.set(token, dependency);
+  }
+  reset() {
+    this.dependencies.clear();
+  }
+  createInstance(ClassType) {
+    let currentClass = ClassType;
+    let injectionParams = [];
+    while (currentClass) {
+      const currentInjectionParams = injectionRegistry.get(currentClass) ?? [];
+      if (currentInjectionParams.length > 0) {
+        injectionParams = currentInjectionParams;
+        break;
+      }
+      currentClass = Object.getPrototypeOf(currentClass);
+    }
+    const args = [];
+    for (let i2 = 0;i2 < injectionParams.length; i2++) {
+      const injectionParam = injectionParams.find((p) => p.parameterIndex === i2);
+      if (injectionParam) {
+        args[i2] = this.get(injectionParam.type);
+      } else {
+        args[i2] = undefined;
+      }
+    }
+    return new ClassType(...args);
+  }
+}
+var diContainer = new DIContainer;
+
 // src/actions/ActionFactory.ts
 class ActionFactory {
   registry;
@@ -27770,7 +27953,7 @@ class ActionFactory {
   createAction(actionData) {
     const actionType = actionData.type;
     if (this.registry[actionType] === undefined) {
-      throw new CodxError(`Unknown action type: ${actionType}`);
+      throw new UnknownActionCodxError(actionType);
     }
     return diContainer.get(this.registry[actionType]);
   }
@@ -27838,6 +28021,7 @@ class RecipeRunner {
       }
       await this.handleStepSuccess(step);
     } catch (error3) {
+      this.context.store.set("error", error3);
       if (step.onFailure) {
         await this.handleStepError(step);
       } else {

@@ -7,7 +7,10 @@ import {
   PackageActionRunData,
   PackageActionUpdateData,
 } from '@/actions/package/PackageAction.schema';
-import { CodxError } from '@/core/CodxError';
+import { EmptyPackageCodxError } from '@/core/errors/EmptyPackageCodxError';
+import { EmptyPackageListCodxError } from '@/core/errors/EmptyPackageListCodxError';
+import { FileUnreadableCodxError } from '@/core/errors/FileUnreadableCodxError';
+import { PackageManagerNotFoundCodxError } from '@/core/errors/PackageManagerNotFoundCodxError';
 import { PackageManager } from '@/core/PackageManagerDetector';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -92,7 +95,7 @@ export class PackageAction extends BaseCommandAction {
     const { packages } = action;
 
     if (!packages || !Array.isArray(packages) || packages.length === 0) {
-      throw new CodxError('Package list is empty or invalid.');
+      throw new EmptyPackageListCodxError();
     }
 
     const result: Record<string, CheckResult> = {};
@@ -108,12 +111,12 @@ export class PackageAction extends BaseCommandAction {
     const { packages, dev } = action;
 
     if (!packages || !Array.isArray(packages) || packages.length === 0) {
-      throw new CodxError('Package list is empty or invalid.');
+      throw new EmptyPackageListCodxError();
     }
 
     const packageCommands = this.context.store.get<PackageManager>('$PACKAGE_COMMANDS');
     if (!packageCommands) {
-      throw new CodxError('Package manager not found.');
+      throw new PackageManagerNotFoundCodxError();
     }
 
     let command = '';
@@ -134,12 +137,12 @@ export class PackageAction extends BaseCommandAction {
     const { packages } = action;
 
     if (!packages || !Array.isArray(packages) || packages.length === 0) {
-      throw new CodxError('Package list is empty or invalid.');
+      throw new EmptyPackageListCodxError();
     }
 
     const packageCommands = this.context.store.get<PackageManager>('$PACKAGE_COMMANDS');
     if (!packageCommands) {
-      throw new CodxError('Package manager not found.');
+      throw new PackageManagerNotFoundCodxError();
     }
 
     let command = packageCommands.remove;
@@ -157,12 +160,12 @@ export class PackageAction extends BaseCommandAction {
     const { package: packageName, options = '' } = actionData;
 
     if (!packageName) {
-      throw new CodxError('Package is empty.');
+      throw new EmptyPackageCodxError();
     }
 
     const packageCommands = this.context.store.get<PackageManager>('$PACKAGE_COMMANDS');
     if (!packageCommands) {
-      throw new CodxError('Package manager not found.');
+      throw new PackageManagerNotFoundCodxError();
     }
 
     const command = `${packageCommands.execute} ${packageName} ${options}`.trim();
@@ -174,12 +177,12 @@ export class PackageAction extends BaseCommandAction {
     const { packages } = action;
 
     if (!packages || !Array.isArray(packages) || packages.length === 0) {
-      throw new CodxError('Package list is empty or invalid.');
+      throw new EmptyPackageListCodxError();
     }
 
     const packageCommands = this.context.store.get<PackageManager>('$PACKAGE_COMMANDS');
     if (!packageCommands) {
-      throw new CodxError('Package manager not found.');
+      throw new PackageManagerNotFoundCodxError();
     }
 
     let command = packageCommands.update;
@@ -206,7 +209,7 @@ export class PackageAction extends BaseCommandAction {
         }
       }
     } catch (error) {
-      throw new CodxError('Error reading package.json', error);
+      throw new FileUnreadableCodxError('package.json', error as Error);
     }
   }
 }

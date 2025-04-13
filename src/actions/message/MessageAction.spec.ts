@@ -1,23 +1,23 @@
 import { MessageAction } from '@/actions/message/MessageAction';
 import { MessageActionData } from '@/actions/message/MessageAction.schema';
-import { CodxError } from '@/core/CodxError';
 import { Context } from '@/core/Context';
-import { diContainer } from '@/di/Container';
+import { MissingContentCodxError } from '@/core/errors/MissingContentCodxError';
 import { Logger } from '@/core/Logger';
 import { Store } from '@/core/Store';
+import { diContainer } from '@/di/Container';
 import { describe, expect, mock, spyOn, test } from 'bun:test';
 
 describe('MessageAction', () => {
   test('should throw error when content is not provided', async () => {
     const mockLogger = {
       message: mock(),
-    };
+    } as unknown as Logger;
 
-    const action = new MessageAction(mockLogger as any, diContainer.get(Context));
+    const action = new MessageAction(diContainer.get(Context), mockLogger);
     const actionData = { style: 'default' } as MessageActionData;
 
-    expect(action.execute(actionData)).rejects.toThrow(CodxError);
-    expect(action.execute(actionData)).rejects.toThrow('Message action requires a content parameter');
+    expect(action.execute(actionData)).rejects.toThrow(MissingContentCodxError);
+    expect(action.execute(actionData)).rejects.toThrow('Content is required for this action');
   });
 
   test('should display message with default style', async () => {
@@ -30,7 +30,7 @@ describe('MessageAction', () => {
     const mockStore = diContainer.get(Store);
     spyOn(mockStore, 'interpolate').mockReturnValue(interpolatedContent);
 
-    const action = new MessageAction(mockLogger, diContainer.get(Context));
+    const action = new MessageAction(diContainer.get(Context), mockLogger);
 
     await action.execute({ type: 'message', content: mockContent } as MessageActionData);
 
@@ -49,7 +49,7 @@ describe('MessageAction', () => {
     const mockStore = diContainer.get(Store);
     spyOn(mockStore, 'interpolate').mockReturnValue(interpolatedContent);
 
-    const action = new MessageAction(mockLogger, diContainer.get(Context));
+    const action = new MessageAction(diContainer.get(Context), mockLogger);
 
     await action.execute({ content: mockContent, style, type: 'message' });
 

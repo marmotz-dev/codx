@@ -6,7 +6,10 @@ import {
   FileManipulationActionPrependData,
   FileManipulationActionUpdateData,
 } from '@/actions/fileManipulation/FileManipulationAction.schema';
-import { CodxError } from '@/core/CodxError';
+import { FileAlreadyExistsCodxError } from '@/core/errors/FileAlreadyExistsCodxError';
+import { FileNotFoundCodxError } from '@/core/errors/FileNotFoundCodxError';
+import { InvalidRegexPatternCodxError } from '@/core/errors/InvalidRegexPatternCodxError';
+import { UnknownOperationCodxError } from '@/core/errors/UnknownOperationCodxError';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 
@@ -35,7 +38,7 @@ export class FileManipulationAction extends BaseAction {
         return this.executeUpdate(actionData);
 
       default:
-        throw new CodxError(`Unrecognized file manipulation operation: ${operation}`);
+        throw new UnknownOperationCodxError(operation);
     }
   }
 
@@ -50,7 +53,7 @@ export class FileManipulationAction extends BaseAction {
     const absolutePath = this.context.projectDirectory.resolve(interpolatedPath);
 
     if (!existsSync(absolutePath)) {
-      throw new CodxError(`File "${absolutePath}" does not exist.`);
+      throw new FileNotFoundCodxError(absolutePath);
     }
 
     const interpolatedContent = this.interpolate(content);
@@ -81,7 +84,7 @@ export class FileManipulationAction extends BaseAction {
       if (overwrite) {
         overwritten = true;
       } else {
-        throw new CodxError(`File "${absolutePath}" already exists and the "overwrite" option is not enabled.`);
+        throw new FileAlreadyExistsCodxError(absolutePath);
       }
     }
 
@@ -113,7 +116,7 @@ export class FileManipulationAction extends BaseAction {
     const absolutePath = this.context.projectDirectory.resolve(interpolatedPath);
 
     if (!existsSync(absolutePath)) {
-      throw new CodxError(`File "${absolutePath}" does not exist.`);
+      throw new FileNotFoundCodxError(absolutePath);
     }
 
     const interpolatedContent = this.interpolate(content);
@@ -140,7 +143,7 @@ export class FileManipulationAction extends BaseAction {
     const absolutePath = this.context.projectDirectory.resolve(interpolatedPath);
 
     if (!existsSync(absolutePath)) {
-      throw new CodxError(`File "${absolutePath}" does not exist.`);
+      throw new FileNotFoundCodxError(absolutePath);
     }
 
     const interpolatedPattern = this.interpolate(pattern);
@@ -168,7 +171,7 @@ export class FileManipulationAction extends BaseAction {
         updated: true,
       };
     } catch (error) {
-      throw new CodxError(`Invalid regular expression pattern: ${interpolatedPattern}`, error);
+      throw new InvalidRegexPatternCodxError(interpolatedPattern, error as Error);
     }
   }
 }

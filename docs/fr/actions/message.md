@@ -29,6 +29,14 @@ Cette action retourne un objet avec les propriétés suivantes :
 | `message` | string | Oui               | Message affiché               |
 | `style`   | string | Oui               | Style utilisé pour le message |
 
+#### Erreurs possibles
+
+Cette action peut lancer les erreurs suivantes :
+
+| Type d'erreur             | Description                                         |
+|---------------------------|-----------------------------------------------------|
+| `MissingContentCodxError` | Lancée lorsque le paramètre `content` est manquant. |
+
 ## Exemples
 
 ### Message par défaut

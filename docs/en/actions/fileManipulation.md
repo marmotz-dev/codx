@@ -219,6 +219,17 @@ You can handle errors that may occur during file operations using the `onSuccess
         style: "error"
 ```
 
+#### Possible Errors
+
+This action can throw the following errors:
+ 
+| Error Type                     | Description                                                                                              |
+|--------------------------------|----------------------------------------------------------------------------------------------------------|
+| `UnknownOperationCodxError`    | Thrown when an unknown operation is specified.                                                           |
+| `FileNotFoundCodxError`        | Thrown when the file to be manipulated doesn't exist (for `append`, `prepend`, and `update` operations). |
+| `FileAlreadyExistsCodxError`   | Thrown when trying to create a file that already exists without the `overwrite` option.                  |
+| `InvalidRegexPatternCodxError` | Thrown when the regex pattern for the `update` operation is invalid.                                     |
+
 ### Best Practices
 
 - **File Existence**: For `prepend`, `append`, and `update` operations, make sure the file exists before attempting to

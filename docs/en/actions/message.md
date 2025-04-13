@@ -29,6 +29,14 @@ This action returns an object with the following properties:
 | `message` | string | Yes             | Displayed message          |
 | `style`   | string | Yes             | Style used for the message |
 
+## Possible Errors
+
+This action can throw the following errors:
+ 
+| Error Type                | Description                                     |
+|---------------------------|-------------------------------------------------|
+| `MissingContentCodxError` | Thrown when the `content` parameter is missing. |
+
 ## Examples
 
 ### Default Message

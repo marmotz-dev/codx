@@ -88,6 +88,15 @@ and `onFailure` attributes:
         command: "curl -fsSL https://nodejs.org/install.sh | bash"
 ```
 
+### Possible Errors
+
+This action can throw the following errors:
+ 
+| Error Type                  | Description                                         |
+|-----------------------------|-----------------------------------------------------|
+| `CommandCancelledCodxError` | Thrown when the user cancels the command execution. |
+| `CommandExecutionCodxError` | Thrown when there's an error executing the command. |
+
 ## Best Practices
 
 - **Portability**: Consider differences between operating systems. Some commands may not work the same way on all

@@ -1,5 +1,5 @@
-import { Inject } from '@/di/InjectDecorator';
 import { Store } from '@/core/Store';
+import { Inject } from '@/di/InjectDecorator';
 
 export type PackageManager = {
   install: string;

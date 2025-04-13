@@ -8,6 +8,13 @@ import {
   FileSystemActionMoveData,
 } from '@/actions/fileSystem/FileSystemAction.schema';
 import { CodxError } from '@/core/CodxError';
+import { DestinationFileAlreadyExistsCodxError } from '@/core/errors/DestinationFileAlreadyExistsCodxError';
+import { DirectoryCreationCodxError } from '@/core/errors/DirectoryCreationCodxError';
+import { MissingDestinationPathCodxError } from '@/core/errors/MissingDestinationPathCodxError';
+import { MissingSourcePathCodxError } from '@/core/errors/MissingSourcePathCodxError';
+import { OutsideSourceFileCodxError } from '@/core/errors/OutsideSourceFileCodxError';
+import { SourceFileNotFoundCodxError } from '@/core/errors/SourceFileNotFoundCodxError';
+import { UnknownOperationCodxError } from '@/core/errors/UnknownOperationCodxError';
 import { copyFileSync, existsSync, mkdirSync, renameSync, unlinkSync } from 'node:fs';
 import { dirname } from 'node:path';
 
@@ -39,7 +46,7 @@ export class FileSystemAction extends BaseAction {
         return this.executeMove(actionData);
 
       default:
-        throw new CodxError(`Unrecognized file operation: ${operation}`);
+        throw new UnknownOperationCodxError(operation);
     }
   }
 
@@ -47,11 +54,11 @@ export class FileSystemAction extends BaseAction {
     const { source, destination, overwrite = false } = actionData;
 
     if (!source) {
-      throw new CodxError('Source path is required for this action');
+      throw new MissingSourcePathCodxError();
     }
 
     if (!destination) {
-      throw new CodxError('Destination path is required for this action');
+      throw new MissingDestinationPathCodxError();
     }
 
     const interpolatedSourcePath = this.interpolate(source);
@@ -72,9 +79,7 @@ export class FileSystemAction extends BaseAction {
     }
 
     if (!sourcePath || !existsSync(sourcePath)) {
-      throw new CodxError(
-        `Source file "${interpolatedSourcePath}" is neither in the recipe directory nor in the project directory.`,
-      );
+      throw new OutsideSourceFileCodxError(interpolatedSourcePath);
     }
 
     const interpolatedDestinationPath = this.interpolate(destination);
@@ -89,13 +94,13 @@ export class FileSystemAction extends BaseAction {
 
   private checkDestPath(dest: string, overwrite: boolean) {
     if (existsSync(dest) && !overwrite) {
-      throw new CodxError(`Destination file "${dest}" already exists and the "overwrite" option is not enabled.`);
+      throw new DestinationFileAlreadyExistsCodxError(dest);
     }
   }
 
   private checkSourcePath(source: string) {
     if (!existsSync(source)) {
-      throw new CodxError(`Source file "${source}" does not exist.`);
+      throw new SourceFileNotFoundCodxError(source);
     }
   }
 
@@ -119,9 +124,7 @@ export class FileSystemAction extends BaseAction {
       if (overwrite) {
         overwritten = true;
       } else {
-        throw new CodxError(
-          `Destination "${destinationPath}" already exists and the "overwrite" option is not enabled.`,
-        );
+        throw new DestinationFileAlreadyExistsCodxError(destinationPath);
       }
     }
 
@@ -201,11 +204,10 @@ export class FileSystemAction extends BaseAction {
       try {
         mkdirSync(absolutePath);
         this.logger.success(`Directory "${absolutePath}" created.`);
-      } catch (e) {
-        const message = `Unable to create directory "${absolutePath}".`;
-        this.logger.error(message);
+      } catch (error) {
+        this.logger.error(`Unable to create directory "${absolutePath}".`);
 
-        throw new CodxError(message, e);
+        throw new DirectoryCreationCodxError(absolutePath, error as Error);
       }
     }
 

@@ -1,5 +1,5 @@
-import { diContainer } from '@/di/Container';
 import { VariablesInterpolator } from '@/core/VariablesInterpolator';
+import { diContainer } from '@/di/Container';
 import { beforeEach, describe, expect, it } from 'bun:test';
 
 describe('VariablesInterpolator', () => {
