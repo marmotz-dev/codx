@@ -119,11 +119,12 @@ Codx provides certain predefined variables that can be used in your recipes:
 | Variable                      | Description                                                                                                                                               |
 |-------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `$CWD`                        | The absolute path of the Codx execution directory                                                                                                         |
-| `$RECIPE_DIRECTORY`           | The absolute path of the recipe directory                                                                                                                 |
-| `$PROJECT_DIRECTORY`          | The absolute path of the current project directory                                                                                                        |
-| `$RELATIVE_PROJECT_DIRECTORY` | The path relative to the Codx execution path of the current project directory                                                                             |
-| `$PACKAGE_MANAGER`            | The name of the package manager used                                                                                                                      |
+| `$ERROR`                      | Last error thrown by action                                                                                                                               |
 | `$PACKAGE_COMMANDS`           | Commands related to the current package manager (Object containing the properties `install`, `installDev`, `remove`, `update`, `execute`, `globalOption`) |
+| `$PACKAGE_MANAGER`            | The name of the package manager used                                                                                                                      |
+| `$PROJECT_DIRECTORY`          | The absolute path of the current project directory                                                                                                        |
+| `$RECIPE_DIRECTORY`           | The absolute path of the recipe directory                                                                                                                 |
+| `$RELATIVE_PROJECT_DIRECTORY` | The path relative to the Codx execution path of the current project directory                                                                             |
 | true                          | Equals `true`                                                                                                                                             |
 | false                         | Equals `false`                                                                                                                                            |
 

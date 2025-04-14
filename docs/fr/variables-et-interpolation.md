@@ -120,11 +120,12 @@ Codx fournit certaines variables prédéfinies qui peuvent être utilisées dans
 | Variable                      | Description                                                                                                                                           |
 |-------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `$CWD`                        | Le chemin absolu du répertoire d'exécution de Codx                                                                                                    |
-| `$RECIPE_DIRECTORY`           | Le chemin absolu du répertoire de la recette                                                                                                          |
-| `$PROJECT_DIRECTORY`          | Le chemin absolu du répertoire courant du projet                                                                                                      |
-| `$RELATIVE_PROJECT_DIRECTORY` | Le chemin relatif au chemin d'exécution de Codx du répertoire courant du projet                                                                       |
-| `$PACKAGE_MANAGER`            | Le nom du package manager utilisé                                                                                                                     |
+| `$ERROR`                      | Dernière erreur lancée par une action                                                                                                                 |
 | `$PACKAGE_COMMANDS`           | Les commandes liés au package manager courant (Objet contenant les propriétés `install`, `installDev`, `remove`, `update`, `execute`, `globalOption`) |
+| `$PACKAGE_MANAGER`            | Le nom du package manager utilisé                                                                                                                     |
+| `$PROJECT_DIRECTORY`          | Le chemin absolu du répertoire courant du projet                                                                                                      |
+| `$RECIPE_DIRECTORY`           | Le chemin absolu du répertoire de la recette                                                                                                          |
+| `$RELATIVE_PROJECT_DIRECTORY` | Le chemin relatif au chemin d'exécution de Codx du répertoire courant du projet                                                                       |
 | true                          | Vaut `true`                                                                                                                                           |
 | false                         | Vaut `false`                                                                                                                                          |
 

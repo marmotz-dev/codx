@@ -84,8 +84,8 @@ You can use different operators and expressions in your conditions:
 Examples:
 
 ```yaml
-condition: 'instanceOf(error, "FileNotFoundCodxError")'
-condition: 'instanceOf(error, "HttpErrorCodxError")'
+condition: 'instanceOf($ERROR, "FileNotFoundCodxError")'
+condition: 'instanceOf($ERROR, "HttpErrorCodxError")'
 ```
 
 ### Examples of Complex Expressions

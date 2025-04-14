@@ -10303,9 +10303,25 @@ class Store {
     }
     this.setVariable(name, value);
   }
+  unset(name) {
+    if (name.startsWith("$")) {
+      throw new CodxError(`Cannot unset internal variable "${name}"`);
+    }
+    this.unsetVariable(name);
+  }
+  unsetInternal(name) {
+    if (!name.startsWith("$")) {
+      throw new CodxError(`Cannot unset an internal variable that does not start with a $ "${name}"`);
+    }
+    this.unsetVariable(name);
+  }
   setVariable(name, value) {
     this.variables[name] = value;
     this.logger.debug(`Variable "${name}" set to ${JSON.stringify(value, undefined, 2)}`);
+  }
+  unsetVariable(name) {
+    delete this.variables[name];
+    this.logger.debug(`Variable "${name}" unset`);
   }
 }
 Store = __legacyDecorateClassTS([
@@ -28021,7 +28037,7 @@ class RecipeRunner {
       }
       await this.handleStepSuccess(step);
     } catch (error3) {
-      this.context.store.set("error", error3);
+      this.context.store.setInternal("$ERROR", error3);
       if (step.onFailure) {
         await this.handleStepError(step);
       } else {
@@ -28031,6 +28047,7 @@ class RecipeRunner {
       if (workingDirectory && workingDirectory === this.context.projectDirectory.get()) {
         this.context.projectDirectory.change(currentWorkingDirectory);
       }
+      this.context.store.unsetInternal("$ERROR");
     }
   }
   async executeSteps(steps) {

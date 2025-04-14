@@ -26,14 +26,14 @@ steps:
         - "some-package"
     onFailure:
       - name: "Handle package manager not found"
-        condition: 'instanceOf(error, "PackageManagerNotFoundCodxError")'
+        condition: 'instanceOf($ERROR, "PackageManagerNotFoundCodxError")'
         action:
           type: "message"
           content: "Package manager not found. Please install npm or yarn."
           style: "error"
 
       - name: "Handle other errors"
-        condition: 'not instanceOf(error, "PackageManagerNotFoundCodxError")'
+        condition: 'not instanceOf($ERROR, "PackageManagerNotFoundCodxError")'
         action:
           type: "message"
           content: "An error occurred: {{error.message}}"

@@ -87,6 +87,30 @@ export class Store {
   }
 
   /**
+   * Unsets a variable from the store
+   * @param name Name of the variable
+   */
+  public unset(name: string): void {
+    if (name.startsWith('$')) {
+      throw new CodxError(`Cannot unset internal variable "${name}"`);
+    }
+
+    this.unsetVariable(name);
+  }
+
+  /**
+   * Unsets an internal variable from the store
+   * @param name Name of the variable
+   */
+  public unsetInternal(name: string): void {
+    if (!name.startsWith('$')) {
+      throw new CodxError(`Cannot unset an internal variable that does not start with a $ "${name}"`);
+    }
+
+    this.unsetVariable(name);
+  }
+
+  /**
    * Sets a variable in the store
    * @param name Name of the variable
    * @param value Value of the variable
@@ -95,5 +119,15 @@ export class Store {
     this.variables[name] = value;
 
     this.logger.debug(`Variable "${name}" set to ${JSON.stringify(value, undefined, 2)}`);
+  }
+
+  /**
+   * Unsets a variable from the store
+   * @param name Name of the variable
+   */
+  private unsetVariable(name: string): void {
+    delete this.variables[name];
+
+    this.logger.debug(`Variable "${name}" unset`);
   }
 }

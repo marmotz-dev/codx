@@ -29,14 +29,14 @@ steps:
         - "some-package"
     onFailure:
       - name: "Gérer le gestionnaire de packages non trouvé"
-        condition: 'instanceOf(error, "PackageManagerNotFoundCodxError")'
+        condition: 'instanceOf($ERROR, "PackageManagerNotFoundCodxError")'
         action:
           type: "message"
           content: "Gestionnaire de packages non trouvé. Veuillez installer npm ou yarn."
           style: "error"
 
       - name: "Gérer les autres erreurs"
-        condition: 'not instanceOf(error, "PackageManagerNotFoundCodxError")'
+        condition: 'not instanceOf($ERROR, "PackageManagerNotFoundCodxError")'
         action:
           type: "message"
           content: "Une erreur s'est produite : {{error.message}}"

@@ -151,7 +151,8 @@ describe('RecipeRunner', () => {
     };
 
     spyOn(actionFactory, 'createAction').mockReturnValueOnce(mockMainAction).mockReturnValueOnce(mockFailureAction);
-    spyOn(store, 'set').mockImplementation(() => {});
+    spyOn(store, 'setInternal').mockImplementation(() => {});
+    spyOn(store, 'unsetInternal').mockImplementation(() => {});
 
     const recipe = {
       description: 'A test recipe',
@@ -166,7 +167,8 @@ describe('RecipeRunner', () => {
     await recipeRunner.run(recipe);
 
     expect(mockMainAction.execute).toHaveBeenCalled();
-    expect(store.set).toHaveBeenCalledWith('error', testError);
+    expect(store.setInternal).toHaveBeenCalledWith('$ERROR', testError);
+    expect(store.unsetInternal).toHaveBeenCalledWith('$ERROR');
   });
 
   test('should save action return value to the specified variable', async () => {

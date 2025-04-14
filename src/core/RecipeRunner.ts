@@ -101,7 +101,7 @@ export class RecipeRunner {
       await this.handleStepSuccess(step);
     } catch (error) {
       // Store the error in the context for use in conditions
-      this.context.store.set('error', error);
+      this.context.store.setInternal('$ERROR', error);
 
       if (step.onFailure) {
         await this.handleStepError(step);
@@ -113,6 +113,9 @@ export class RecipeRunner {
       if (workingDirectory && workingDirectory === this.context.projectDirectory.get()) {
         this.context.projectDirectory.change(currentWorkingDirectory);
       }
+
+      // Remove the error
+      this.context.store.unsetInternal('$ERROR');
     }
   }
 
