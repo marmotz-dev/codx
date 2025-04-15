@@ -1,6 +1,5 @@
 import { CommandAction } from '@/actions/command/CommandAction';
 import { CommandActionData } from '@/actions/command/CommandAction.schema';
-import { Context } from '@/core/Context';
 import { diContainer } from '@/di/Container';
 import { describe, expect, mock, test } from 'bun:test';
 
@@ -11,7 +10,7 @@ describe('CommandAction', () => {
     const executeCommandSpy = mock();
 
     // Create a CommandAction instance with the spy
-    const action = new CommandAction(diContainer.get(Context));
+    const action = diContainer.get(CommandAction);
 
     // Replace the executeCommand method with our spy
     (action as any).executeCommand = executeCommandSpy;
@@ -33,7 +32,7 @@ describe('CommandAction', () => {
     const executeCommandSpy = mock();
 
     // Create a CommandAction instance with the spy
-    const action = new CommandAction(diContainer.get(Context));
+    const action = diContainer.get(CommandAction);
 
     // Replace the executeCommand method with our spy
     (action as any).executeCommand = executeCommandSpy;

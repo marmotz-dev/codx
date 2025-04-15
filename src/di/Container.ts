@@ -1,4 +1,5 @@
-import { CodxError } from '@/core/CodxError';
+import { DependencyNotFoundCodxError } from '@/core/errors/DependencyNotFoundCodxError';
+import { InstantiationFailedCodxError } from '@/core/errors/InstantiationFailedCodxError';
 import { Constructor } from '@/di/Constructor.type';
 import { injectionRegistry } from '@/di/InjectionRegistry';
 
@@ -15,10 +16,10 @@ class DIContainer {
 
           this.dependencies.set(token, dependency);
         } catch (error) {
-          throw new CodxError(`Unable to instanciate ${token.name}`, error);
+          throw new InstantiationFailedCodxError(token.name, error);
         }
       } else {
-        throw new CodxError(`Dependency not found for the token: ${token}`);
+        throw new DependencyNotFoundCodxError(token);
       }
     }
 

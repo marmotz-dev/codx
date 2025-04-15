@@ -1,4 +1,6 @@
-import { CodxError } from '@/core/CodxError';
+import { DirectoryNotFoundCodxError } from '@/core/errors/DirectoryNotFoundCodxError';
+import { NotADirectoryCodxError } from '@/core/errors/NotADirectoryCodxError';
+import { PathOutsideWorkingDirectoryCodxError } from '@/core/errors/PathOutsideWorkingDirectoryCodxError';
 import { IObserver } from '@/core/Observer.interface';
 import { existsSync, statSync } from 'node:fs';
 import { isAbsolute, resolve } from 'node:path';
@@ -61,7 +63,7 @@ export class WorkingDirectory {
     const newPath = isAbsolute(path) ? resolve(path) : resolve(this.currentDirectory, path);
 
     if (!this.isAllowedPath(newPath)) {
-      throw new CodxError('Path is outside of the current working directory');
+      throw new PathOutsideWorkingDirectoryCodxError(newPath);
     }
 
     return newPath;
@@ -79,13 +81,13 @@ export class WorkingDirectory {
   protected validateDirectory(directoryPath: string): void {
     // Check if the directory exists
     if (!existsSync(directoryPath)) {
-      throw new CodxError(`Directory "${directoryPath}" does not exist`);
+      throw new DirectoryNotFoundCodxError(directoryPath);
     }
 
     // Check if the path is a directory
     const stats = statSync(directoryPath);
     if (!stats.isDirectory()) {
-      throw new CodxError(`"${directoryPath}" is not a directory`);
+      throw new NotADirectoryCodxError(directoryPath);
     }
   }
 }

@@ -1,4 +1,7 @@
-import { CodxError } from '@/core/CodxError';
+import { CannotSetInternalVariableCodxError } from '@/core/errors/CannotSetInternalVariableCodxError';
+import { CannotSetInternalVariableWithInvalidNameCodxError } from '@/core/errors/CannotSetInternalVariableWithInvalidNameCodxError';
+import { CannotUnsetInternalVariableCodxError } from '@/core/errors/CannotUnsetInternalVariableCodxError';
+import { CannotUnsetInternalVariableWithInvalidNameCodxError } from '@/core/errors/CannotUnsetInternalVariableWithInvalidNameCodxError';
 import { Logger } from '@/core/Logger';
 import { VariablesInterpolator } from '@/core/VariablesInterpolator';
 import { Inject } from '@/di/InjectDecorator';
@@ -67,7 +70,7 @@ export class Store {
    */
   public set(name: string, value: any): void {
     if (name.startsWith('$')) {
-      throw new CodxError(`Cannot set internal variable "${name}"`);
+      throw new CannotSetInternalVariableCodxError(name);
     }
 
     this.setVariable(name, value);
@@ -80,7 +83,7 @@ export class Store {
    */
   public setInternal(name: string, value: any): void {
     if (!name.startsWith('$')) {
-      throw new CodxError(`Cannot set an internal variable that does not start with a $ "${name}"`);
+      throw new CannotSetInternalVariableWithInvalidNameCodxError(name);
     }
 
     this.setVariable(name, value);
@@ -92,7 +95,7 @@ export class Store {
    */
   public unset(name: string): void {
     if (name.startsWith('$')) {
-      throw new CodxError(`Cannot unset internal variable "${name}"`);
+      throw new CannotUnsetInternalVariableCodxError(name);
     }
 
     this.unsetVariable(name);
@@ -104,7 +107,7 @@ export class Store {
    */
   public unsetInternal(name: string): void {
     if (!name.startsWith('$')) {
-      throw new CodxError(`Cannot unset an internal variable that does not start with a $ "${name}"`);
+      throw new CannotUnsetInternalVariableWithInvalidNameCodxError(name);
     }
 
     this.unsetVariable(name);

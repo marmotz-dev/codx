@@ -1,5 +1,6 @@
 import { BaseCommand } from '@/cli/BaseCommand';
-import { CodxError } from '@/core/CodxError';
+import { NoPackagesFoundCodxError } from '@/core/errors/NoPackagesFoundCodxError';
+import { NpmSearchFailedCodxError } from '@/core/errors/NpmSearchFailedCodxError';
 import { Logger } from '@/core/Logger';
 import { diContainer } from '@/di/Container';
 import chalk from 'chalk';
@@ -88,13 +89,13 @@ export class SearchCommand extends BaseCommand {
     const response = await fetch(url);
 
     if (!response.ok) {
-      throw new CodxError(`Failed to search npm packages: ${response.status} ${response.statusText}`);
+      throw new NpmSearchFailedCodxError(response.status, response.statusText);
     }
 
     const data = (await response.json()) as NpmPackagesResponse;
 
     if (data.objects.length === 0) {
-      throw new CodxError(`No packages found matching "${searchTerm}"`);
+      throw new NoPackagesFoundCodxError(searchTerm);
     }
 
     data.objects = data.objects.filter((pkg) => {

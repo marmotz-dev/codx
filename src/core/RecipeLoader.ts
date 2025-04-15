@@ -1,4 +1,12 @@
-import { CodxError } from '@/core/CodxError';
+import { DownloadFailedCodxError } from '@/core/errors/DownloadFailedCodxError';
+import { FetchFailedCodxError } from '@/core/errors/FetchFailedCodxError';
+import { FileNotFoundCodxError } from '@/core/errors/FileNotFoundCodxError';
+import { HttpErrorCodxError } from '@/core/errors/HttpErrorCodxError';
+import { InvalidRecipeSchemaCodxError } from '@/core/errors/InvalidRecipeSchemaCodxError';
+import { RecipeFindFailedCodxError } from '@/core/errors/RecipeFindFailedCodxError';
+import { RecipeLoadFailedCodxError } from '@/core/errors/RecipeLoadFailedCodxError';
+import { TarballExtractionFailedCodxError } from '@/core/errors/TarballExtractionFailedCodxError';
+import { TarballUrlFetchFailedCodxError } from '@/core/errors/TarballUrlFetchFailedCodxError';
 import { Logger } from '@/core/Logger.js';
 import { Recipe, RecipeSchema } from '@/core/Recipe.schema';
 import { RecipeDirectory } from '@/core/RecipeDirectory';
@@ -11,7 +19,6 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { Readable } from 'node:stream';
 import { extract } from 'tar';
-import { z } from 'zod';
 
 export class RecipeLoader {
   constructor(
@@ -46,7 +53,7 @@ export class RecipeLoader {
     this.logger.message(`${'Recipe file'.padEnd(titleLength, '.')} : ${chalk.gray(recipePath)}`);
 
     if (!existsSync(recipePath)) {
-      throw new CodxError(`Recipe file not found: ${recipePath}`);
+      throw new FileNotFoundCodxError(recipePath);
     }
 
     this.recipeDirectory.init(recipeDir);
@@ -74,7 +81,7 @@ export class RecipeLoader {
     const packageInfo = await this.fetchJson(registryUrl);
 
     if (!packageInfo?.dist?.tarball) {
-      throw new CodxError(`Failed to get tarball URL for ${packageName}@${version}`);
+      throw new TarballUrlFetchFailedCodxError(packageName, version);
     }
 
     const tarballUrl = packageInfo.dist.tarball;
@@ -99,7 +106,7 @@ export class RecipeLoader {
     const response = await fetch(url);
 
     if (!response.ok) {
-      throw new CodxError(`HTTP Error: ${response.status} ${response.statusText}`);
+      throw new HttpErrorCodxError(response.status, response.statusText);
     }
 
     const fileStream = createWriteStream(destination);
@@ -118,7 +125,7 @@ export class RecipeLoader {
         });
         fileStream.on('error', (error) => {
           fileStream.close();
-          reject(new CodxError(`Failed to download ${url}`, error));
+          reject(new DownloadFailedCodxError(url, error));
         });
       });
     }
@@ -136,7 +143,7 @@ export class RecipeLoader {
         cwd: destination,
       });
     } catch (error) {
-      throw new CodxError('Failed to extract tarball', error);
+      throw new TarballExtractionFailedCodxError(error);
     }
   }
 
@@ -149,7 +156,7 @@ export class RecipeLoader {
     const response = await fetch(url);
 
     if (!response.ok) {
-      throw new CodxError(`Failed to fetch ${url}: ${response.status} ${response.statusText}`);
+      throw new FetchFailedCodxError(url, response.status, response.statusText);
     }
 
     return await response.json();
@@ -176,19 +183,12 @@ export class RecipeLoader {
 
       recipe = load(fileContent) as Recipe;
     } catch (error) {
-      throw new CodxError('Failed to load recipe', error);
+      throw new RecipeLoadFailedCodxError(error);
     }
 
     const result = RecipeSchema.safeParse(recipe);
     if (!result.success) {
-      throw new CodxError(
-        'Invalid recipe schema:\n' +
-          z
-            .prettifyError(result.error)
-            .split('\n')
-            .map((line) => `  ${line}`)
-            .join('\n'),
-      );
+      throw new InvalidRecipeSchemaCodxError(result.error);
     }
 
     return result.data;
@@ -211,7 +211,7 @@ export class RecipeLoader {
     try {
       return resolve(recipePath);
     } catch (error) {
-      throw new CodxError('Failed to find recipe', error);
+      throw new RecipeFindFailedCodxError(error);
     }
   }
 }

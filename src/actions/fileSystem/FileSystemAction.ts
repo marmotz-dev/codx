@@ -7,12 +7,11 @@ import {
   FileSystemActionMkdirData,
   FileSystemActionMoveData,
 } from '@/actions/fileSystem/FileSystemAction.schema';
-import { CodxError } from '@/core/CodxError';
 import { DestinationFileAlreadyExistsCodxError } from '@/core/errors/DestinationFileAlreadyExistsCodxError';
 import { DirectoryCreationCodxError } from '@/core/errors/DirectoryCreationCodxError';
 import { MissingDestinationPathCodxError } from '@/core/errors/MissingDestinationPathCodxError';
 import { MissingSourcePathCodxError } from '@/core/errors/MissingSourcePathCodxError';
-import { OutsideSourceFileCodxError } from '@/core/errors/OutsideSourceFileCodxError';
+import { PathOutsideWorkingDirectoryCodxError } from '@/core/errors/PathOutsideWorkingDirectoryCodxError';
 import { SourceFileNotFoundCodxError } from '@/core/errors/SourceFileNotFoundCodxError';
 import { UnknownOperationCodxError } from '@/core/errors/UnknownOperationCodxError';
 import { copyFileSync, existsSync, mkdirSync, renameSync, unlinkSync } from 'node:fs';
@@ -79,7 +78,7 @@ export class FileSystemAction extends BaseAction {
     }
 
     if (!sourcePath || !existsSync(sourcePath)) {
-      throw new OutsideSourceFileCodxError(interpolatedSourcePath);
+      throw new PathOutsideWorkingDirectoryCodxError(interpolatedSourcePath);
     }
 
     const interpolatedDestinationPath = this.interpolate(destination);
@@ -230,9 +229,7 @@ export class FileSystemAction extends BaseAction {
       if (overwrite) {
         overwritten = true;
       } else {
-        throw new CodxError(
-          `Destination "${destinationPath}" already exists and the "overwrite" option is not enabled.`,
-        );
+        throw new DestinationFileAlreadyExistsCodxError(destinationPath);
       }
     }
 
