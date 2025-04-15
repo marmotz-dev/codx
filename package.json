@@ -7,7 +7,7 @@
     "codx": "./dist/cli.js"
   },
   "scripts": {
-    "generate:cli": "bun build src/cli.ts --target=node --format=esm --outdir=./dist --env=disable",
+    "generate:cli": "bun build src/cli.ts --target=node --format=esm --outdir=./dist --minify --env=disable",
     "generate:cli:watch": "bun run generate:cli --watch",
     "generate:json-schema": "bun run src/generateRecipeJsonSchema.ts dist/codx-schema.json",
     "generate:json-schema:watch": "bun --watch src/generateRecipeJsonSchema.ts dist/codx-schema.json",

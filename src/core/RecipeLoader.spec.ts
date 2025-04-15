@@ -154,7 +154,7 @@ describe('RecipeLoader', () => {
     const yamlPath = '/path/to/nonexistent.yml';
     (existsSync as Mock<() => false>).mockReturnValue(false);
 
-    expect(recipeLoader.loadByNameOrPath(yamlPath)).rejects.toThrow(`Recipe file not found: ${yamlPath}`);
+    expect(recipeLoader.loadByNameOrPath(yamlPath)).rejects.toThrow(`File "${yamlPath}" does not exist.`);
   });
 
   describe('loadRecipe', () => {

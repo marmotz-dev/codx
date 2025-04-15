@@ -38,7 +38,7 @@ describe('RunCommand', () => {
     diContainer.register(RecipeLoader, mockRecipeLoader);
     diContainer.register(RecipeRunner, mockRecipeRunner);
 
-    runCommand = new RunCommand();
+    runCommand = diContainer.get(RunCommand);
   });
 
   afterEach(() => {

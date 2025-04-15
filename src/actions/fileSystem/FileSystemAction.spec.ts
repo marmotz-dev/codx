@@ -8,7 +8,7 @@ import { DestinationFileAlreadyExistsCodxError } from '@/core/errors/Destination
 import { DirectoryCreationCodxError } from '@/core/errors/DirectoryCreationCodxError';
 import { MissingDestinationPathCodxError } from '@/core/errors/MissingDestinationPathCodxError';
 import { MissingSourcePathCodxError } from '@/core/errors/MissingSourcePathCodxError';
-import { OutsideSourceFileCodxError } from '@/core/errors/OutsideSourceFileCodxError';
+import { PathOutsideWorkingDirectoryCodxError } from '@/core/errors/PathOutsideWorkingDirectoryCodxError';
 import { SourceFileNotFoundCodxError } from '@/core/errors/SourceFileNotFoundCodxError';
 import { UnknownOperationCodxError } from '@/core/errors/UnknownOperationCodxError';
 import { Store } from '@/core/Store';
@@ -162,9 +162,9 @@ describe('FileSystemAction', () => {
         destination: mockDestinationPath,
       } as FileSystemActionData;
 
-      expect(action.execute(actionData)).rejects.toThrow(OutsideSourceFileCodxError);
+      expect(action.execute(actionData)).rejects.toThrow(PathOutsideWorkingDirectoryCodxError);
       expect(action.execute(actionData)).rejects.toThrow(
-        `Source file "${mockAbsoluteSourcePath}" is neither in the recipe directory nor in the project directory.`,
+        `Path "${mockAbsoluteSourcePath}" is outside of the current working directory.`,
       );
     });
 
@@ -398,9 +398,9 @@ describe('FileSystemAction', () => {
         destination: mockDestinationPath,
       } as FileSystemActionCopyData;
 
-      expect(() => (action as any).checkCreateAndGetPath(actionData)).toThrow(OutsideSourceFileCodxError);
+      expect(() => (action as any).checkCreateAndGetPath(actionData)).toThrow(PathOutsideWorkingDirectoryCodxError);
       expect(() => (action as any).checkCreateAndGetPath(actionData)).toThrow(
-        `Source file "${mockAbsoluteSourcePath}" is neither in the recipe directory nor in the project directory.`,
+        `Path "${mockAbsoluteSourcePath}" is outside of the current working directory.`,
       );
     });
 
